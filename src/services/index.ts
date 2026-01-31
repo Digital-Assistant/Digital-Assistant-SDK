@@ -1,134 +1,61 @@
-import TSON from "typescript-json";
-import {CustomConfig} from "../config/CustomConfig";
-import {getFromStore} from "../util";
-import {CONFIG} from "../config";
-import {trigger} from "../util/events";
+// Export the API client and related types
+export { ApiClient, apiClient } from './apiClient';
+export type { ApiClientConfig, ApiResponse, ApiError } from './apiClient';
 
-global.UDAGlobalConfig = CustomConfig;
+// Export SearchService functions (direct usage)
+export { TranslateService } from './TranslateService';
+export {
+  fetchSearchResults,
+  fetchRecord,
+  fetchSpecialNodes
+} from './SearchService';
+export type {
+  SearchRequest,
+  RecordRequest
+} from './SearchService';
 
-/**
- * common REST call
- * @options : object (properties needed for REST call)
- */
-export const apiCal = (options: any) => {
-  const requestOptions = {
-    method: options.method,
-    headers: getHTTPHeaders("json", options?.headers),
-    body: options.body ? TSON.stringify(options.body) : null,
-  };
+// Export RecordService functions
+export {
+  recordClicks,
+  updateRecordClicks,
+  updateSequnceIndex,
+  recordSequence,
+  postRecordSequenceData,
+  updateRecordSequenceData,
+  prepareRecordSequencePayload,
+  // userClick as recordUserClick, // alias to avoid clash with trackingService export name
+  deleteRecording,
+  updateRecording,
+  fetchStatuses,
+  profanityCheck,
+} from './RecordService';
 
-  const baseProdURL = process.env.baseProdURL;
-  const baseTestURL = process.env.baseTestURL;
+// Export user services
+export { getUserId, getSessionKey, getUserSessionId } from './userService';
 
-  let baseURL = baseProdURL;
-  let url;
+// Export tracking services
+export { recordUserClickData, userClick } from './trackingService';
 
-  if(options.url.indexOf("http") === -1){
-    if(global.UDAGlobalConfig.environment === 'TEST'){
-      baseURL = baseTestURL;
-    }
-    url = baseURL+options.url;
-  } else {
-    url = options.url;
-  }
+// Export user vote services
+export * from './UserVote';
 
-  return fetch(url, requestOptions)
-    .then((response) => {
-      //throw route to login if unauthorized response received
-      switch (response?.status) {
-        case 401:
-          // localStorage.clear();
-            trigger('UDAGetNewToken', {detail: {data: "UDAGetNewToken"}});
-          break;
-        case 200:
-          return options?.responseType == "text" ? response.text() : response.json();
-          break;
-        case 204:
-          return null;
-          break;
-      }
-      /*if (response?.status == 401) {
-        localStorage.clear();
-      }
-      if(response?.status == 200) {
-        return options?.responseType == "text"
-            ? response.text()
-            : response.json();
-      } else {
-        return response;
-      }*/
-    })
-    .then((json) => {
-      return json;
-    })
-    .catch((error) => {
-      return error;
-    });
-}
+// Export StepEditingService functions (with aliases to avoid conflicts with Redux actions)
+export {
+  validateStepNameWithProfanity,
+  updateStepMetadata,
+  toggleSkipDuringPlay,
+  togglePersonalInfo,
+  updateTooltipMetadata,
+  updateDelayTimeMetadata,
+  updateCustomMetadata as updateCustomMetadataService,  // Aliased to avoid conflict
+  saveStepChanges,
+  updateStepName as updateStepNameService,  // Aliased to avoid conflict
+} from './StepEditingService';
+export type {
+  UpdateMetadataParams,
+  SaveStepParams,
+  ServiceResult,
+} from './StepEditingService';
 
-/**
- * common sync REST call
- * @options : object (properties needed for REST call)
- */
-export const syncApiCal = async (options: any) => {
-  const requestOptions = {
-    method: options.method,
-    headers: getHTTPHeaders("json"),
-    body: options.body ? TSON.stringify(options.body) : null,
-  };
-
-  let response: any = {};
-  try {
-    response = await fetch(options.url, requestOptions);
-    return await response?.json();
-  } catch (e) {}
-}
-
-/**
- * @objective To set autherization token for all outgoing REST calls
- * @param contentType
- * @param additionalHeaders
- * @returns HTTP headers
- */
-export const getHTTPHeaders = (contentType: string, additionalHeaders: any = null) => {
-
-  let userAuthData = getFromStore(CONFIG.USER_AUTH_DATA_KEY, false);
-
-  const headers = new Headers();
-  if (contentType === "json")
-    headers.append("Content-Type", "application/json");
-
-  if(userAuthData && userAuthData.authData.token){
-    headers.append("Authorization", `Bearer ${userAuthData.authData.token}`);
-  }
-
-  if(global.UDAGlobalConfig.realm !== 'UDAN'){
-    headers.append("UDAN-Realm", `${global.UDAGlobalConfig.realm}`);
-  }
-
-  if(additionalHeaders){
-    return additionalHeaders;
-  }
-
-  return headers;
-}
-
-/**
- * @obective to replace static query params with dynamic values
- * @param url
- * @param val
- * @returns reconstructed url
- */
-export const processArgs1 = (url: string, val: any) => {
-  return url?.replace(/#([^#]+)#/g, (_, key) => val[key] !== undefined ? val[key] : "");
-}
-
-export {recordUserClickData} from "./recordService";
-export {postRecordSequenceData} from "./recordService";
-export {saveClickData} from "./recordService";
-
-export const REST = {
-  apiCal,
-  syncApiCal,
-  processArgs: processArgs1,
-};
+// Export AuthManager
+export * from './AuthManager';
