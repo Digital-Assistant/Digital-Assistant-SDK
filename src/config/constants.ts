@@ -288,13 +288,13 @@ export const CONFIG: ConfigType = {
     },
     cspUserAcceptance: {
         storageName: "uda-csp-enabled",
-        data: {proceed: true},
+        data: { proceed: true },
     },
     screenAcceptance: {
         storageName: "uda-user-screen-consent",
-        data: {proceed: true},
+        data: { proceed: true },
     },
     //Node related config
     playNextAction: true,
-    navigatedToNextPage: {check: false, url: ''}
+    navigatedToNextPage: { check: false, url: '' }
 };

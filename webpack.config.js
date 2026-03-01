@@ -99,6 +99,7 @@ module.exports = (env, argv) => {
                 },
             ],
         },
+
         plugins: [
             // Provide global variables for browser environments
             new webpack.ProvidePlugin({
@@ -116,6 +117,19 @@ module.exports = (env, argv) => {
                 defaults: false,
                 ignoreStub: true,
             }),
+            // Disable code splitting to prevent "lazy import" issues in consuming apps
+            new webpack.optimize.LimitChunkCountPlugin({
+                maxChunks: 1,
+            }),
+            // Restrict dynamic import contexts to .js files to prevent .d.ts bundling issues in consumers
+            new webpack.ContextReplacementPlugin(
+                /./,
+                (context) => {
+                    if (context.regExp && context.regExp.toString().includes('^\\.\\/.*$')) {
+                        context.regExp = /^\.\/.*\.js$/;
+                    }
+                }
+            )
         ],
         optimization: {
             minimize: isProduction,
@@ -124,6 +138,7 @@ module.exports = (env, argv) => {
                     terserOptions: { compress: { drop_console: isProduction } },
                 }),
             ],
+            splitChunks: false,
         },
         // Use filesystem cache for faster rebuilds
         cache: { type: 'filesystem' },

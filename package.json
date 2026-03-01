@@ -10,6 +10,14 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
       "require": "./dist/index.cjs.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/index.d.ts"
+      ]
     }
   },
   "files": [
@@ -66,6 +74,7 @@
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-typescript": "^7.24.0",
     "@types/axios": "^0.9.36",
+    "@types/detect-browser": "^3.0.0",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.0",
     "@types/node": "^20.11.24",
