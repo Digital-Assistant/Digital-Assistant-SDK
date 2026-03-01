@@ -1,5 +1,6 @@
 dist/*
 node_modules/
+!environments/local.env
 environments/*
 package-lock.json
 .venv/*
