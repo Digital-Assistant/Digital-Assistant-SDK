@@ -28,6 +28,8 @@ export {
   updateRecording,
   fetchStatuses,
   profanityCheck,
+  startRecording,
+  cancelRecording,
 } from './RecordService';
 
 // Export user services

@@ -4,6 +4,8 @@ import { getSessionKey, getUserId } from './userService';
 import { processUrlArgs } from '../util/urlProcessing';
 import { StorageUtil } from '../util/storage';
 import { CONFIG } from '../config/constants';
+import { addBodyEvents } from '../util/recording/addBodyEvents';
+import { fetchDomain } from '../util/fetchDomain';
 
 /**
  * Core RecordService
@@ -120,10 +122,10 @@ export const prepareRecordSequencePayload = async (request: any): Promise<any> =
   const userclicknodesSet = request.userclicknodesSet ?? (await StorageUtil.get(CONFIG.RECORDING_SEQUENCE)) ?? [];
   const ids: string[] = (userclicknodesSet || []).map((item: any) => String(item.id)).filter(Boolean);
 
-  // Determine domain: prefer explicit request.domain, else window.location.host when available
+  // Determine domain: prefer explicit request.domain, else fetchDomain() result
   let domain = request.domain;
-  if (!domain && typeof window !== 'undefined' && window.location) {
-    domain = window.location.host;
+  if (!domain) {
+    domain = fetchDomain() || '';
   }
 
   return {
@@ -174,4 +176,59 @@ export type RecordService = {
   fetchStatuses: typeof fetchStatuses;
   profanityCheck: typeof profanityCheck;
   prepareRecordSequencePayload: typeof prepareRecordSequencePayload;
+  startRecording: typeof startRecording;
+  cancelRecording: typeof cancelRecording;
 };
+
+// ─── Recording Lifecycle ────────────────────────────────────────────────────
+
+/**
+ * Activates recording mode.
+ *
+ * - Sets the global `window.isRecording` and `CONFIG.isRecording` flags so
+ *   every SDK utility that checks recording state behaves correctly.
+ * - Persists the flag to SessionStorage via StorageUtil so it survives
+ *   panel re-renders.
+ * - Calls `addBodyEvents()` to attach click listeners to all DOM elements,
+ *   which is what causes user interactions to be captured.
+ */
+export const startRecording = async (): Promise<void> => {
+  // Set global flags (checked by SDK utilities)
+  if (typeof window !== 'undefined') {
+    (window as any).isRecording = true;
+    if (window.udanSelectedNodes === undefined) {
+      (window as any).udanSelectedNodes = [];
+    }
+  }
+  CONFIG.isRecording = true;
+
+  // Persist to storage so state survives re-renders
+  StorageUtil.setToStore(true, CONFIG.RECORDING_SWITCH_KEY, true);
+
+  // Attach click listeners to all DOM elements
+  await addBodyEvents();
+};
+
+/**
+ * Cancels / stops recording mode.
+ *
+ * - Clears global flags.
+ * - Removes recorded nodes from storage.
+ * - Clears the selected nodes list.
+ */
+export const cancelRecording = (): void => {
+  // Clear global flags
+  if (typeof window !== 'undefined') {
+    (window as any).isRecording = false;
+    if ((window as any).udanSelectedNodes) {
+      (window as any).udanSelectedNodes = [];
+    }
+  }
+  CONFIG.isRecording = false;
+
+  // Clear storage
+  StorageUtil.setToStore(false, CONFIG.RECORDING_SWITCH_KEY, true);
+  StorageUtil.setToStore([], CONFIG.RECORDING_SEQUENCE, false);
+  StorageUtil.setToStore('off', CONFIG.RECORDING_MANUAL_PLAY, true);
+};
+
