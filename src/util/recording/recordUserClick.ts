@@ -2,18 +2,18 @@
 // It performs various checks to determine if a click should be recorded, processes the node data,
 // and then saves the relevant information for later playback.
 
-import {CONFIG} from "../../config";
-import {nodeConfig} from "../node/nodeConfig";
-import {getClickedInputLabels} from "../node/getClickedInputLabels";
-import {saveClickData} from "./saveClickData";
-import {checkNodeValues} from "../node/checkNodeValues";
+import { CONFIG } from "../../config";
+import { nodeConfig } from "../node/nodeConfig";
+import { getClickedInputLabels } from "../node/getClickedInputLabels";
+import { saveClickData } from "./saveClickData";
+import { checkNodeValues } from "../node/checkNodeValues";
 import mapClickedElementToHtmlFormElement from "../recording/mapClickedElementToHtmlFormElement";
-import {addNotification} from "../notification/addNotification";
-import {translate} from "../translate/translation";
-import {UDAErrorLogger} from "../error/";
-import {StorageUtil} from "../storage";
-import {clickableElementExists} from "../node";
-import {setRecSequenceData, store} from "../../store";
+import { addNotification } from "../notification/addNotification";
+import { translate } from "../translate/translation";
+import { UDAErrorLogger } from "../error/";
+import { StorageUtil } from "../storage";
+import { clickableElementExists, trigger } from "../node";
+import { setRecSequenceData, store } from "../../store";
 
 /**
  * Records a user click event on a given DOM node.
@@ -154,6 +154,8 @@ export const recordUserClick = async (node: any, event: any) => {
         const state: any = (store as any).getState?.();
         const curr = state?.recording?.recSequenceData || [];
         (store as any).dispatch(setRecSequenceData([...curr, resp]));
+        console.log("SDK: Triggering updateRecordedData event");
+        trigger("updateRecordedData", {});
 
         // Display a success notification.
         addNotification(translate('clickAdded'), translate('clickAddedDescription'), 'success');
