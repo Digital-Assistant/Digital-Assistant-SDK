@@ -106,8 +106,19 @@ export const fetchStatuses = async (request: { category: string } = { category: 
  */
 export const profanityCheck = async (request: any): Promise<any> => {
   if (!request) throw new Error('Request object is required');
-  // Using apiClient.post without custom headers to keep SDK generic
-  const response = await apiClient.post(ENDPOINT.ProfanityCheck, request);
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'text/plain'
+  };
+
+  // If subscription key is available in config, append it as Ocp-Apim-Subscription-Key
+  if (CONFIG.profanity?.config?.key1) {
+    headers['Ocp-Apim-Subscription-Key'] = CONFIG.profanity.config.key1;
+  }
+
+  const response = await apiClient.post(ENDPOINT.ProfanityCheck, request, {
+    headers: headers
+  });
   return response.data;
 };
 
@@ -178,6 +189,79 @@ export type RecordService = {
   prepareRecordSequencePayload: typeof prepareRecordSequencePayload;
   startRecording: typeof startRecording;
   cancelRecording: typeof cancelRecording;
+  finalSaveSequence: typeof finalSaveSequence;
+};
+
+/**
+ * Orchestrates the final save of a sequence.
+ * 
+ * This includes saving any "dirty" clicks (those without an id) first,
+ * then updating the sequence payload and posting it.
+ * 
+ * @param request - The sequence metadata (name, domain, labels, permissions, etc.)
+ * @param recordData - The array of recorded click nodes (potentially unsaved)
+ * @param onProgress - Optional callback for progress updates (percent: 0-100)
+ * @returns Object containing the sequence response and updated recordData
+ */
+export const finalSaveSequence = async (
+  request: any,
+  recordData: any[],
+  onProgress?: (percent: number) => void
+): Promise<{ response: any; updatedRecordData: any[] }> => {
+  if (!request) throw new Error('Request object is required');
+  const totalSteps = recordData.length + 1; // +1 for the final sequence record
+  let savedSteps = 0;
+
+  const updateProgress = () => {
+    if (onProgress) {
+      onProgress(Math.ceil((savedSteps / totalSteps) * 100));
+    }
+  };
+
+  // 1. Save all unsaved clicks sequentially
+  const updatedRecordData = [...recordData];
+  for (let i = 0; i < updatedRecordData.length; i++) {
+    const clickData = updatedRecordData[i];
+    if (clickData?.id) {
+      savedSteps++;
+      updateProgress();
+      continue;
+    }
+
+    try {
+      const resp = await recordClicks(clickData);
+      if (resp?.id) {
+        updatedRecordData[i] = resp;
+        savedSteps++;
+        updateProgress();
+      } else {
+        throw new Error(`Failed to record click at index ${i}`);
+      }
+    } catch (error) {
+      console.error('SDK: Error saving individual click', error);
+      throw error;
+    }
+  }
+
+  // 2. Update storage with fully saved click data so it persists
+  await StorageUtil.add(updatedRecordData, CONFIG.RECORDING_SEQUENCE, false);
+
+  // 3. Prepare the sequence payload using the updated nodes
+  const payload = await prepareRecordSequencePayload({
+    ...request,
+    userclicknodesSet: updatedRecordData
+  });
+
+  // 4. Final sequence save
+  try {
+    const response = await recordSequence(payload);
+    savedSteps++;
+    updateProgress();
+    return { response, updatedRecordData };
+  } catch (error) {
+    console.error('SDK: Error saving final sequence', error);
+    throw error;
+  }
 };
 
 // ─── Recording Lifecycle ────────────────────────────────────────────────────

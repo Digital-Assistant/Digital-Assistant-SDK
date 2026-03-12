@@ -20,7 +20,7 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock console.error for graceful error handling tests
-const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
 // Declare variables for reducer and actions at a scope accessible by beforeEach
 let reducer: any;
@@ -102,10 +102,10 @@ describe('flowSlice', () => {
       recordSequenceDetailsVisibility: true,
     };
     localStorageMock.setItem('flowState', JSON.stringify(storedState));
-    
+
     // Get a fresh reducer instance with the stored state in localStorage
     const loadedReducer = getFreshReducer(JSON.stringify(storedState));
-    
+
     // The reducer's initial state should now be the stored state
     expect(loadedReducer(undefined, { type: '' })).toEqual(storedState);
     expect(localStorageMock.getItem).toHaveBeenCalledWith('flowState');
@@ -114,10 +114,10 @@ describe('flowSlice', () => {
   it('should handle localStorage errors gracefully when loading state', () => {
     // Get a fresh reducer instance that will throw an error during localStorage load
     const loadedReducer = getFreshReducer(null, true); // Pass true to throwErrorOnLoad
-    
+
     // The reducer's initial state should fall back to default
     expect(loadedReducer(undefined, { type: '' })).toEqual(defaultInitialState);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading flow state from localStorage:', expect.any(Error));
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading flowState from storage:', expect.any(Error));
   });
 
   it('should handle localStorage errors gracefully when saving state', () => {
@@ -125,7 +125,7 @@ describe('flowSlice', () => {
       throw new Error('localStorage write error');
     });
     const state = reducer(defaultInitialState, setSearchKeyword('new keyword'));
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Error saving flow state to localStorage:', expect.any(Error));
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error saving flowState to storage:', expect.any(Error));
     // State should still be updated even if saving fails
     expect(state.searchKeyword).toBe('new keyword');
   });

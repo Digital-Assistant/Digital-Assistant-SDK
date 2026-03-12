@@ -11,6 +11,7 @@ import {
   prepareRecordSequencePayload,
   postRecordSequenceData,
   updateRecordSequenceData,
+  finalSaveSequence,
 } from '../RecordService';
 import { apiClient } from '../apiClient';
 import { getSessionKey, getUserId } from '../userService';
@@ -157,11 +158,19 @@ describe('RecordService (core)', () => {
       await expect(profanityCheck()).rejects.toThrow('Request object is required');
     });
 
-    it('posts request body to endpoint and returns data', async () => {
+    it('posts request body to endpoint with headers and returns data', async () => {
       mockPost.mockResolvedValue({ data: { clean: true } });
       const body = { text: 'hello' };
       const res = await profanityCheck(body as any);
-      expect(mockPost).toHaveBeenCalledWith(ENDPOINT.ProfanityCheck, body);
+      expect(mockPost).toHaveBeenCalledWith(
+        ENDPOINT.ProfanityCheck,
+        body,
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            'Content-Type': 'text/plain'
+          })
+        })
+      );
       expect(res).toEqual({ clean: true });
     });
   });
@@ -263,5 +272,55 @@ describe('postRecordSequenceData and updateRecordSequenceData (core)', () => {
   it('throws when request is missing for updateRecordSequenceData', async () => {
     // @ts-expect-error
     await expect(updateRecordSequenceData()).rejects.toThrow('Request object is required');
+  });
+});
+
+describe('finalSaveSequence (core)', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (getUserId as jest.Mock).mockResolvedValue('user-1');
+  });
+
+  it('saves unsaved clicks and then the final sequence', async () => {
+    const recordData = [
+      { id: '101', name: 'Saved' },
+      { name: 'Unsaved' }
+    ];
+    const request = { name: 'New Sequence' };
+
+    // Mock recordClicks for the unsaved item
+    mockPost.mockImplementation((url, payload) => {
+      if (url === ENDPOINT.Record) {
+        return Promise.resolve({ data: { id: '102', ...payload } });
+      }
+      if (url === ENDPOINT.RecordSequence) {
+        return Promise.resolve({ data: { success: true } });
+      }
+      return Promise.reject(new Error('Unknown URL'));
+    });
+
+    const onProgress = jest.fn();
+    const result = await finalSaveSequence(request, recordData, onProgress);
+
+    // Should have called recordClicks for the unsaved item
+    expect(mockPost).toHaveBeenCalledWith(ENDPOINT.Record, expect.objectContaining({ name: 'Unsaved' }));
+
+    // Should have called recordSequence with both items (updated)
+    expect(mockPost).toHaveBeenCalledWith(ENDPOINT.RecordSequence, expect.objectContaining({
+      name: 'New Sequence',
+      userclicknodelist: '101,102',
+      usersessionid: 'user-1'
+    }));
+
+    expect(result.updatedRecordData[1].id).toBe('102');
+    expect(result.response.success).toBe(true);
+    expect(onProgress).toHaveBeenCalled();
+  });
+
+  it('handles error in individual click save', async () => {
+    const recordData = [{ name: 'Unsaved' }];
+    mockPost.mockRejectedValueOnce(new Error('Click save failed'));
+
+    await expect(finalSaveSequence({}, recordData)).rejects.toThrow('Click save failed');
   });
 });

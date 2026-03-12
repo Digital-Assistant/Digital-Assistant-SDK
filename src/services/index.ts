@@ -30,6 +30,7 @@ export {
   profanityCheck,
   startRecording,
   cancelRecording,
+  finalSaveSequence,
 } from './RecordService';
 
 // Export user services
@@ -49,6 +50,7 @@ export {
   togglePersonalInfo,
   updateTooltipMetadata,
   updateDelayTimeMetadata,
+  updateStepType,
   updateCustomMetadata as updateCustomMetadataService,  // Aliased to avoid conflict
   saveStepChanges,
   updateStepName as updateStepNameService,  // Aliased to avoid conflict

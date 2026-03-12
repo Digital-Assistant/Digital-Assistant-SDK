@@ -29,7 +29,7 @@ describe('searchNodes', () => {
     jest.restoreAllMocks();
   });
 
-  it('should return a single matched node', () => {
+  it('should return a single matched node', async () => {
     const recordedNode = { node: { objectdata: '{}' }, clickednodename: 'label' };
     const element = document.createElement('div');
     const compareElements = [{ node: element }];
@@ -38,11 +38,11 @@ describe('searchNodes', () => {
     domToJSONSpy.mockReturnValue({ node: { nodeName: 'DIV' } });
     compareNodesSpy.mockReturnValue({ matched: 1, count: 1, innerTextFlag: false, innerChildNodes: 0 });
 
-    const result = searchNodes(recordedNode, compareElements);
+    const result = await searchNodes(recordedNode, compareElements);
     expect(result).toBe(element);
   });
 
-  it('should return null if no nodes match', () => {
+  it('should return null if no nodes match', async () => {
     const recordedNode = { node: { objectdata: '{}' } };
     const compareElements = [{ node: document.createElement('div') }];
 
@@ -50,11 +50,11 @@ describe('searchNodes', () => {
     domToJSONSpy.mockReturnValue({ node: { nodeName: 'DIV' } });
     compareNodesSpy.mockReturnValue({ matched: 0, count: 1, innerTextFlag: false, innerChildNodes: 0 });
 
-    const result = searchNodes(recordedNode, compareElements);
+    const result = await searchNodes(recordedNode, compareElements);
     expect(result).toBeNull();
   });
 
-  it('should handle multiple matching nodes and resolve with labels', () => {
+  it('should handle multiple matching nodes and resolve with labels', async () => {
     const recordedNode = { node: { objectdata: '{}' }, clickednodename: 'label1' };
     const element1 = document.createElement('div');
     const element2 = document.createElement('div');
@@ -65,11 +65,11 @@ describe('searchNodes', () => {
     compareNodesSpy.mockReturnValue({ matched: 1, count: 1, innerTextFlag: false, innerChildNodes: 0 });
     getClickedInputLabelsSpy.mockImplementation(node => (node === element1 ? 'label1' : 'label2'));
 
-    const result = searchNodes(recordedNode, compareElements);
+    const result = await searchNodes(recordedNode, compareElements);
     expect(result).toBe(element1);
   });
 
-  it('should handle multiple matching nodes and resolve with distance', () => {
+  it('should handle multiple matching nodes and resolve with distance', async () => {
     const recordedNode = { node: { objectdata: '{}' }, clickednodename: 'label' };
     const element1 = document.createElement('div');
     const element2 = document.createElement('div');
@@ -81,7 +81,7 @@ describe('searchNodes', () => {
     getClickedInputLabelsSpy.mockReturnValue('label');
     processDistanceOfNodesSpy.mockReturnValue(element2);
 
-    const result = searchNodes(recordedNode, compareElements);
+    const result = await searchNodes(recordedNode, compareElements);
     expect(result).toBe(element2);
   });
 });

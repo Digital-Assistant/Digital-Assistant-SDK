@@ -62,8 +62,8 @@ describe('UDABindAccount', () => {
 
     it('should request a token with correct payload', async () => {
         (apiClient.post as jest.Mock)
-            .mockResolvedValueOnce({ token: 'new-token' })
-            .mockResolvedValueOnce({ success: true });
+            .mockResolvedValueOnce({ data: { token: 'new-token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
@@ -81,8 +81,8 @@ describe('UDABindAccount', () => {
 
     it('should update UDASessionData with the received token', async () => {
         (apiClient.post as jest.Mock)
-            .mockResolvedValueOnce({ token: 'received-token' })
-            .mockResolvedValueOnce({ success: true });
+            .mockResolvedValueOnce({ data: { token: 'received-token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
@@ -91,8 +91,8 @@ describe('UDABindAccount', () => {
 
     it('should call CheckUserSession with correct user session data', async () => {
         (apiClient.post as jest.Mock)
-            .mockResolvedValueOnce({ token: 'token' })
-            .mockResolvedValueOnce({ success: true });
+            .mockResolvedValueOnce({ data: { token: 'token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
@@ -107,8 +107,8 @@ describe('UDABindAccount', () => {
 
     it('should store session data and send it when CheckUserSession succeeds', async () => {
         (apiClient.post as jest.Mock)
-            .mockResolvedValueOnce({ token: 'token' })
-            .mockResolvedValueOnce({ success: true });
+            .mockResolvedValueOnce({ data: { token: 'token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
@@ -117,7 +117,7 @@ describe('UDABindAccount', () => {
     });
 
     it('should not proceed if token request returns no token', async () => {
-        (apiClient.post as jest.Mock).mockResolvedValueOnce({});
+        (apiClient.post as jest.Mock).mockResolvedValueOnce({ data: {} });
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
@@ -127,7 +127,7 @@ describe('UDABindAccount', () => {
     });
 
     it('should not proceed if token request returns null', async () => {
-        (apiClient.post as jest.Mock).mockResolvedValueOnce(null);
+        (apiClient.post as jest.Mock).mockResolvedValueOnce({ data: null });
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
@@ -137,8 +137,8 @@ describe('UDABindAccount', () => {
 
     it('should not store data if CheckUserSession fails', async () => {
         (apiClient.post as jest.Mock)
-            .mockResolvedValueOnce({ token: 'token' })
-            .mockResolvedValueOnce(null);
+            .mockResolvedValueOnce({ data: { token: 'token' } })
+            .mockResolvedValueOnce({ data: null });
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
@@ -148,8 +148,8 @@ describe('UDABindAccount', () => {
 
     it('should use getUDASessionName for storage key', async () => {
         (apiClient.post as jest.Mock)
-            .mockResolvedValueOnce({ token: 'token' })
-            .mockResolvedValueOnce({ success: true });
+            .mockResolvedValueOnce({ data: { token: 'token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
         (getUDASessionName as jest.Mock).mockReturnValue('custom-session-name');
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);

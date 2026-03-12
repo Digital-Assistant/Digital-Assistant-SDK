@@ -6,6 +6,7 @@
 
 import { updateRecordClicks, updateSequnceIndex } from './RecordService';
 import { profanityCheck } from './RecordService';
+import { CONFIG } from '../config/constants';
 import {
   validateStepName,
   validateTooltip,
@@ -29,6 +30,10 @@ export interface SaveStepParams {
   stepEditValue: string;
   isUpdateMode: boolean;
   recordingId?: number;
+  slowPlaybackTime?: number;
+  skipDuringPlay?: boolean;
+  isPersonal?: boolean;
+  tooltipInfo?: string;
 }
 
 export interface ServiceResult<T = any> {
@@ -69,22 +74,34 @@ export const validateStepNameWithProfanity = async (
     };
   }
 
+  let cleanedValue = value;
+
   // Check for profanity if enabled
-  if (enableProfanityCheck && value.trim()) {
+  if (value.trim() && (enableProfanityCheck || CONFIG.profanity?.enabled)) {
     try {
       const response = await profanityCheck(value);
       if (response.Terms && response.Terms.length > 0) {
+        // Clean the value by removing profanity terms
+        response.Terms.forEach((term: any) => {
+          // Escape special characters in terms to avoid regex issues
+          const escapedTerm = term.Term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const regex = new RegExp(escapedTerm, "gi");
+          cleanedValue = cleanedValue.replace(regex, "");
+        });
+        cleanedValue = cleanedValue.trim();
+
         return {
-          success: false,
+          success: true, // Return true as we've processed and cleaned the input
           data: {
             hasProfanity: true,
-            cleanedValue: value,
+            cleanedValue: cleanedValue,
           },
-          error: 'Profanity detected',
+          error: 'Profanity detected and removed',
         };
       }
     } catch (error) {
       console.error('Error checking profanity:', error);
+      // Fallback to original value if service fails
     }
   }
 
@@ -92,7 +109,7 @@ export const validateStepNameWithProfanity = async (
     success: true,
     data: {
       hasProfanity: false,
-      cleanedValue: value,
+      cleanedValue: cleanedValue,
     },
   };
 };
@@ -303,6 +320,53 @@ export const updateCustomMetadata = (
 };
 
 /**
+ * Update step type (Link/Highlight)
+ *
+ * @param recordData - Array of recording data
+ * @param index - Index of the step to update
+ * @param type - The type to set ('Link' or 'Highlight' or full element object string)
+ * @returns Updated recordData array
+ */
+export const updateStepType = (recordData: any[], index: number, type: string): any[] => {
+  const updatedRecordData = [...recordData];
+  try {
+    const nodeData = getObjData(updatedRecordData[index].objectdata);
+    if (!nodeData.meta) nodeData.meta = {};
+
+    // Check if type is a JSON string (for full element selection)
+    if (type.startsWith('{') && type.endsWith('}')) {
+      try {
+        const selectedElement = JSON.parse(type);
+        if (selectedElement.inputElement !== "") {
+          nodeData.meta.selectedElement = selectedElement;
+        }
+      } catch (e) {
+        console.error('Error parsing selected element JSON:', e);
+      }
+    } else if (type === 'Highlight') {
+      if (!nodeData.meta.selectedElement) nodeData.meta.selectedElement = {};
+      nodeData.meta.selectedElement.systemTag = 'highlight';
+    } else if (type === 'Link') {
+      if (nodeData.meta.selectedElement) {
+        delete nodeData.meta.selectedElement.systemTag;
+        if (Object.keys(nodeData.meta.selectedElement).length === 0) {
+          delete nodeData.meta.selectedElement;
+        }
+      }
+    }
+
+    updatedRecordData[index] = {
+      ...updatedRecordData[index],
+      objectdata: JSON.stringify(nodeData),
+    };
+    return updatedRecordData;
+  } catch (error) {
+    console.error('Error updating step type:', error);
+    return recordData;
+  }
+};
+
+/**
  * Save step changes
  * Handles both recording mode and update mode
  *
@@ -312,7 +376,17 @@ export const updateCustomMetadata = (
 export const saveStepChanges = async (
   params: SaveStepParams
 ): Promise<ServiceResult> => {
-  const { recordData, index, stepEditValue, isUpdateMode, recordingId } = params;
+  const {
+    recordData,
+    index,
+    stepEditValue,
+    isUpdateMode,
+    recordingId,
+    slowPlaybackTime,
+    skipDuringPlay,
+    isPersonal,
+    tooltipInfo,
+  } = params;
 
   try {
     // Create a copy of the current data
@@ -327,6 +401,12 @@ export const saveStepChanges = async (
     }
 
     nodeData.meta.displayText = stepEditValue;
+
+    // Apply additional metadata fields if provided
+    if (slowPlaybackTime !== undefined) nodeData.meta.slowPlaybackTime = slowPlaybackTime;
+    if (skipDuringPlay !== undefined) nodeData.meta.skipDuringPlay = skipDuringPlay;
+    if (isPersonal !== undefined) nodeData.meta.isPersonal = isPersonal;
+    if (tooltipInfo !== undefined) nodeData.meta.tooltipInfo = tooltipInfo;
 
     // Convert back to string and update the objectdata
     updatedRecordData[index] = {

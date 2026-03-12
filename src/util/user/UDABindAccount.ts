@@ -28,7 +28,7 @@ export const UDABindAccount = async (userAuthData: any, UDASessionData: UDASessi
     console.log(userSessionData);
     let response = await apiClient.post(ENDPOINT.CheckUserSession, userSessionData);
     console.log(response);
-    if (response) {
+    if (response && response.data) {
       await StorageUtil.add(UDASessionData, getUDASessionName());
       await UDASendSessionData(UDASessionData, "UDAAuthenticatedUserSessionData");
     }

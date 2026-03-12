@@ -36,13 +36,13 @@ export interface CustomConfigPropTypes {
 
 // assigning default values to the default configuration
 export const CustomConfig: CustomConfigPropTypes = {
-  enableEditClickedName: false, // Flag for editing the clicked element
-  enableSkipDuringPlay: false, // Flag for enabling skip functionality
+  enableEditClickedName: true, // Flag for editing the clicked element
+  enableSkipDuringPlay: true, // Flag for enabling skip functionality
   enableTooltipAddition: true, // Flag for adding custom tooltip information
   enableMultilingual: true, // Flag for enabling multilingual search with speech
   enableNodeTypeSelection: true, // Flag for enabling node type selection
-  enablePermissions: false, // Flag for enabling permissions addition
-  permissions: {}, // Object where the permissions can be passed
+  enablePermissions: true, // Flag for enabling permissions addition
+  permissions: {test: "test"}, // Object where the permissions can be passed
   enableProfanity: false, // Flag for enabling profanity check
   enableRecording: true, // Flag for enabling recording functionality
   enableOverlay: true, // Flag for enabling overlay functionality or enabling squeeze functionality
