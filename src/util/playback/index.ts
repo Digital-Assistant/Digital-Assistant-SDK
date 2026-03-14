@@ -9,3 +9,4 @@ export * from './invokeNextNode';
 export * from '../removeFromArray'; // Re-exporting from a parent directory, indicating shared utility.
 export * from './getCurrentPlayItem';
 export * from './mapSelectedElementAction';
+export * from './PlaybackService';

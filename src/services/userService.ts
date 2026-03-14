@@ -1,6 +1,8 @@
 // packages/core/src/services/userService.ts
 import { store } from '../store';
 import type { RootState } from '../store';
+import { StorageUtil } from '../util/storage';
+import { CONFIG } from '../config/constants';
 
 /**
  * Check that a value is a non-empty string.
@@ -129,6 +131,15 @@ export const getUserId = async (): Promise<string | null> => {
             if (userId) return userId;
         }
 
+        // Fallback to Storage if Redux is empty (common during recording/extension context)
+        const storedAuth = await StorageUtil.get(CONFIG.USER_AUTH_DATA_KEY);
+        if (storedAuth) {
+            const parsedAuth = typeof storedAuth === 'string' ? JSON.parse(storedAuth) : storedAuth;
+            const id = parsedAuth?.authData?.id || parsedAuth?.id;
+            const normalizedId = normalizeToString(id);
+            if (normalizedId) return normalizedId;
+        }
+
         return null;
     } catch (error) {
         // Log unexpected errors and return null to avoid throwing from helpers
@@ -159,8 +170,16 @@ export const getSessionKey = async (): Promise<string | null> => {
         const userState = state.user ?? null;
         if (!userState || typeof userState !== 'object') return null;
 
-        if(userState?.userSessionData?.sessionKey) {
+        if (userState?.userSessionData?.sessionKey) {
             return userState.userSessionData.sessionKey;
+        }
+
+        // Fallback to Storage
+        const storedAuth = await StorageUtil.get(CONFIG.USER_AUTH_DATA_KEY);
+        if (storedAuth) {
+            const parsedAuth = typeof storedAuth === 'string' ? JSON.parse(storedAuth) : storedAuth;
+            if (parsedAuth?.sessionKey) return parsedAuth.sessionKey;
+            if (parsedAuth?.token) return parsedAuth.token;
         }
 
         return null;

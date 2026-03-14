@@ -9,6 +9,7 @@ import type { ValidationState } from '../slices/validationSlice';
 import type { UserState } from '../slices/userSlice';
 import type { FlowState } from '../slices/flowSlice';
 import type { EditableStepFormState } from '../slices/editableStepFormSlice';
+import type { NotificationState } from '../slices/notificationSlice';
 
 describe('recordingSelectors', () => {
   // Create a mock recording state that fully conforms to the RecordingState interface
@@ -23,17 +24,6 @@ describe('recordingSelectors', () => {
     showLoader: false,
     ...overrides,
   });
-
-  // Create dummy mock states for other slices to satisfy RootState
-  /*
-  const mockEditingState: EditingStepState = {
-    recordingId: null,
-    editingStepId: null,
-    validationRequired: false,
-    validationCompleted: false,
-    editingStepOriginalData: null,
-  };
-  */
 
   const mockValidationState: ValidationState = {
     recordingId: null,
@@ -53,6 +43,10 @@ describe('recordingSelectors', () => {
     reFetchSearch: 'off',
     showSearch: true,
     recordSequenceDetailsVisibility: false,
+  };
+
+  const mockNotificationState: NotificationState = {
+    notifications: [],
   };
 
   const mockEditableStepFormState: EditableStepFormState = {
@@ -98,6 +92,7 @@ describe('recordingSelectors', () => {
       ],
     }),
     flow: mockFlowState,
+    notification: mockNotificationState,
   };
 
   describe('getRecordingState', () => {
@@ -118,6 +113,7 @@ describe('recordingSelectors', () => {
         editableStepForm: mockEditableStepFormState,
         recording: createMockRecordingState({ recSequenceData: [] }),
         flow: mockFlowState,
+        notification: mockNotificationState,
       };
 
       // Act
@@ -147,6 +143,7 @@ describe('recordingSelectors', () => {
         editableStepForm: mockEditableStepFormState,
         recording: createMockRecordingState({ recSequenceData: [] }),
         flow: mockFlowState,
+        notification: mockNotificationState,
       };
 
       // Act
@@ -166,6 +163,7 @@ describe('recordingSelectors', () => {
         editableStepForm: mockEditableStepFormState,
         recording: mockState.recording, // Keep recording slice the same for this test
         flow: { ...mockFlowState, searchKeyword: 'test' }, // Example override
+        notification: mockNotificationState,
       };
 
       // Act

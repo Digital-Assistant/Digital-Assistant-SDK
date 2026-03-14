@@ -10,6 +10,7 @@ import {
     recordingReducer,
     flowReducer,
     editableStepFormReducer,
+    notificationReducer,
 } from './slices';
 
 // Create the store
@@ -21,6 +22,7 @@ export const store = configureStore({
         recording: recordingReducer,
         flow: flowReducer,
         editableStepForm: editableStepFormReducer,
+        notification: notificationReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(storageMiddleware),
 });
@@ -33,6 +35,7 @@ export type RootState = {
     recording: ReturnType<typeof recordingReducer>;
     flow: ReturnType<typeof flowReducer>;
     editableStepForm: ReturnType<typeof editableStepFormReducer>;
+    notification: ReturnType<typeof notificationReducer>;
 };
 export type AppStore = typeof store;
 

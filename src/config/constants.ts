@@ -144,7 +144,7 @@ export const CONFIG: ConfigType = {
     invokedActionManually: false,
     //Azure content moderator attributes
     profanity: {
-        enabled: true,
+        enabled: false,
         provider: "azure",
         config: {
             key1: process.env.profanityKey,

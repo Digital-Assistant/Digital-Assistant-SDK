@@ -61,6 +61,11 @@ export class DigitalAssistantCore {
         import('./services/AuthManager').then(({ authManager }) => {
             authManager.init();
         });
+
+        // Initialize PlaybackService
+        import('./util/playback/PlaybackService').then(({ playbackService }) => {
+            playbackService.init();
+        });
     }
 
     getState(): RootState {

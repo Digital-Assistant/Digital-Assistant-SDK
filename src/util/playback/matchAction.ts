@@ -6,15 +6,15 @@ and applying them to the current web page. This involves handling a wide variety
 and their specific behaviors, often guiding the user with tooltips.
 */
 
-import {mapSelectedElementAction} from "./mapSelectedElementAction";
-import {invokeNextNode} from "./invokeNextNode";
-import {getSelectedRecordFromStore} from "./invokeNode";
-import {checkNodeValues, nodeConfig, simulateHover, simulateMouseLeave} from "../node";
-import {translate} from "../translate";
-import {addToolTip, removeToolTip } from "../notification";
-import {inArray} from "../inArray";
-import {CONFIG} from "../../config";
-import {matchLLMInputToNode} from "./matchLLMInputToNode";
+import { mapSelectedElementAction } from "./mapSelectedElementAction";
+import { invokeNextNode } from "./invokeNextNode";
+import { getSelectedRecordFromStore } from "./invokeNode";
+import { checkNodeValues, nodeConfig, simulateHover, simulateMouseLeave } from "../node";
+import { translate } from "../translate";
+import { addToolTip, removeToolTip } from "../notification";
+import { inArray } from "../inArray";
+import { CONFIG } from "../../config";
+import { matchLLMInputToNode } from "./matchLLMInputToNode";
 
 /**
  * Matches the action of a recorded node to a live DOM element and performs the corresponding action.
@@ -28,10 +28,7 @@ import {matchLLMInputToNode} from "./matchLLMInputToNode";
  */
 export const matchAction = (node: any, selectedNode: any, selectedRecordingDetails: any) => {
 
-  let playBackDelayTime = 2;
-  if(selectedRecordingDetails?.additionalParams?.slowPlaybackTime){
-    playBackDelayTime = selectedRecordingDetails?.additionalParams?.slowPlaybackTime;
-  }
+  // Metadata will now be handled inside matchAction from the recordedNodeData
 
   if (!node) {
     return;
@@ -40,14 +37,21 @@ export const matchAction = (node: any, selectedNode: any, selectedRecordingDetai
   // Parse the recorded data of the node from its JSON string format.
   const recordedNodeData = JSON.parse(selectedNode?.objectdata);
 
+  let playBackDelayTime = 2;
+  if (recordedNodeData?.meta?.slowPlaybackTime) {
+    playBackDelayTime = parseInt(recordedNodeData.meta.slowPlaybackTime);
+  } else if (selectedRecordingDetails?.additionalParams?.slowPlaybackTime) {
+    playBackDelayTime = parseInt(selectedRecordingDetails.additionalParams.slowPlaybackTime);
+  }
+
   // Convert the tooltip visibility time from seconds to milliseconds for use with setTimeout.
-  let timeToInvoke: number = playBackDelayTime*1000;
+  let timeToInvoke: number = playBackDelayTime * 1000;
 
 
   // The objectdata property is expected to be a JSON string. If it's already an object,
   // something is wrong, so we abort to prevent errors.
-  if(typeof selectedNode.objectdata !== 'string'){
-      return;
+  if (typeof selectedNode.objectdata !== 'string') {
+    return;
   }
 
   // Clear any tooltips that might be lingering from a previous action.
@@ -62,9 +66,9 @@ export const matchAction = (node: any, selectedNode: any, selectedRecordingDetai
   const navigationData = getSelectedRecordFromStore();
 
   // invoking the node based on the LLM api
-  if(window.UDAGlobalConfig.enableAISearch && recordedNodeData.meta?.inputType){
+  if (window.UDAGlobalConfig.enableAISearch && recordedNodeData.meta?.inputType) {
     const invokedNodeFromLLM = matchLLMInputToNode(node, selectedNode, selectedRecordingDetails, timeToInvoke);
-    if(invokedNodeFromLLM) {
+    if (invokedNodeFromLLM) {
       return;
     } else {
       // UDAErrorLogger.error('llm input processing failed');
@@ -73,7 +77,7 @@ export const matchAction = (node: any, selectedNode: any, selectedRecordingDetai
 
   // If the "Node Type Selection" feature is enabled, try a more specific action mapping first.
   // This allows for custom handling of elements tagged with a specific systemTag.
-  if(window.UDAGlobalConfig.enableNodeTypeSelection) {
+  if (window.UDAGlobalConfig.enableNodeTypeSelection) {
     if (recordedNodeData.meta && recordedNodeData.meta.hasOwnProperty('selectedElement') && recordedNodeData.meta.selectedElement && recordedNodeData.meta.selectedElement.systemTag.trim() != 'others') {
       // Attempt to perform a mapped action based on the element's system tag.
       let performedAction = mapSelectedElementAction(node, selectedNode, navigationData, recordedNodeData, timeToInvoke);
@@ -85,19 +89,19 @@ export const matchAction = (node: any, selectedNode: any, selectedRecordingDetai
   }
 
   // For rich text editors, just display a tooltip with instructions.
-  if(checkNodeValues(node, 'textEditors')){
+  if (checkNodeValues(node, 'textEditors')) {
     addToolTip(node, node, selectedNode, navigationData, false, false, false);
     return;
   }
 
   // For dropdowns, display a tooltip.
-  if(checkNodeValues(node, 'dropDowns')){
+  if (checkNodeValues(node, 'dropDowns')) {
     addToolTip(node, node, selectedNode, navigationData, false, false, false);
     return;
   }
 
   // For date pickers, display a tooltip.
-  if(checkNodeValues(node, 'datePicker')){
+  if (checkNodeValues(node, 'datePicker')) {
     addToolTip(node, node, selectedNode, navigationData, false, false, false);
     return;
   }
@@ -227,9 +231,9 @@ export const matchAction = (node: any, selectedNode: any, selectedRecordingDetai
       } else {
         // For most other elements, assume they are clickable. Highlight and proceed.
         addToolTip(node, node, selectedNode, navigationData, false, false, false, translate('highLightText'), false, true);
-        // Schedule the next action after the tooltip delay.
-        invokeNextNode(node, timeToInvoke);
       }
+      // Schedule the next action after the tooltip delay.
+      invokeNextNode(node, timeToInvoke);
       break;
   }
 }

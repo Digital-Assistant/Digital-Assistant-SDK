@@ -1,9 +1,10 @@
-import {translate} from "../translate/translation";
-import {createPopperLite as createPopper} from "@popperjs/core";
-import {trigger, on} from "../node/events";
-import {CONFIG} from "../../config";
-import {getToolTipElement} from "../node/getToolTipElement";
-import {getTooltipPositionClass} from "../node/getTooltipPositionClass";
+import { translate } from "../translate/translation";
+import { createPopperLite as createPopper } from "@popperjs/core";
+import { trigger, on } from "../node/events";
+import { CONFIG } from "../../config";
+import { getToolTipElement } from "../node/getToolTipElement";
+import { getTooltipPositionClass } from "../node/getTooltipPositionClass";
+import { StorageUtil } from "../storage";
 
 // Global variables to store the current Popper.js instance and related nodes.
 let currentPopperInstance: any = null;
@@ -39,7 +40,7 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
     }
 
     // Scroll the target element into view.
-    tooltipNode.scrollIntoView({behavior: 'smooth', block: "center", inline: "center"});
+    tooltipNode.scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
     // Create the tooltip element.
     const tooltipDivElement = getToolTipElement(message, showButtons);
@@ -49,7 +50,7 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
     currentTooltipDivElement = tooltipDivElement;
 
     // Calculate the optimal position for the tooltip.
-    let {finalCssClass, availablePositions} = getTooltipPositionClass(tooltipNode, tooltipDivElement);
+    let { finalCssClass, availablePositions } = getTooltipPositionClass(tooltipNode, tooltipDivElement);
     currentToolTipPositionClass = finalCssClass;
     currentAvailablePositions = availablePositions;
 
@@ -75,17 +76,27 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
     if (showButtons) {
         // @ts-ignore
         const shadowRoot: any = document.getElementById('udan-react-root').shadowRoot;
-        
-        // Attach an event listener to the 'continue' button.
-        shadowRoot.getElementById("uda-autoplay-continue")?.addEventListener("click", () => {
-            removeToolTip();
-            trigger("ContinuePlay", {action: 'ContinuePlay'});
-        });
 
-        // Attach an event listener to the 'exit' button.
+        // Attach an event listener to the 'continue' button.
+        const continueBtn = shadowRoot.getElementById("uda-autoplay-continue");
+        if (continueBtn) {
+            console.log("addToolTip: Attaching click listener to continue button.");
+            continueBtn.addEventListener("click", () => {
+                removeToolTip();
+                // Trigger ContinuePlay to advance playback (matches old-ui)
+                trigger("ContinuePlay", { action: 'ContinuePlay' });
+            });
+        } else {
+            console.warn("addToolTip: Continue button not found in shadowRoot.");
+        }
+
+        // Attach an event listener to the 'exit' (close) icon.
         shadowRoot.getElementById("uda-autoplay-exit")?.addEventListener("click", () => {
             removeToolTip();
-            trigger("BackToSearchResults", {action: 'BackToSearchResults'});
+            // Set playback status to off in storage
+            StorageUtil.setToStore("off", CONFIG.RECORDING_IS_PLAYING, true);
+            // Trigger PausePlay to update UI state
+            trigger("PausePlay", { action: 'PausePlay' });
         });
 
         // After a short delay, focus or click the invoking node if enabled.

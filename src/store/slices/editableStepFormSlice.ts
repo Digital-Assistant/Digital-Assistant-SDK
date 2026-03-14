@@ -93,7 +93,7 @@ const saveStateToStorage = (state: EditableStepFormState) => {
 /**
  * Initialize state - can be from localStorage or fresh
  */
-const initialState: EditableStepFormState = getInitialState();
+const initialState: EditableStepFormState = loadStateFromStorage();
 
 /**
  * Payload types for actions
@@ -255,9 +255,7 @@ export const editableStepFormSlice = createSlice({
     markValidationCompleted: (state) => {
       state.editingWorkflow.validationCompleted = true;
       state.editingWorkflow.validationInProgress = false;
-      // Once validated, we don't strictly require re-validation unless changes happen
-      // But we keep validationRequired=true to indicate "requires validation logic to run"
-      // vs validationCompleted=true meaning "it ran successfully"
+      state.editingWorkflow.validationRequired = false;
       saveStateToStorage(state);
     },
 

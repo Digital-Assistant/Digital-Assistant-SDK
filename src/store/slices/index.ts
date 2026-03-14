@@ -4,15 +4,7 @@ export { default as userReducer, userSlice } from './userSlice';
 export { default as recordingReducer, recordingSlice } from './recordingSlice';
 export { default as flowReducer, flowSlice } from './flowSlice';
 export { default as editableStepFormReducer, editableStepFormSlice } from './editableStepFormSlice';
-
-// Export action creators from editing slice
-// export {
-//     startValidation,
-//     markValidationCompleted,
-//     resetValidationState,
-//     startEditingStep,
-//     cancelEditingStep
-// } from './editingSlice';
+export { default as notificationReducer, notificationSlice } from './notificationSlice';
 
 // Export action creators from recording slice
 export {
@@ -51,6 +43,8 @@ export {
     setAllErrors,
 } from './editableStepFormSlice';
 
+export { addNotificationAction, clearNotifications } from './notificationSlice';
+
 export type { EditingStepState } from './editingSlice';
 export type { ValidationState } from './validationSlice';
 export type { UserState } from './userSlice';
@@ -58,3 +52,4 @@ export { setUserData } from './userSlice';
 export type { RecordingState } from './recordingSlice';
 export type { FlowState } from './flowSlice';
 export type { EditableStepFormState, FormFields, FormErrors, UIState } from './editableStepFormSlice';
+export type { NotificationState, Notification } from './notificationSlice';

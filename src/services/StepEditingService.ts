@@ -13,6 +13,7 @@ import {
   validateDelayTime,
   ValidationResult,
 } from '../util/validation/formValidators';
+import { CustomConfig } from '../config/CustomConfig';
 
 /**
  * TypeScript Interfaces
@@ -76,8 +77,11 @@ export const validateStepNameWithProfanity = async (
 
   let cleanedValue = value;
 
+  // Get global config safely
+  const globalConfig = (typeof window !== 'undefined' ? (window as any).UDAGlobalConfig : (typeof global !== 'undefined' ? (global as any).UDAGlobalConfig : null)) || CustomConfig;
+
   // Check for profanity if enabled
-  if (value.trim() && (enableProfanityCheck || CONFIG.profanity?.enabled)) {
+  if (value.trim() && (enableProfanityCheck || globalConfig.enableProfanity)) {
     try {
       const response = await profanityCheck(value);
       if (response.Terms && response.Terms.length > 0) {
@@ -394,11 +398,6 @@ export const saveStepChanges = async (
 
     // Update the node's objectdata to include the new name
     const nodeData = getObjData(updatedRecordData[index].objectdata);
-
-    // Update the displayText in meta
-    if (!nodeData.meta) {
-      nodeData.meta = {};
-    }
 
     nodeData.meta.displayText = stepEditValue;
 

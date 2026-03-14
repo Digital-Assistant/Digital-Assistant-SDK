@@ -2,8 +2,9 @@
  * This module provides a function to create and manage a tooltip element.
  * The tooltip is used to guide users during tutorials or other interactive sessions.
  */
-import {translate} from "../translate/translation";
-import {trigger} from "./events";
+import { translate } from "../translate/translation";
+import { trigger } from "./events";
+import { injectToolTipStyles } from "../notification/toolTipStyles";
 
 /**
  * Constructs a tooltip element and adds it to the document's shadow DOM.
@@ -79,6 +80,7 @@ export const getToolTipElement = (message = 'Please input the value and then cli
       if (toolTipExists) {
         shadowRoot.removeChild(toolTipExists);
       }
+      injectToolTipStyles(shadowRoot);
       shadowRoot.appendChild(tooltipDivElement);
     }
   } catch (_) {
@@ -107,7 +109,7 @@ export const getToolTipElement = (message = 'Please input the value and then cli
       currentPosition = positions[nextIndex];
 
       // Trigger a custom event to notify other parts of the application about the position change.
-      trigger("ChangeTooltipPosition", {detail: {position: currentPosition}});
+      trigger("ChangeTooltipPosition", { detail: { position: currentPosition } });
     });
 
   }, 100);

@@ -14,21 +14,27 @@ import { fetchDomain } from '../util/fetchDomain';
  * only network/parameter shaping logic and must not access window/document or DOM.
  */
 
-/**
- * Record a set of clicks or other user interactions.
- */
 export const recordClicks = async (request: any = {}): Promise<any> => {
   const sessionId = await getSessionKey();
-  const payload = { ...request, sessionid: sessionId };
+  const usersessionid = await getUserId();
+  const payload = {
+    ...request,
+    sessionid: sessionId || request.sessionid,
+    usersessionid: usersessionid || request.usersessionid
+  };
   const response = await apiClient.post(ENDPOINT.Record, payload);
   return response.data;
 };
 
-/**
- * Update previously recorded clicks.
- */
 export const updateRecordClicks = async (request: any = {}): Promise<any> => {
-  const response = await apiClient.post(ENDPOINT.UpdateRecord, request);
+  const sessionId = await getSessionKey();
+  const usersessionid = await getUserId();
+  const payload = {
+    ...request,
+    sessionid: sessionId || request.sessionid,
+    usersessionid: usersessionid || request.usersessionid
+  };
+  const response = await apiClient.post(ENDPOINT.UpdateRecord, payload);
   return response.data;
 };
 
