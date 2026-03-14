@@ -97,11 +97,29 @@ export const updateRecording = async (request: any): Promise<any> => {
 /**
  * Fetch status options (category-based).
  */
+const statusesCache: Record<string, Promise<any> | undefined> = {};
+
 export const fetchStatuses = async (request: { category: string } = { category: 'sequenceList' }): Promise<any> => {
   if (!request?.category) throw new Error('Category is required');
-  const url = processUrlArgs(ENDPOINT.statuses, request);
-  const response = await apiClient.get(url);
-  return response.data;
+  const category = request.category;
+
+  if (statusesCache[category]) {
+    return statusesCache[category];
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const url = processUrlArgs(ENDPOINT.statuses, { category });
+      const response = await apiClient.get(url);
+      return response.data;
+    } catch (error) {
+      delete statusesCache[category];
+      throw error;
+    }
+  })();
+
+  statusesCache[category] = fetchPromise;
+  return fetchPromise;
 };
 
 

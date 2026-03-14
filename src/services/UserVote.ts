@@ -49,8 +49,8 @@ export const vote = async (request?: any, type?: string) => {
  */
 export const getVoteRecord = async (request?: any) => {
   try {
-    const userSessionId = await getUserId();
-    if (!userSessionId) {
+    const usersessionid = await getUserId();
+    if (!usersessionid) {
       throw new Error("User session ID not found");
     }
 
@@ -58,7 +58,7 @@ export const getVoteRecord = async (request?: any) => {
       throw new Error("Invalid request: missing id");
     }
 
-    const url = `${ENDPOINT.fetchVoteRecord}${request.id}/${userSessionId}`;
+    const url = `${ENDPOINT.fetchVoteRecord}${request.id}/${usersessionid}`;
     const response = await apiClient.get(url);
     return response.data;
   } catch (error) {

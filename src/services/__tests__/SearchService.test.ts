@@ -71,7 +71,7 @@ describe('fetchSearchResults', () => {
         expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.Search, expect.any(Object));
     });
 
-// Edge case: additionalParams is explicitly null
+    // Edge case: additionalParams is explicitly null
     it('should delete additionalParams if it is null', async () => {
         (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
 
@@ -81,17 +81,17 @@ describe('fetchSearchResults', () => {
         expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.Search, expect.any(Object));
     });
 
-// Edge case: getUserId resolves to undefined
-    it('should set userSessionId to undefined if getUserId resolves undefined', async () => {
+    // Edge case: getUserId resolves to undefined
+    it('should set usersessionid to undefined if getUserId resolves undefined', async () => {
         (getUserId as jest.Mock).mockResolvedValue(undefined);
         (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
 
         const req = { page: 1 };
         await fetchSearchResults(req);
-        // No assertion on req.userSessionId, as it is not mutated
+        // No assertion on req.usersessionid, as it is not mutated
     });
 
-// Edge case: getUserId rejects
+    // Edge case: getUserId rejects
     it('should throw error if getUserId rejects', async () => {
         (getUserId as jest.Mock).mockRejectedValue(new Error('UserId error'));
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -101,7 +101,7 @@ describe('fetchSearchResults', () => {
         consoleSpy.mockRestore();
     });
 
-// Edge case: processUrlArgs throws
+    // Edge case: processUrlArgs throws
     it('should throw error if processUrlArgs throws', async () => {
         (processUrlArgs as jest.Mock).mockImplementation(() => { throw new Error('URL error'); });
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
@@ -111,7 +111,7 @@ describe('fetchSearchResults', () => {
         consoleSpy.mockRestore();
     });
 
-// Edge case: response.data is not an array
+    // Edge case: response.data is not an array
     it('should return response.data as is if it is not an array', async () => {
         (apiClient.get as jest.Mock).mockResolvedValue({ data: { foo: 'bar' } });
 
@@ -119,7 +119,7 @@ describe('fetchSearchResults', () => {
         expect(result).toEqual({ foo: 'bar' });
     });
 
-// Edge case: malformed request object (page missing)
+    // Edge case: malformed request object (page missing)
     it('should handle request with missing page property', async () => {
         (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
 

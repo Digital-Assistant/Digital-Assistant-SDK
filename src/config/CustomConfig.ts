@@ -42,7 +42,7 @@ export const CustomConfig: CustomConfigPropTypes = {
   enableMultilingual: true, // Flag for enabling multilingual search with speech
   enableNodeTypeSelection: true, // Flag for enabling node type selection
   enablePermissions: true, // Flag for enabling permissions addition
-  permissions: {test: "test"}, // Object where the permissions can be passed
+  permissions: { "test": true }, // Object where the permissions can be passed
   enableProfanity: false, // Flag for enabling profanity check
   enableRecording: true, // Flag for enabling recording functionality
   enableOverlay: true, // Flag for enabling overlay functionality or enabling squeeze functionality

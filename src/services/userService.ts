@@ -199,23 +199,7 @@ export const getSessionKey = async (): Promise<string | null> => {
  * @returns session id or `null`
  */
 export const getUserSessionId = async (): Promise<string | null> => {
-    try {
-        const state: RootState | undefined = (store as any)?.getState?.();
-        if (!state || typeof state !== 'object') {
-            console.error('getUserSessionId: invalid store state');
-            return null;
-        }
-
-        // Prefer explicit userSessionId when present
-        const userSessionId = normalizeToString(state.user?.userSessionId);
-        if (userSessionId) return userSessionId;
-
-        // Otherwise reuse user id resolution
-        return await getUserId();
-    } catch (error) {
-        console.error('getUserSessionId error:', error);
-        return null;
-    }
+    return await getUserId();
 };
 
 export class UserService {

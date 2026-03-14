@@ -48,7 +48,7 @@ export { addNotificationAction, clearNotifications } from './notificationSlice';
 export type { EditingStepState } from './editingSlice';
 export type { ValidationState } from './validationSlice';
 export type { UserState } from './userSlice';
-export { setUserData } from './userSlice';
+export { setUserData, clearUserData } from './userSlice';
 export type { RecordingState } from './recordingSlice';
 export type { FlowState } from './flowSlice';
 export type { EditableStepFormState, FormFields, FormErrors, UIState } from './editableStepFormSlice';

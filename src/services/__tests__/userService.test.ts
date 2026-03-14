@@ -17,7 +17,7 @@ describe('UserService', () => {
         // Reset mocks before each test
         (store.getState as jest.Mock).mockClear();
         // Spy on console.error to prevent it from polluting test output and to assert its calls
-        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
     });
 
     afterEach(() => {
@@ -170,49 +170,21 @@ describe('UserService', () => {
     });
 
     describe('getUserSessionId', () => {
-        it('should return null if store is invalid', async () => {
-            (store.getState as jest.Mock).mockReturnValue(undefined);
-            await expect(userService.getUserSessionId()).resolves.toBeNull();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('getUserSessionId: invalid store state');
-        });
-
-        it('should return userSessionId if present', async () => {
+        it('should return the same as getUserId', async () => {
             (store.getState as jest.Mock).mockReturnValue({
                 user: {
-                    userSessionId: 'session-id-123',
+                    userData: { id: 'user-id-xyz' },
                 },
             });
-            await expect(userService.getUserSessionId()).resolves.toBe('session-id-123');
+            const userId = await userService.getUserId();
+            const sessionId = await userService.getUserSessionId();
+            expect(sessionId).toBe(userId);
+            expect(sessionId).toBe('user-id-xyz');
         });
 
-        it('should normalize numeric userSessionId to string if present', async () => {
-            (store.getState as jest.Mock).mockReturnValue({
-                user: {
-                    userSessionId: 45678,
-                },
-            });
-            await expect(userService.getUserSessionId()).resolves.toBe('45678');
-        });
-
-        it('should fall back to getUserId if userSessionId is not present', async () => {
-            (store.getState as jest.Mock).mockReturnValue({
-                user: {
-                    userData: { id: 'user-id-abc' },
-                },
-            });
-            await expect(userService.getUserSessionId()).resolves.toBe('user-id-abc');
-        });
-
-        it('should return null if no session id or user id is found', async () => {
+        it('should return null if getUserId returns null', async () => {
             (store.getState as jest.Mock).mockReturnValue({ user: {} });
-            await expect(userService.getUserSessionId()).resolves.toBeNull();
-        });
-
-        it('should return null and log error if store.getState throws', async () => {
-            const error = new Error('getState failed');
-            (store.getState as jest.Mock).mockImplementation(() => { throw error; });
-            await expect(userService.getUserSessionId()).resolves.toBeNull();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('getUserSessionId error:', error);
+            expect(await userService.getUserSessionId()).toBeNull();
         });
     });
 });

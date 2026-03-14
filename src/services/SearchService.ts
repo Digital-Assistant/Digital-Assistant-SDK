@@ -13,7 +13,7 @@ export interface SearchRequest {
   page: number;
   domain?: string;
   additionalParams?: any;
-  userSessionId?: string;
+  usersessionid?: string;
 }
 
 /**
@@ -23,7 +23,7 @@ export interface RecordRequest {
   id?: string;
   domain?: string;
   additionalParams?: any;
-  userSessionId?: string;
+  usersessionid?: string;
 }
 
 /**
@@ -42,11 +42,19 @@ export const fetchSearchResults = async (request?: SearchRequest): Promise<any> 
     if (!request) {
       request = { page: 1 };
     }
-    request.userSessionId = (await getUserId()) || undefined;
+    request.usersessionid = (await getUserId()) || undefined;
 
     // Clean up null additionalParams
     if (request.additionalParams === null) {
       delete request.additionalParams;
+    }
+
+    // Automatically inject permissions if enabled in global config
+    if (request.additionalParams == null) {
+      const globalConfig = (typeof window !== 'undefined' ? (window as any).UDAGlobalConfig : (typeof global !== 'undefined' ? (global as any).UDAGlobalConfig : null));
+      if (globalConfig && globalConfig.enablePermissions && globalConfig.permissions) {
+        request.additionalParams = JSON.stringify(globalConfig.permissions);
+      }
     }
 
     // Determine which endpoint to use based on additionalParams
@@ -58,15 +66,15 @@ export const fetchSearchResults = async (request?: SearchRequest): Promise<any> 
     }
 
     // Debug: Log the final request and endpoint
-    console.log('SDK SearchService Debug:', { 
-      request, 
-      endpoint, 
-      userSessionId: request.userSessionId 
+    console.log('SDK SearchService Debug:', {
+      request,
+      endpoint,
+      usersessionid: request.usersessionid
     });
 
     // Make API request using centralized apiClient
     const response = await apiClient.get(endpoint);
-    
+
     if (response.data !== undefined) {
       return response.data;
     } else {
@@ -94,10 +102,18 @@ export const fetchRecord = async (request?: RecordRequest): Promise<any> => {
     // Clean up null additionalParams
     if (request.additionalParams === null) {
       delete request.additionalParams;
-    } else if (request.additionalParams != null) {
+    } else if (request.additionalParams == null) {
+      // Automatically inject permissions if enabled in global config
+      const globalConfig = (typeof window !== 'undefined' ? (window as any).UDAGlobalConfig : (typeof global !== 'undefined' ? (global as any).UDAGlobalConfig : null));
+      if (globalConfig && globalConfig.enablePermissions && globalConfig.permissions) {
+        request.additionalParams = JSON.stringify(globalConfig.permissions);
+      }
+    }
+
+    if (request.additionalParams != null) {
       // Set user session ID when additionalParams is present
-      const userSessionId = await getUserId();
-      request.userSessionId = userSessionId || undefined;
+      const usersessionid = await getUserId();
+      request.usersessionid = usersessionid || undefined;
     }
 
     // Build the URL
@@ -114,9 +130,9 @@ export const fetchRecord = async (request?: RecordRequest): Promise<any> => {
     url += "/" + recordId + "?domain=" + domain;
 
     // Append additional parameters if present
-    if (request.additionalParams != null && request.userSessionId) {
-      url += "&additionalParams=" + encodeURIComponent(request.additionalParams) + 
-             "&userSessionId=" + encodeURIComponent(request.userSessionId);
+    if (request.additionalParams != null && request.usersessionid) {
+      url += "&additionalParams=" + encodeURIComponent(request.additionalParams) +
+        "&usersessionid=" + encodeURIComponent(request.usersessionid);
     }
 
     // Make API request using centralized apiClient
@@ -140,7 +156,7 @@ export const fetchSpecialNodes = async (request?: any): Promise<any> => {
     // For now, return the static specialNodes configuration
     // In the future, this could make an API call if dynamic special nodes are needed
     const endpoint = processUrlArgs(ENDPOINT.SpecialNodes, request || {});
-    
+
     // Currently returning static configuration as per original implementation
     return specialNodes;
 

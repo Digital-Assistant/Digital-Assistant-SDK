@@ -49,10 +49,16 @@ describe('RecordService (core)', () => {
 
   describe('updateRecordClicks', () => {
     it('posts to UpdateRecord and returns data', async () => {
+      (getSessionKey as jest.Mock).mockResolvedValue('sess-123');
+      (getUserId as jest.Mock).mockResolvedValue('user-456');
       mockPost.mockResolvedValue({ data: { updated: 1 } });
       const req = { id: 5 } as any;
       const res = await updateRecordClicks(req);
-      expect(mockPost).toHaveBeenCalledWith(ENDPOINT.UpdateRecord, req);
+      expect(mockPost).toHaveBeenCalledWith(ENDPOINT.UpdateRecord, {
+        id: 5,
+        sessionid: 'sess-123',
+        usersessionid: 'user-456'
+      });
       expect(res).toEqual({ updated: 1 });
     });
   });
@@ -149,6 +155,22 @@ describe('RecordService (core)', () => {
       expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.statuses, { category: 'sequenceList' });
       expect(mockGet).toHaveBeenCalledWith(`${ENDPOINT.statuses}:sequenceList`);
       expect(res).toEqual([{ id: 1 }]);
+    });
+
+    it('caches the result and returns the same promise for subsequent calls', async () => {
+      mockGet.mockClear();
+      mockGet.mockResolvedValue({ data: [{ id: 1 }] });
+
+      // Call multiple times
+      const p1 = fetchStatuses({ category: 'cached' });
+      const p2 = fetchStatuses({ category: 'cached' });
+
+      const [res1, res2] = await Promise.all([p1, p2]);
+
+      expect(mockGet).toHaveBeenCalledTimes(1);
+      expect(res1).toEqual([{ id: 1 }]);
+      expect(res2).toEqual([{ id: 1 }]);
+      expect(res1).toBe(res2); // Should be the same object if cached correctly
     });
   });
 

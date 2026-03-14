@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { store } from '../store';
 import type { RootState } from '../store';
-import { specialNodes } from "../util";
+import { specialNodes, trigger } from "../util";
 import { CONFIG } from '../config';
 
 /**
@@ -220,11 +220,11 @@ export class ApiClient {
         // In the future, this could dispatch Redux actions for token refresh
         console.warn('API Client: Unauthorized request detected. Token may be expired.');
 
-        // Could emit custom events for handling in the main application
+        // Emit custom event for handling in the main application
         if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('digital-assistant:unauthorized', {
-                detail: { source: 'api-client', timestamp: Date.now() }
-            }));
+            trigger('UDAGetNewToken', {
+                detail: { data: 'UDAGetNewToken', source: 'api-client', timestamp: Date.now() }
+            });
         }
     }
 
