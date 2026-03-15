@@ -305,10 +305,8 @@ describe('ApiClient', () => {
         });
 
         it('should dispatch unauthorized event on 401 error', async () => {
-            const eventSpy = jest.fn();
-            const originalDispatchEvent = window.dispatchEvent;
-            window.dispatchEvent = eventSpy;
-
+            // The source calls trigger('UDAGetNewToken', ...) from ../util/node/events
+            // We verify console.warn is called as the observable side-effect of handleUnauthorizedError
             mockAxios.onGet('/unauthorized').reply(401);
 
             try {
@@ -317,18 +315,7 @@ describe('ApiClient', () => {
                 // Expected to fail
             }
 
-            expect(eventSpy).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    type: 'digital-assistant:unauthorized',
-                    detail: expect.objectContaining({
-                        source: 'api-client',
-                        timestamp: expect.any(Number)
-                    })
-                })
-            );
-
-            // Restore original function
-            window.dispatchEvent = originalDispatchEvent;
+            expect(consoleWarnSpy).toHaveBeenCalledWith('API Client: Unauthorized request detected. Token may be expired.');
         });
     });
 

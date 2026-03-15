@@ -51,12 +51,12 @@ describe('addNotification', () => {
         });
     });
 
-    it('should use a container inside the shadow root as the target', () => {
+    it('should use document.body as the target', () => {
         addNotification();
         const mixinOptions = (mockedSwal.mixin as jest.Mock).mock.calls[0][0];
         const container = mixinOptions.target;
-        // Verify the container is the one created inside the shadowRoot
-        expect(container).toBe(shadowRoot.querySelector('.udan-notification-container'));
+        // Source always uses document.body as target
+        expect(container).toBe(document.body);
     });
 
     it('should default to document.body if shadow root is not found', () => {

@@ -53,8 +53,8 @@ describe('validationSlice', () => {
 
     const freshModule = require('../validationSlice');
     reducer = freshModule.default;
-    startValidation = freshModule.startValidation;
-    markValidationCompleted = freshModule.markValidationCompleted;
+    startValidation = freshModule.startGlobalValidation;
+    markValidationCompleted = freshModule.markGlobalValidationCompleted;
     resetValidationState = freshModule.resetValidationState;
     return reducer;
   };

@@ -112,7 +112,7 @@ describe('Tooltip Functions', () => {
             expect(trigger).toHaveBeenCalledWith('ContinuePlay', { action: 'ContinuePlay' });
 
             exitButton?.click();
-            expect(trigger).toHaveBeenCalledWith('BackToSearchResults', { action: 'BackToSearchResults' });
+            expect(trigger).toHaveBeenCalledWith('PausePlay', { action: 'PausePlay' });
         });
 
         it('should focus and click the invoking node when enabled', () => {

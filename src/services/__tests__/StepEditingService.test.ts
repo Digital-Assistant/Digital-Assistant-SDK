@@ -102,7 +102,7 @@ describe('StepEditingService', () => {
     describe('saveStepChanges', () => {
         it('updates local records and calls backend in update mode', async () => {
             const recordData = [
-                { objectdata: JSON.stringify({}), clickednodename: 'old' }
+                { objectdata: JSON.stringify({ meta: {} }), clickednodename: 'old' }
             ];
 
             const params = {
@@ -126,7 +126,7 @@ describe('StepEditingService', () => {
 
         it('only updates local records in non-update mode', async () => {
             const recordData = [
-                { objectdata: JSON.stringify({}), clickednodename: 'old' }
+                { objectdata: JSON.stringify({ meta: {} }), clickednodename: 'old' }
             ];
 
             const params = {
