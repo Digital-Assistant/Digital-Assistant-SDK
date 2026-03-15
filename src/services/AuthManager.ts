@@ -2,6 +2,8 @@ import Keycloak from 'keycloak-js';
 import { store } from '../store';
 import { setKeycloakSessionData, clearUserData } from '../store/slices/userSlice';
 import { CustomConfig } from '../config/CustomConfig';
+import { StorageUtil } from '../util/storage';
+import { CONFIG } from '../config/constants';
 
 /**
  * Interface for AuthManager configuration
@@ -122,16 +124,21 @@ export class AuthManager {
     }
 
     /**
-     * Logout from Keycloak
+     * Logout from Keycloak and clear all session storage.
      */
     public async logout(options?: Keycloak.KeycloakLogoutOptions): Promise<void> {
-        if (!this.keycloak) {
-            console.error('AuthManager: Not initialized');
-            return;
-        }
-        await this.keycloak.logout(options);
+        // Always clear storage and Redux state regardless of Keycloak status
+        await Promise.all([
+            StorageUtil.remove(CONFIG.USER_AUTH_DATA_KEY),
+            StorageUtil.remove(CONFIG.UDAKeyCloakKey),
+            StorageUtil.remove(CONFIG.SELECTED_RECORDING),
+        ]);
         store.dispatch(clearUserData());
         this.authenticated = false;
+
+        if (this.keycloak) {
+            await this.keycloak.logout(options);
+        }
     }
 
     /**

@@ -61,6 +61,7 @@ describe('getCurrentPlayItem', () => {
       index: 1,
       node: { status: 'pending', data: 'node2' },
       additionalParams: { speed: 'normal' },
+      selectedRecordingDetails: mockRecording,
     });
   });
 
@@ -83,6 +84,7 @@ describe('getCurrentPlayItem', () => {
       index: 0,
       node: { status: 'pending', data: 'node1' },
       additionalParams: { speed: 'fast' },
+      selectedRecordingDetails: mockRecording,
     });
   });
 

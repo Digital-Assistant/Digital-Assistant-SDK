@@ -129,4 +129,50 @@ describe('fetchSearchResults', () => {
         expect(result).toEqual(['result']);
     });
 
+    describe('enableAISearch routing', () => {
+        const setGlobalConfig = (overrides: object) => {
+            (global as any).UDAGlobalConfig = { enableAISearch: false, enablePermissions: false, ...overrides };
+        };
+
+        afterEach(() => {
+            delete (global as any).UDAGlobalConfig;
+        });
+
+        it('should use AISearch endpoint when enableAISearch is true and no additionalParams', async () => {
+            setGlobalConfig({ enableAISearch: true });
+            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['ai-result'] });
+
+            await fetchSearchResults({ page: 1 });
+
+            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.AISearch, expect.any(Object));
+        });
+
+        it('should use AISearchWithPermissions endpoint when enableAISearch is true and additionalParams present', async () => {
+            setGlobalConfig({ enableAISearch: true });
+            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['ai-result'] });
+
+            await fetchSearchResults({ page: 1, additionalParams: { role: 'admin' } });
+
+            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.AISearchWithPermissions, expect.any(Object));
+        });
+
+        it('should use standard Search endpoint when enableAISearch is false and no additionalParams', async () => {
+            setGlobalConfig({ enableAISearch: false });
+            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
+
+            await fetchSearchResults({ page: 1 });
+
+            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.Search, expect.any(Object));
+        });
+
+        it('should use SearchWithPermissions endpoint when enableAISearch is false and additionalParams present', async () => {
+            setGlobalConfig({ enableAISearch: false });
+            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
+
+            await fetchSearchResults({ page: 1, additionalParams: { role: 'admin' } });
+
+            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.SearchWithPermissions, expect.any(Object));
+        });
+    });
+
 });

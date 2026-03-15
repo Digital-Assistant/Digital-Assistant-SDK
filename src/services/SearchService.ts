@@ -49,20 +49,29 @@ export const fetchSearchResults = async (request?: SearchRequest): Promise<any> 
       delete request.additionalParams;
     }
 
+    const globalConfig = (typeof window !== 'undefined' ? (window as any).UDAGlobalConfig : (typeof global !== 'undefined' ? (global as any).UDAGlobalConfig : null));
+
     // Automatically inject permissions if enabled in global config
     if (request.additionalParams == null) {
-      const globalConfig = (typeof window !== 'undefined' ? (window as any).UDAGlobalConfig : (typeof global !== 'undefined' ? (global as any).UDAGlobalConfig : null));
       if (globalConfig && globalConfig.enablePermissions && globalConfig.permissions) {
         request.additionalParams = JSON.stringify(globalConfig.permissions);
       }
     }
 
-    // Determine which endpoint to use based on additionalParams
+    // Determine which endpoint to use based on enableAISearch flag and additionalParams
     let endpoint: string;
     if (request.additionalParams != null) {
-      endpoint = processUrlArgs(ENDPOINT.SearchWithPermissions, request);
+      if (globalConfig?.enableAISearch) {
+        endpoint = (process.env.llmUrl || '') + processUrlArgs(ENDPOINT.AISearchWithPermissions, request);
+      } else {
+        endpoint = processUrlArgs(ENDPOINT.SearchWithPermissions, request);
+      }
     } else {
-      endpoint = processUrlArgs(ENDPOINT.Search, request);
+      if (globalConfig?.enableAISearch) {
+        endpoint = (process.env.llmUrl || '') + processUrlArgs(ENDPOINT.AISearch, request);
+      } else {
+        endpoint = processUrlArgs(ENDPOINT.Search, request);
+      }
     }
 
     // Debug: Log the final request and endpoint

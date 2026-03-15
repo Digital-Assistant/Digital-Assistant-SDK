@@ -41,7 +41,7 @@ export const CustomConfig: CustomConfigPropTypes = {
   enableTooltipAddition: true, // Flag for adding custom tooltip information
   enableMultilingual: true, // Flag for enabling multilingual search with speech
   enableNodeTypeSelection: true, // Flag for enabling node type selection
-  enablePermissions: true, // Flag for enabling permissions addition
+  enablePermissions: false, // Flag for enabling permissions addition
   permissions: { "test": true }, // Object where the permissions can be passed
   enableProfanity: false, // Flag for enabling profanity check
   enableRecording: true, // Flag for enabling recording functionality
@@ -62,5 +62,5 @@ export const CustomConfig: CustomConfigPropTypes = {
   enableStatusSelection: true, // Flag to enable status selection
   enableUDAIconDuringRecording: true, // Flag to enable UDA icon during recording
   enableEditingOfRecordings: true, // Flag to enable editing of recordings
-  enableAISearch: true
+  enableAISearch: false // Flag to enable AI search
 };
