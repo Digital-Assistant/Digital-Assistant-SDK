@@ -301,6 +301,15 @@ export const finalSaveSequence = async (
  *   which is what causes user interactions to be captured.
  */
 export const startRecording = async (): Promise<void> => {
+  // Respect the enableRecording flag — if disabled, recording must not activate
+  const globalConfig = typeof window !== 'undefined'
+    ? (window as any).UDAGlobalConfig
+    : typeof global !== 'undefined' ? (global as any).UDAGlobalConfig : null;
+
+  if (globalConfig && globalConfig.enableRecording === false) {
+    return;
+  }
+
   // Set global flags (checked by SDK utilities)
   if (typeof window !== 'undefined') {
     (window as any).isRecording = true;

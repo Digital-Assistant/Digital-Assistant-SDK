@@ -13,7 +13,6 @@ import {
   validateDelayTime,
   ValidationResult,
 } from '../util/validation/formValidators';
-import { CustomConfig } from '../config/CustomConfig';
 
 /**
  * TypeScript Interfaces
@@ -77,11 +76,8 @@ export const validateStepNameWithProfanity = async (
 
   let cleanedValue = value;
 
-  // Get global config safely
-  const globalConfig = (typeof window !== 'undefined' ? (window as any).UDAGlobalConfig : (typeof global !== 'undefined' ? (global as any).UDAGlobalConfig : null)) || CustomConfig;
-
-  // Check for profanity if enabled
-  if (value.trim() && (enableProfanityCheck || globalConfig.enableProfanity)) {
+  // Check for profanity only if explicitly enabled by the caller (UI is the source of truth)
+  if (value.trim() && enableProfanityCheck) {
     try {
       const response = await profanityCheck(value);
       if (response.Terms && response.Terms.length > 0) {
