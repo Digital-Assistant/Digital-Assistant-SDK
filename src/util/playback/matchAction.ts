@@ -37,11 +37,13 @@ export const matchAction = (node: any, selectedNode: any, selectedRecordingDetai
   // Parse the recorded data of the node from its JSON string format.
   const recordedNodeData = JSON.parse(selectedNode?.objectdata);
 
-  let playBackDelayTime = 2;
-  if (recordedNodeData?.meta?.slowPlaybackTime) {
-    playBackDelayTime = parseInt(recordedNodeData.meta.slowPlaybackTime);
-  } else if (selectedRecordingDetails?.additionalParams?.slowPlaybackTime) {
-    playBackDelayTime = parseInt(selectedRecordingDetails.additionalParams.slowPlaybackTime);
+  let playBackDelayTime = 1;
+  if (window.UDAGlobalConfig?.enableSlowReplay) {
+    if (recordedNodeData?.meta?.slowPlaybackTime) {
+      playBackDelayTime = parseInt(recordedNodeData.meta.slowPlaybackTime);
+    } else if (selectedRecordingDetails?.additionalParams?.slowPlaybackTime) {
+      playBackDelayTime = parseInt(selectedRecordingDetails.additionalParams.slowPlaybackTime);
+    }
   }
 
   // Convert the tooltip visibility time from seconds to milliseconds for use with setTimeout.
