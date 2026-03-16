@@ -39,5 +39,8 @@ export const AppConfig = (data: CustomConfigPropTypes): CustomConfigPropTypes =>
     });
 
   // Return the updated CustomConfig object
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('UDAConfigUpdated'));
+  }
   return CustomConfig;
 };
