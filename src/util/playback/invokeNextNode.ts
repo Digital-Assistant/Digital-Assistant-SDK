@@ -37,8 +37,9 @@ export const invokeNextNode = (node: any, timeToInvoke: any) => {
 
   // Schedule the click action and tooltip removal after `timeToInvoke`.
   setTimeout(function () {
-    const playStatus1 = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
-    if (playStatus1 !== "on") return;
+    // Check if playback is still active before invoking the click action. Having this check created a problem
+    // const playStatus1 = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
+    // if (playStatus1 !== "on") return;
     node.click();
     removeToolTip();
   }, timeToInvoke);
