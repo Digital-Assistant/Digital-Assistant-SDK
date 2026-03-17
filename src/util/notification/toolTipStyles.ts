@@ -126,13 +126,33 @@ export const tooltipStyles = `
     border-right: 1px solid #05f;
     border-bottom: 1px solid #05f;
 }
+.uda-tooltip[data-popper-placement="top-start"] > .uda-arrow {
+    left: 15px;
+}
+.uda-tooltip[data-popper-placement="top"] > .uda-arrow {
+    left: 50%;
+    transform: translateX(-50%);
+}
+.uda-tooltip[data-popper-placement="top-end"] > .uda-arrow {
+    right: 15px;
+}
 
 .uda-tooltip[data-popper-placement^="right"] > .uda-arrow {
-    left: -6px;
+    left: -13px;
 }
 .uda-tooltip[data-popper-placement^="right"] > .uda-arrow::before {
     border-left: 1px solid #05f;
     border-bottom: 1px solid #05f;
+}
+.uda-tooltip[data-popper-placement="right-start"] > .uda-arrow {
+    top: 8px;
+}
+.uda-tooltip[data-popper-placement="right"] > .uda-arrow {
+    top: 50%;
+    transform: translateY(-50%);
+}
+.uda-tooltip[data-popper-placement="right-end"] > .uda-arrow {
+    bottom: 8px;
 }
 
 .uda-tooltip[data-popper-placement^="bottom"] > .uda-arrow {
@@ -142,13 +162,33 @@ export const tooltipStyles = `
     border-top: 1px solid #05f;
     border-left: 1px solid #05f;
 }
+.uda-tooltip[data-popper-placement="bottom-start"] > .uda-arrow {
+    left: 8px;
+}
+.uda-tooltip[data-popper-placement="bottom"] > .uda-arrow {
+    left: 50%;
+    transform: translateX(-50%);
+}
+.uda-tooltip[data-popper-placement="bottom-end"] > .uda-arrow {
+    right: 15px;
+}
 
 .uda-tooltip[data-popper-placement^="left"] > .uda-arrow {
-    right: -6px;
+    right: -1px;
 }
 .uda-tooltip[data-popper-placement^="left"] > .uda-arrow::before {
     border-right: 1px solid #05f;
     border-top: 1px solid #05f;
+}
+.uda-tooltip[data-popper-placement="left-start"] > .uda-arrow {
+    top: 8px;
+}
+.uda-tooltip[data-popper-placement="left"] > .uda-arrow {
+    top: 50%;
+    transform: translateY(-50%);
+}
+.uda-tooltip[data-popper-placement="left-end"] > .uda-arrow {
+    bottom: 8px;
 }
 `;
 

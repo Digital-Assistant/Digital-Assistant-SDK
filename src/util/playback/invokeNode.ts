@@ -147,9 +147,9 @@ export const matchNode = async (recordedNode: any) => {
 
   let difference = endTime - startTime; // Calculate the time taken for matching.
 
-  UDAConsoleLogger.info('StartTime: '+ startTime, 1);
+  /* UDAConsoleLogger.info('StartTime: '+ startTime, 1);
   UDAConsoleLogger.info('EndTime: '+ endTime, 1);
-  UDAConsoleLogger.info('Difference: '+ difference, 1);
+  UDAConsoleLogger.info('Difference: '+ difference, 1); */
 
   // If a matching element is found, invoke the action on it.
   if (finalMatchElement !== null) {

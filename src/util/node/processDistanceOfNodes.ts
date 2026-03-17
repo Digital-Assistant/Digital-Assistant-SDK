@@ -53,7 +53,6 @@ export const processDistanceOfNodes = (matchingNodes: any, selectedNode: any) =>
   if (selectedNode.hasOwnProperty('nodeInfo') && matchingNodes.length > 1) {
 
     // Debug logging: Output selected node information for development and troubleshooting.
-    // Log level 4 indicates detailed debugging information for algorithm analysis.
     UDAConsoleLogger.info(selectedNode, 4);
 
     // Initialize tracking variables for optimal node selection.
@@ -87,18 +86,7 @@ export const processDistanceOfNodes = (matchingNodes: any, selectedNode: any) =>
         // Extract comprehensive node information for distance calculation.
         let nodeInfo = getNodeInfo(node);
 
-        // Debug logging: Detailed information about the distance calculation process.
-        // These logs help developers understand the comparison process and debug issues.
-        UDAConsoleLogger.info("---------------------------------------", 4);
-        UDAConsoleLogger.info("Processing distance", 4);
-        UDAConsoleLogger.info(node, 4);
-        UDAConsoleLogger.info("Recorded Node Info: ", 4);
-        UDAConsoleLogger.info(selectedNode.nodeInfo, 4);
-        UDAConsoleLogger.info("Comparing Node Info: ", 4);
-        UDAConsoleLogger.info(nodeInfo, 4);
-
         // Calculate the distance between the reference node and the current candidate.
-        // This uses the imported `getDistance` utility for comprehensive distance calculation.
         let dist = getDistance(selectedNode.nodeInfo, nodeInfo);
 
         // Distance comparison logic: Update tracking variables if a better match is found.
@@ -112,12 +100,6 @@ export const processDistanceOfNodes = (matchingNodes: any, selectedNode: any) =>
           leastDistance = dist;
           leastDistanceNode = node;
         }
-
-        // Debug logging: Output the calculated distance for analysis and troubleshooting.
-        // This helps developers understand the distance calculation results.
-        UDAConsoleLogger.info("Distance", 4);
-        UDAConsoleLogger.info(dist, 4);
-        UDAConsoleLogger.info("---------------------------------------", 4);
       }
     }
 

@@ -18,6 +18,7 @@ export class PlaybackService {
 
     constructor() {
         this.autoPlay = this.autoPlay.bind(this);
+        this.handlePausePlay = this.handlePausePlay.bind(this);
     }
 
     /**
@@ -30,6 +31,7 @@ export class PlaybackService {
         // Attach listeners for playback progression
         on("UDAPlayNext", this.autoPlay);
         on("ContinuePlay", this.autoPlay);
+        on("PausePlay", this.handlePausePlay);
 
         // Check if we should resume playback on page load
         const playStatus = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
@@ -48,6 +50,7 @@ export class PlaybackService {
     public destroy() {
         off("UDAPlayNext", this.autoPlay);
         off("ContinuePlay", this.autoPlay);
+        off("PausePlay", this.handlePausePlay);
         this.isInitialized = false;
     }
 
@@ -137,6 +140,14 @@ export class PlaybackService {
             trigger("UDAPlaybackCompleted", { recordingId: selectedRecording?.id });
             trigger("openPanel", { action: 'openPanel' });
         }
+    }
+
+    /**
+     * Handles PausePlay event — writes "off" to storage to stop any pending playback.
+     */
+    private handlePausePlay() {
+        StorageUtil.setToStore("off", CONFIG.RECORDING_IS_PLAYING, true);
+        store.dispatch(setIsPlaying("off"));
     }
 
     /**

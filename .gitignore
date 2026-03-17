@@ -1,11 +1,22 @@
-dist/*
+# Dependencies
 node_modules/
-!environments/local.env
-environments/*
-package-lock.json
-.venv/*
+
+# Build outputs
+dist/
+build/
+
+# Environment files
+environments/
+
+# Test
+coverage/
+.jest-cache/
+
+# OS & IDE
 .DS_Store
 .vscode/
 .idea/
-.jest-cache/
+
+# Misc
 package-lock.json
+.venv/

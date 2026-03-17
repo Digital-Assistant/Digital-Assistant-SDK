@@ -14,7 +14,7 @@ import { injectToolTipStyles } from "../notification/toolTipStyles";
  * @param showButtons A boolean to control whether to show the 'continue' and 'change position' buttons.
  * @returns The created tooltip HTML element.
  */
-export const getToolTipElement = (message = 'Please input the value and then click on', showButtons = true) => {
+export const getToolTipElement = (message = 'Please input the value and then click on', showButtons = true, onExit?: () => void, initialPosition: string = 'top') => {
 
   // Create the main tooltip container.
   let tooltipDivElement = document.createElement("div");
@@ -24,15 +24,21 @@ export const getToolTipElement = (message = 'Please input the value and then cli
   // Create the tooltip header with an exit button.
   const tooltipHeader = document.createElement("div");
   tooltipHeader.classList.add("uda-tooltip-header");
-  tooltipHeader.innerHTML = `
-    <button class="uda-tooltip-exit-btn" type="button" uda-added="true" id="uda-autoplay-exit" title="Exit tutorial">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
+  const exitBtn = document.createElement("button");
+  exitBtn.className = "uda-tooltip-exit-btn";
+  exitBtn.type = "button";
+  exitBtn.setAttribute("uda-added", "true");
+  exitBtn.id = "uda-autoplay-exit";
+  exitBtn.title = "Exit tutorial";
+  exitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
-      </svg>
-    </button>
-  `;
-
+      </svg>`;
+  exitBtn.addEventListener("click", () => {
+    if (onExit) onExit();
+  });
+  tooltipHeader.appendChild(exitBtn);
   // Create the tooltip controls with a 'continue' button and a button to change the tooltip's position.
   const tooltipControls = document.createElement("div");
   tooltipControls.classList.add("uda-tooltip-controls");
@@ -98,7 +104,7 @@ export const getToolTipElement = (message = 'Please input the value and then cli
     } catch (_) { /* ignore */ }
 
     // Track the current position of the tooltip.
-    let currentPosition = 'top';
+    let currentPosition = initialPosition;
     const positions = ['top', 'right', 'bottom', 'left'];
 
     // Add a click listener to the direction change button to cycle through positions.

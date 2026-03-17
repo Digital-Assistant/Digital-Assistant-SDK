@@ -37,7 +37,7 @@ export const matchAction = (node: any, selectedNode: any, selectedRecordingDetai
   // Parse the recorded data of the node from its JSON string format.
   const recordedNodeData = JSON.parse(selectedNode?.objectdata);
 
-  let playBackDelayTime = 1;
+  let playBackDelayTime = 3;
   if (window.UDAGlobalConfig?.enableSlowReplay) {
     if (recordedNodeData?.meta?.slowPlaybackTime) {
       playBackDelayTime = parseInt(recordedNodeData.meta.slowPlaybackTime);

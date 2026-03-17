@@ -42,21 +42,28 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
     // Scroll the target element into view.
     tooltipNode.scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
 
-    // Create the tooltip element.
-    const tooltipDivElement = getToolTipElement(message, showButtons);
+    // Calculate the optimal position before creating the tooltip so we can
+    // pass the initial placement to getToolTipElement for correct rotate cycling.
+    // Use a temporary div to get tooltip dimensions for the calculation.
+    const tempDiv = document.createElement("div");
+    let { finalCssClass: initialCssClass, availablePositions: initialAvailablePositions } = getTooltipPositionClass(tooltipNode, tempDiv);
+
+    // Create the tooltip element, passing onExit callback and initial position.
+    const tooltipDivElement = getToolTipElement(message, showButtons, () => {
+        removeToolTip();
+        StorageUtil.setToStore("off", CONFIG.RECORDING_IS_PLAYING, true);
+        trigger("PausePlay", { action: 'PausePlay' });
+    }, initialCssClass);
 
     // Store references to the current tooltip and its related nodes for later updates.
     currentTooltipNode = tooltipNode;
     currentTooltipDivElement = tooltipDivElement;
-
-    // Calculate the optimal position for the tooltip.
-    let { finalCssClass, availablePositions } = getTooltipPositionClass(tooltipNode, tooltipDivElement);
-    currentToolTipPositionClass = finalCssClass;
-    currentAvailablePositions = availablePositions;
+    currentToolTipPositionClass = initialCssClass;
+    currentAvailablePositions = initialAvailablePositions;
 
     // Create a Popper.js instance to manage the tooltip's position.
     currentPopperInstance = createPopper(tooltipNode, tooltipDivElement, {
-        placement: currentToolTipPositionClass,
+        placement: initialCssClass,
         modifiers: [
             { name: 'popperOffsets', enabled: true, phase: 'main', options: { offset: () => [0, 30] } },
             { name: 'offset', options: { offset: [0, 12] } },
@@ -80,27 +87,15 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
         // Attach an event listener to the 'continue' button.
         const continueBtn = shadowRoot.getElementById("uda-autoplay-continue");
         if (continueBtn) {
-            console.log("addToolTip: Attaching click listener to continue button.");
             continueBtn.addEventListener("click", () => {
                 removeToolTip();
-                // Trigger ContinuePlay to advance playback (matches old-ui)
                 trigger("ContinuePlay", { action: 'ContinuePlay' });
             });
-        } else {
-            console.warn("addToolTip: Continue button not found in shadowRoot.");
         }
-
-        // Attach an event listener to the 'exit' (close) icon.
-        shadowRoot.getElementById("uda-autoplay-exit")?.addEventListener("click", () => {
-            removeToolTip();
-            // Set playback status to off in storage
-            StorageUtil.setToStore("off", CONFIG.RECORDING_IS_PLAYING, true);
-            // Trigger PausePlay to update UI state
-            trigger("PausePlay", { action: 'PausePlay' });
-        });
 
         // After a short delay, focus or click the invoking node if enabled.
         setTimeout(function () {
+            if (StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true) !== "on") return;
             if (enableFocus) {
                 invokingNode.focus();
             }
@@ -118,8 +113,9 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
 export const updateTooltipPosition = (position: string) => {
     if (!currentPopperInstance) return;
 
-    let { finalCssClass } = getTooltipPositionClass(currentTooltipDivElement, currentTooltipDivElement, position, currentToolTipPositionClass, currentAvailablePositions);
+    let { finalCssClass, availablePositions } = getTooltipPositionClass(currentTooltipNode, currentTooltipDivElement, position, currentToolTipPositionClass, currentAvailablePositions);
     currentToolTipPositionClass = finalCssClass;
+    currentAvailablePositions = availablePositions;
 
     // Update the 'placement' option of the Popper.js instance.
     currentPopperInstance.setOptions((options: any) => ({

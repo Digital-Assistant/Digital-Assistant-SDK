@@ -176,19 +176,18 @@ export const getTooltipPositionClass = (
   if (availablePositions.length > 0 && selectedPosition === 'auto') {
     finalCssClass = availablePositions[0];
   } else if (selectedPosition !== 'auto') {
-    if (availablePositionsForElement.includes(selectedPosition)) {
+    if (availablePositions.includes(selectedPosition as TooltipPosition)) {
       finalCssClass = selectedPosition as TooltipPositionVariant;
     } else {
+      // Requested position has no space — pick the next available one, or first available.
       const currentBasePosition = getBasePosition(currentToolTipPositionClass);
-      if (currentBasePosition) {
-        const currentPosIndex = availablePositionsForElement.findIndex(p => p === currentBasePosition);
-        if (currentPosIndex > -1 && currentPosIndex + 1 < availablePositionsForElement.length) {
-          finalCssClass = availablePositionsForElement[currentPosIndex + 1] as TooltipPositionVariant;
-        } else {
-          finalCssClass = DEFAULT_POSITION;
-        }
+      const currentPosIndex = availablePositions.findIndex(p => p === currentBasePosition);
+      if (currentPosIndex > -1 && currentPosIndex + 1 < availablePositions.length) {
+        finalCssClass = availablePositions[currentPosIndex + 1] as TooltipPositionVariant;
+      } else if (availablePositions.length > 0) {
+        finalCssClass = availablePositions[0] as TooltipPositionVariant;
       } else {
-        finalCssClass = DEFAULT_POSITION;
+        finalCssClass = currentToolTipPositionClass as TooltipPositionVariant || DEFAULT_POSITION;
       }
     }
   } else {

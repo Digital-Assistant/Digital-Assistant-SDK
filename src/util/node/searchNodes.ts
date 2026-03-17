@@ -48,11 +48,11 @@ export const searchNodes = async (recordedNode: any, compareElements: any) => {
     let match = compareNodes(compareNode.node, recordedNodeData.node, isPersonalNode);
 
     // Uncomment for debugging purposes.
-    if (match.matched + 3 >= match.count) {
+    /* if (match.matched + 3 >= match.count) {
       UDAConsoleLogger.info(searchNode.node, 3);
       UDAConsoleLogger.info(compareNode, 3);
       UDAConsoleLogger.info(match, 3);
-    }
+    } */
 
     // Determine if the nodes match based on a scoring system.
     // The 'matched' score is incremented by 'innerTextWeight' for the node and its children.
@@ -118,7 +118,7 @@ export const searchNodes = async (recordedNode: any, compareElements: any) => {
     } else if (finalMatchNodes.length > 1) {
       // If multiple nodes still match, compare their positions to find the closest one.
       finalMatchNode = processDistanceOfNodes(finalMatchNodes, recordedNodeData.node);
-      UDAConsoleLogger.info(finalMatchNode, 3);
+      // UDAConsoleLogger.info(finalMatchNode, 3);
     }
 
     if (finalMatchNode) {

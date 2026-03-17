@@ -5,6 +5,7 @@ import {CONFIG} from "../../config";
 import {UDAConsoleLogger} from "../error";
 import {trigger} from "../node";
 import {removeToolTip} from "../notification";
+import {StorageUtil} from "../storage";
 
 /**
  * Invokes a click action on the provided node and schedules the playback of the next node.
@@ -36,6 +37,8 @@ export const invokeNextNode = (node: any, timeToInvoke: any) => {
 
   // Schedule the click action and tooltip removal after `timeToInvoke`.
   setTimeout(function () {
+    const playStatus1 = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
+    if (playStatus1 !== "on") return;
     node.click();
     removeToolTip();
   }, timeToInvoke);
@@ -50,6 +53,8 @@ export const invokeNextNode = (node: any, timeToInvoke: any) => {
   
   // Trigger the 'UDAPlayNext' event after an additional delay.
   setTimeout(function () {
+    const playStatus2 = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
+    if (playStatus2 !== "on") return;
     trigger("UDAPlayNext", {"playNext": true});
   }, timeToInvoke);
 }
