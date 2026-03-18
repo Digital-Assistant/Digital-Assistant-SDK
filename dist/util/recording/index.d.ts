@@ -1,0 +1,10 @@
+export * from './addEvent';
+export * from './domChanges';
+export * from './addBodyEvents';
+export * from './saveClickData';
+export * from './addClickToNode';
+export * from '../node/isClickableNode';
+export * from './recordUserClick';
+export * from './fetchHtmlFormElements';
+export * from './mapClickedElementToHtmlFormElement';
+//# sourceMappingURL=index.d.ts.map
