@@ -1,0 +1,83 @@
+name: Release & Sync
+
+on:
+  push:
+    branches:
+      - main # Releases only happen when code is merged into main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: node
+          target-branch: main
+
+  back-merge:
+    name: Automate Back-Merge
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create Back-Merge PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base dev \
+            --head main \
+            --title "chore: sync main back to dev after release" \
+            --body "Automated PR: syncs the updated package.json and CHANGELOG.md from main back to dev after a release. Merge this immediately to prevent future merge conflicts." \
+            || echo "Back-merge PR not created (already exists or nothing to sync)."
+
+  # ---------------------------------------------------------------------------
+  # npm publishing is intentionally DISABLED for now (Phase 2 decision).
+  #
+  # To enable it later:
+  #   1. Configure npm Trusted Publishing for owner 'Digital-Assistant',
+  #      repository 'Digital-Assistant-SDK', workflow 'release-and-sync.yml'
+  #      (npmjs.com -> package -> Settings -> Trusted Publishing). No NPM_TOKEN
+  #      is required; the job authenticates via GitHub OIDC (id-token: write).
+  #   2. Ensure the publish build has a working production env (see
+  #      environments/local.env.example and scripts/generate-env.mjs).
+  #   3. Uncomment the job below.
+  #
+  # publish:
+  #   name: Publish to npm
+  #   needs: release-please
+  #   if: ${{ needs.release-please.outputs.release_created == 'true' }}
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Setup Node.js 24
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 24
+  #         registry-url: https://registry.npmjs.org/
+  #         cache: npm
+  #
+  #     - name: Install Dependencies
+  #       run: npm ci
+  #
+  #     - name: Publish to npm
+  #       run: npm publish --provenance --access public
+  # ---------------------------------------------------------------------------
