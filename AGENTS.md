@@ -40,6 +40,7 @@ Run from repo root.
 - `npm run check` — `format:check` → `typecheck` → `test` (full local gate)
 - `npm run security` — `npm audit --audit-level=high`
 - `npm run clean` — remove `dist/`
+- `npm run env:generate` — generate `environments/<BUILD_ENV>.env` from env vars (`scripts/generate-env.mjs`, default `local`; `--force` to overwrite)
 
 After any code change, run `npm run check` (or the individual gates) and `npm run build` to verify the bundle compiles. `dist/` is generated in CI and is **not** committed.
 
@@ -61,7 +62,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 ## 5. Build & Environment Matrix
 
 - Webpack config: `webpack.config.js` (single config, `--env build=<local|development|production|qa>`). Output goes to `dist/` (`index.cjs.js`, `index.esm.js`, `index.d.ts`).
-- Environment variables are loaded per env via dotenv-webpack from `environments/` (e.g. `local.env`). No `.env` commit policy — see Security.
+- Environment variables are loaded per env via dotenv-webpack from `environments/<env>.env` (gitignored). `environments/local.env.example` is the committed schema; it activates dotenv-webpack `safe` mode, so every key it declares must be present in `<env>.env` (empty values are allowed). Local dev copies the example to `local.env`; CI generates `local.env` via `npm run env:generate` from environment variables.
 - `scripts/postinstall.js` patches `node_modules/domjson/dist/domJSON.js` (adds optional chaining for `window.location`, swaps `setImmediate` → `setTimeout`). This runs on install; if domjson behaviors break, reinstall and re-patch.
 - `axios` is a peer dependency (`^1.0.0`) — host app must provide it.
 - Browser polyfills (assert, browserify-zlib, os, path, stream, url, process) are wired through webpack for browser builds.
@@ -90,6 +91,9 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 ## 8. Security
 
 - Never log, print, or commit secrets: `.env`, `local.env`, API keys, access tokens, session keys, or Keycloak credentials.
+- All `environments/*.env` files and the root `.env` are gitignored; `environments/local.env.example` is the only committed env file and must contain no real values.
+- **Rotate credentials that were previously committed** (the old `environments/local.env` is in git history). Untracking a file does not remove it from history, so exposed values must be rotated.
+- **Build-time leakage**: `process.env.*` values referenced in `src/` are inlined into the browser bundle by dotenv-webpack. Treat every value in `environments/*.env` (and every CI-provided value) as public. Moving secret-bearing config to runtime host-provided config is a tracked follow-up.
 - `.env` exists in the repo root — do not add it to `package.json` `files` or the webpack bundle. Verify no secrets are bundled into `dist/`.
 - Auth flows (Keycloak, `jwt-decode`, `AuthManager`) carry bearer tokens through `apiClient` interceptors. Interceptor logic (401 handling, logout) is security-sensitive — changes require review.
 - Sanitize user-generated content: recording payloads and step metadata are validated (profanity check via `profanityCheck`) before persistence. Preserve that boundary.

@@ -5,9 +5,10 @@ node_modules/
 dist/
 build/
 
-# Environment files
-!environments/local.env
-environments/
+# Environment files (secrets — never commit)
+.env
+environments/*
+!environments/local.env.example
 
 # Test
 coverage/

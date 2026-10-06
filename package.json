@@ -42,6 +42,7 @@
     "build:qa": "webpack --env build=qa --mode=production",
     "build:full": "npm run clean && npm run build",
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "env:generate": "node scripts/generate-env.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
