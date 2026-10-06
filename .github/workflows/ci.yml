@@ -34,17 +34,13 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
-      # --- Advisory gates (repo not yet green; see artefacts/ci-cd-pipeline-plan.md Phase 5) ---
-      - name: Format check (advisory)
-        continue-on-error: true
+      - name: Format check
         run: npm run format:check
 
-      - name: Lint (advisory)
-        continue-on-error: true
+      - name: Lint
         run: npm run lint
 
-      - name: Tests (advisory)
-        continue-on-error: true
+      - name: Tests
         run: npm test
 
       # Generate environments/local.env from repository variables/secrets.
