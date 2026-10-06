@@ -1,4 +1,3 @@
-
 import {
     updateBrowserPlugin,
     updateSessionName,
@@ -34,7 +33,9 @@ describe('browserConstants', () => {
         it('should update UDASessionName', () => {
             const newName = 'test-session';
             updateSessionName(newName);
-            expect(getUDASessionName()).toBe(`${CONFIG.USER_AUTH_DATA_KEY}-${newName}`);
+            expect(getUDASessionName()).toBe(
+                `${CONFIG.USER_AUTH_DATA_KEY}-${newName}`,
+            );
         });
 
         it('should update activeTabId', () => {

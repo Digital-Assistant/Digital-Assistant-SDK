@@ -1,4 +1,4 @@
-import {hasClass} from "./hasClass";
+import { hasClass } from './hasClass';
 
 /**
  * Checks if a DOM node has a specific key-value pair, based on a given check type.
@@ -11,7 +11,12 @@ import {hasClass} from "./hasClass";
  * @param checkType The type of check being performed (not directly used in this function, but passed for context).
  * @returns `true` if the node matches the criteria, `false` otherwise.
  */
-export const checkNodeObjectKeyValue = (node: any, key: string, objectValues: Array<string>, checkType: string) => {
+export const checkNodeObjectKeyValue = (
+    node: any,
+    key: string,
+    objectValues: Array<string>,
+    checkType: string,
+) => {
     let exists = false;
     switch (key.toLowerCase()) {
         case 'tags':
@@ -28,17 +33,19 @@ export const checkNodeObjectKeyValue = (node: any, key: string, objectValues: Ar
             break;
         case 'attributes':
             // Check if the node has any of the specified attributes.
-            attributeLoop:
-                for (const attribute of objectValues) {
-                    if (node.hasAttribute(attribute)) {
-                        exists = true;
-                        break attributeLoop;
-                    }
+            attributeLoop: for (const attribute of objectValues) {
+                if (node.hasAttribute(attribute)) {
+                    exists = true;
+                    break attributeLoop;
                 }
+            }
             break;
         case 'ids':
             // Check if the node's ID is included in the provided list of IDs.
-            if (node.id && objectValues.includes(node.id.trim().toLowerCase())) {
+            if (
+                node.id &&
+                objectValues.includes(node.id.trim().toLowerCase())
+            ) {
                 exists = true;
             }
             break;
@@ -49,7 +56,7 @@ export const checkNodeObjectKeyValue = (node: any, key: string, objectValues: Ar
                 .split(/\s+/)
                 .filter(Boolean);
             if (classList.length) {
-                exists = objectValues.some(v => classList.includes(v));
+                exists = objectValues.some((v) => classList.includes(v));
             }
             break;
         }
@@ -74,4 +81,4 @@ export const checkNodeObjectKeyValue = (node: any, key: string, objectValues: Ar
             }
     }
     return exists;
-}
+};

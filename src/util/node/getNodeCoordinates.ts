@@ -25,17 +25,22 @@
 export const getNodeCoordinates = (element: any, windowSize: any): any => {
     // Get viewport-relative positioning using the browser API.
     // This provides the foundation for page-relative calculations.
-    const rect = typeof element?.getBoundingClientRect === 'function'
-        ? element.getBoundingClientRect()
-        : ({ top: 0, left: 0, width: 0, height: 0 } as any);
+    const rect =
+        typeof element?.getBoundingClientRect === 'function'
+            ? element.getBoundingClientRect()
+            : ({ top: 0, left: 0, width: 0, height: 0 } as any);
 
     // Determine scroll offsets defensively to support different data shapes, especially in tests.
-    const scrollTop = (windowSize?.scrollInfo?.scrollTop
-        ?? windowSize?.scrollY
-        ?? (typeof window !== 'undefined' ? window.scrollY : 0)) || 0;
-    const scrollLeft = (windowSize?.scrollInfo?.scrollLeft
-        ?? windowSize?.scrollX
-        ?? (typeof window !== 'undefined' ? window.scrollX : 0)) || 0;
+    const scrollTop =
+        (windowSize?.scrollInfo?.scrollTop ??
+            windowSize?.scrollY ??
+            (typeof window !== 'undefined' ? window.scrollY : 0)) ||
+        0;
+    const scrollLeft =
+        (windowSize?.scrollInfo?.scrollLeft ??
+            windowSize?.scrollX ??
+            (typeof window !== 'undefined' ? window.scrollX : 0)) ||
+        0;
 
     // Calculate page-relative coordinates by adding the scroll offsets.
     // This converts the viewport position to an absolute page position.
@@ -51,8 +56,8 @@ export const getNodeCoordinates = (element: any, windowSize: any): any => {
         left: (rect.left || 0) + scrollLeft,
 
         // Preserve the original DOMRect for reference and debugging purposes.
-        actualPos: rect
+        actualPos: rect,
     };
 
     return result;
-}
+};

@@ -14,11 +14,15 @@ describe('fetchSearchResults', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         (getUserId as jest.Mock).mockResolvedValue('test-session-id');
-        (processUrlArgs as jest.Mock).mockImplementation((endpoint, req) => `${endpoint}?page=${req.page}`);
+        (processUrlArgs as jest.Mock).mockImplementation(
+            (endpoint, req) => `${endpoint}?page=${req.page}`,
+        );
     });
 
     it('should fetch search results and record user click data', async () => {
-        (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result1', 'result2'] });
+        (apiClient.get as jest.Mock).mockResolvedValue({
+            data: ['result1', 'result2'],
+        });
 
         const result = await fetchSearchResults({ keyword: 'test', page: 1 });
         expect(recordUserClickData).toHaveBeenCalledWith('search', 'test');
@@ -45,8 +49,13 @@ describe('fetchSearchResults', () => {
         (apiClient.get as jest.Mock).mockRejectedValue(new Error('API error'));
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-        await expect(fetchSearchResults({ page: 1 })).rejects.toThrow('Failed to perform search: API error');
-        expect(consoleSpy).toHaveBeenCalledWith('Search service error:', 'API error');
+        await expect(fetchSearchResults({ page: 1 })).rejects.toThrow(
+            'Failed to perform search: API error',
+        );
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'Search service error:',
+            'API error',
+        );
         consoleSpy.mockRestore();
     });
 
@@ -61,14 +70,20 @@ describe('fetchSearchResults', () => {
         (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
 
         await fetchSearchResults({ page: 1, additionalParams: { foo: 'bar' } });
-        expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.SearchWithPermissions, expect.any(Object));
+        expect(processUrlArgs).toHaveBeenCalledWith(
+            ENDPOINT.SearchWithPermissions,
+            expect.any(Object),
+        );
     });
 
     it('should use Search endpoint if additionalParams is not present', async () => {
         (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
 
         await fetchSearchResults({ page: 1 });
-        expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.Search, expect.any(Object));
+        expect(processUrlArgs).toHaveBeenCalledWith(
+            ENDPOINT.Search,
+            expect.any(Object),
+        );
     });
 
     // Edge case: additionalParams is explicitly null
@@ -78,7 +93,10 @@ describe('fetchSearchResults', () => {
         const req = { page: 1, additionalParams: null };
         await fetchSearchResults(req);
         // Should use Search endpoint, not SearchWithPermissions
-        expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.Search, expect.any(Object));
+        expect(processUrlArgs).toHaveBeenCalledWith(
+            ENDPOINT.Search,
+            expect.any(Object),
+        );
     });
 
     // Edge case: getUserId resolves to undefined
@@ -96,24 +114,38 @@ describe('fetchSearchResults', () => {
         (getUserId as jest.Mock).mockRejectedValue(new Error('UserId error'));
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-        await expect(fetchSearchResults({ page: 1 })).rejects.toThrow('Failed to perform search: UserId error');
-        expect(consoleSpy).toHaveBeenCalledWith('Search service error:', 'UserId error');
+        await expect(fetchSearchResults({ page: 1 })).rejects.toThrow(
+            'Failed to perform search: UserId error',
+        );
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'Search service error:',
+            'UserId error',
+        );
         consoleSpy.mockRestore();
     });
 
     // Edge case: processUrlArgs throws
     it('should throw error if processUrlArgs throws', async () => {
-        (processUrlArgs as jest.Mock).mockImplementation(() => { throw new Error('URL error'); });
+        (processUrlArgs as jest.Mock).mockImplementation(() => {
+            throw new Error('URL error');
+        });
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-        await expect(fetchSearchResults({ page: 1 })).rejects.toThrow('Failed to perform search: URL error');
-        expect(consoleSpy).toHaveBeenCalledWith('Search service error:', 'URL error');
+        await expect(fetchSearchResults({ page: 1 })).rejects.toThrow(
+            'Failed to perform search: URL error',
+        );
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'Search service error:',
+            'URL error',
+        );
         consoleSpy.mockRestore();
     });
 
     // Edge case: response.data is not an array
     it('should return response.data as is if it is not an array', async () => {
-        (apiClient.get as jest.Mock).mockResolvedValue({ data: { foo: 'bar' } });
+        (apiClient.get as jest.Mock).mockResolvedValue({
+            data: { foo: 'bar' },
+        });
 
         const result = await fetchSearchResults({ page: 1 });
         expect(result).toEqual({ foo: 'bar' });
@@ -131,7 +163,11 @@ describe('fetchSearchResults', () => {
 
     describe('enableAISearch routing', () => {
         const setGlobalConfig = (overrides: object) => {
-            (global as any).UDAGlobalConfig = { enableAISearch: false, enablePermissions: false, ...overrides };
+            (global as any).UDAGlobalConfig = {
+                enableAISearch: false,
+                enablePermissions: false,
+                ...overrides,
+            };
         };
 
         afterEach(() => {
@@ -140,39 +176,64 @@ describe('fetchSearchResults', () => {
 
         it('should use AISearch endpoint when enableAISearch is true and no additionalParams', async () => {
             setGlobalConfig({ enableAISearch: true });
-            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['ai-result'] });
+            (apiClient.get as jest.Mock).mockResolvedValue({
+                data: ['ai-result'],
+            });
 
             await fetchSearchResults({ page: 1 });
 
-            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.AISearch, expect.any(Object));
+            expect(processUrlArgs).toHaveBeenCalledWith(
+                ENDPOINT.AISearch,
+                expect.any(Object),
+            );
         });
 
         it('should use AISearchWithPermissions endpoint when enableAISearch is true and additionalParams present', async () => {
             setGlobalConfig({ enableAISearch: true });
-            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['ai-result'] });
+            (apiClient.get as jest.Mock).mockResolvedValue({
+                data: ['ai-result'],
+            });
 
-            await fetchSearchResults({ page: 1, additionalParams: { role: 'admin' } });
+            await fetchSearchResults({
+                page: 1,
+                additionalParams: { role: 'admin' },
+            });
 
-            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.AISearchWithPermissions, expect.any(Object));
+            expect(processUrlArgs).toHaveBeenCalledWith(
+                ENDPOINT.AISearchWithPermissions,
+                expect.any(Object),
+            );
         });
 
         it('should use standard Search endpoint when enableAISearch is false and no additionalParams', async () => {
             setGlobalConfig({ enableAISearch: false });
-            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
+            (apiClient.get as jest.Mock).mockResolvedValue({
+                data: ['result'],
+            });
 
             await fetchSearchResults({ page: 1 });
 
-            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.Search, expect.any(Object));
+            expect(processUrlArgs).toHaveBeenCalledWith(
+                ENDPOINT.Search,
+                expect.any(Object),
+            );
         });
 
         it('should use SearchWithPermissions endpoint when enableAISearch is false and additionalParams present', async () => {
             setGlobalConfig({ enableAISearch: false });
-            (apiClient.get as jest.Mock).mockResolvedValue({ data: ['result'] });
+            (apiClient.get as jest.Mock).mockResolvedValue({
+                data: ['result'],
+            });
 
-            await fetchSearchResults({ page: 1, additionalParams: { role: 'admin' } });
+            await fetchSearchResults({
+                page: 1,
+                additionalParams: { role: 'admin' },
+            });
 
-            expect(processUrlArgs).toHaveBeenCalledWith(ENDPOINT.SearchWithPermissions, expect.any(Object));
+            expect(processUrlArgs).toHaveBeenCalledWith(
+                ENDPOINT.SearchWithPermissions,
+                expect.any(Object),
+            );
         });
     });
-
 });

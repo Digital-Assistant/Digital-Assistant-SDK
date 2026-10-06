@@ -41,7 +41,7 @@ export const validationSlice = createSlice({
                 ...state,
                 recordingId: action.payload,
                 validationRequired: true,
-                validationCompleted: false
+                validationCompleted: false,
             });
         },
         markGlobalValidationCompleted: (state) => {
@@ -49,7 +49,7 @@ export const validationSlice = createSlice({
             // Save to localStorage after state update
             saveStateToStorage({
                 ...state,
-                validationCompleted: true
+                validationCompleted: true,
             });
         },
         resetValidationState: (state) => {
@@ -66,5 +66,9 @@ export const validationSlice = createSlice({
     },
 });
 
-export const { startGlobalValidation, markGlobalValidationCompleted, resetValidationState } = validationSlice.actions;
+export const {
+    startGlobalValidation,
+    markGlobalValidationCompleted,
+    resetValidationState,
+} = validationSlice.actions;
 export default validationSlice.reducer;

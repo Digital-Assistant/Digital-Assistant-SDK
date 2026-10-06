@@ -1,11 +1,11 @@
-import { removeFromArray } from "../removeFromArray";
-import { getScreenSize } from "../screen/getScreenSize";
-import { getNodeCoordinates } from "./getNodeCoordinates";
+import { removeFromArray } from '../removeFromArray';
+import { getScreenSize } from '../screen/getScreenSize';
+import { getNodeCoordinates } from './getNodeCoordinates';
 
 /**
  * Defines the possible base positions for a tooltip.
  */
-type TooltipPosition = "top" | "right" | "bottom" | "left";
+type TooltipPosition = 'top' | 'right' | 'bottom' | 'left';
 
 /**
  * Defines the possible position variants, including start and end modifiers.
@@ -19,18 +19,18 @@ type TooltipPositionVariant =
  * Represents the available space (gaps) around a target element.
  */
 interface DirectionalGaps {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
 }
 
 /**
  * Represents the result of a tooltip position calculation.
  */
 interface TooltipPositionResult {
-  finalCssClass: TooltipPositionVariant;
-  availablePositions: TooltipPosition[];
+    finalCssClass: TooltipPositionVariant;
+    availablePositions: TooltipPosition[];
 }
 
 /**
@@ -45,31 +45,44 @@ interface TooltipPositionResult {
 const calculateAvailablePositions = (
     gaps: DirectionalGaps,
     tooltipDimensions: { width: number; height: number },
-    padding: number
+    padding: number,
 ): TooltipPosition[] => {
-  const availablePositions: TooltipPosition[] = ["top", "right", "bottom", "left"];
+    const availablePositions: TooltipPosition[] = [
+        'top',
+        'right',
+        'bottom',
+        'left',
+    ];
 
-  // Check if there is enough space on the right.
-  if (gaps.right <= (tooltipDimensions.width + padding) || (gaps.top < (tooltipDimensions.height + padding) || gaps.bottom < (tooltipDimensions.height + padding))) {
-    removeFromArray(availablePositions, "right");
-  }
+    // Check if there is enough space on the right.
+    if (
+        gaps.right <= tooltipDimensions.width + padding ||
+        gaps.top < tooltipDimensions.height + padding ||
+        gaps.bottom < tooltipDimensions.height + padding
+    ) {
+        removeFromArray(availablePositions, 'right');
+    }
 
-  // Check if there is enough space on the left.
-  if (gaps.left <= (tooltipDimensions.width + padding) || (gaps.top < (tooltipDimensions.height + padding) || gaps.bottom < (tooltipDimensions.height + padding))) {
-    removeFromArray(availablePositions, "left");
-  }
+    // Check if there is enough space on the left.
+    if (
+        gaps.left <= tooltipDimensions.width + padding ||
+        gaps.top < tooltipDimensions.height + padding ||
+        gaps.bottom < tooltipDimensions.height + padding
+    ) {
+        removeFromArray(availablePositions, 'left');
+    }
 
-  // Check if there is enough space at the bottom.
-  if (gaps.bottom < tooltipDimensions.height + padding) {
-    removeFromArray(availablePositions, "bottom");
-  }
+    // Check if there is enough space at the bottom.
+    if (gaps.bottom < tooltipDimensions.height + padding) {
+        removeFromArray(availablePositions, 'bottom');
+    }
 
-  // Check if there is enough space at the top.
-  if (gaps.top < (tooltipDimensions.height + padding)) {
-    removeFromArray(availablePositions, "top");
-  }
+    // Check if there is enough space at the top.
+    if (gaps.top < tooltipDimensions.height + padding) {
+        removeFromArray(availablePositions, 'top');
+    }
 
-  return availablePositions;
+    return availablePositions;
 };
 
 /**
@@ -79,14 +92,14 @@ const calculateAvailablePositions = (
  * @returns The base `TooltipPosition` or `null` if not found.
  */
 const getBasePosition = (positionClass: string): TooltipPosition | null => {
-  if (!positionClass) return null;
+    if (!positionClass) return null;
 
-  if (positionClass.startsWith("right")) return "right";
-  if (positionClass.startsWith("left")) return "left";
-  if (positionClass.startsWith("top")) return "top";
-  if (positionClass.startsWith("bottom")) return "bottom";
+    if (positionClass.startsWith('right')) return 'right';
+    if (positionClass.startsWith('left')) return 'left';
+    if (positionClass.startsWith('top')) return 'top';
+    if (positionClass.startsWith('bottom')) return 'bottom';
 
-  return null;
+    return null;
 };
 
 /**
@@ -102,30 +115,30 @@ const applyPositionModifiers = (
     basePosition: TooltipPosition,
     gaps: DirectionalGaps,
     tooltipDimensions: { width: number; height: number },
-    padding: number
+    padding: number,
 ): TooltipPositionVariant => {
-  let finalPosition: TooltipPositionVariant = basePosition;
+    let finalPosition: TooltipPositionVariant = basePosition;
 
-  switch (basePosition) {
-    case "right":
-    case "left":
-      if (gaps.top < (tooltipDimensions.height + padding)) {
-        finalPosition = `${basePosition}-start`;
-      } else if (gaps.bottom < (tooltipDimensions.height + padding)) {
-        finalPosition = `${basePosition}-end`;
-      }
-      break;
-    case "top":
-    case "bottom":
-      if (gaps.left < (tooltipDimensions.width + padding)) {
-        finalPosition = `${basePosition}-start`;
-      } else if (gaps.right < (tooltipDimensions.width + padding)) {
-        finalPosition = `${basePosition}-end`;
-      }
-      break;
-  }
+    switch (basePosition) {
+        case 'right':
+        case 'left':
+            if (gaps.top < tooltipDimensions.height + padding) {
+                finalPosition = `${basePosition}-start`;
+            } else if (gaps.bottom < tooltipDimensions.height + padding) {
+                finalPosition = `${basePosition}-end`;
+            }
+            break;
+        case 'top':
+        case 'bottom':
+            if (gaps.left < tooltipDimensions.width + padding) {
+                finalPosition = `${basePosition}-start`;
+            } else if (gaps.right < tooltipDimensions.width + padding) {
+                finalPosition = `${basePosition}-end`;
+            }
+            break;
+    }
 
-  return finalPosition;
+    return finalPosition;
 };
 
 /**
@@ -145,61 +158,78 @@ export const getTooltipPositionClass = (
     currentToolTipPositionClass: string = '',
     availablePositionsForElement: string[] = [],
 ): TooltipPositionResult => {
-  const PADDING = 30;
-  const DEFAULT_POSITION: TooltipPosition = "right";
+    const PADDING = 30;
+    const DEFAULT_POSITION: TooltipPosition = 'right';
 
-  const screenSize = getScreenSize();
-  const maxWidth = Math.min(300, screenSize.screen.width * 0.8);
-  const maxHeight = Math.min(400, screenSize.screen.height * 0.8);
+    const screenSize = getScreenSize();
+    const maxWidth = Math.min(300, screenSize.screen.width * 0.8);
+    const maxHeight = Math.min(400, screenSize.screen.height * 0.8);
 
-  tooltipElement.style.maxWidth = `${maxWidth}px`;
-  tooltipElement.style.maxHeight = `${maxHeight}px`;
+    tooltipElement.style.maxWidth = `${maxWidth}px`;
+    tooltipElement.style.maxHeight = `${maxHeight}px`;
 
-  const tooltipPos: any = getNodeCoordinates(tooltipElement, screenSize);
-  const targetElementRect = targetElement?.getBoundingClientRect();
+    const tooltipPos: any = getNodeCoordinates(tooltipElement, screenSize);
+    const targetElementRect = targetElement?.getBoundingClientRect();
 
-  const gaps: DirectionalGaps = {
-    top: targetElementRect.top,
-    right: screenSize.screen.width - (targetElementRect.right + targetElementRect.width),
-    bottom: screenSize.screen.height - (targetElementRect.bottom + targetElementRect.height),
-    left: targetElementRect.left
-  };
+    const gaps: DirectionalGaps = {
+        top: targetElementRect.top,
+        right:
+            screenSize.screen.width -
+            (targetElementRect.right + targetElementRect.width),
+        bottom:
+            screenSize.screen.height -
+            (targetElementRect.bottom + targetElementRect.height),
+        left: targetElementRect.left,
+    };
 
-  const availablePositions = calculateAvailablePositions(
-      gaps,
-      { width: tooltipPos.width, height: tooltipPos.height },
-      PADDING
-  );
+    const availablePositions = calculateAvailablePositions(
+        gaps,
+        { width: tooltipPos.width, height: tooltipPos.height },
+        PADDING,
+    );
 
-  let finalCssClass: TooltipPositionVariant;
+    let finalCssClass: TooltipPositionVariant;
 
-  if (availablePositions.length > 0 && selectedPosition === 'auto') {
-    finalCssClass = availablePositions[0];
-  } else if (selectedPosition !== 'auto') {
-    if (availablePositions.includes(selectedPosition as TooltipPosition)) {
-      finalCssClass = selectedPosition as TooltipPositionVariant;
+    if (availablePositions.length > 0 && selectedPosition === 'auto') {
+        finalCssClass = availablePositions[0];
+    } else if (selectedPosition !== 'auto') {
+        if (availablePositions.includes(selectedPosition as TooltipPosition)) {
+            finalCssClass = selectedPosition as TooltipPositionVariant;
+        } else {
+            // Requested position has no space — pick the next available one, or first available.
+            const currentBasePosition = getBasePosition(
+                currentToolTipPositionClass,
+            );
+            const currentPosIndex = availablePositions.findIndex(
+                (p) => p === currentBasePosition,
+            );
+            if (
+                currentPosIndex > -1 &&
+                currentPosIndex + 1 < availablePositions.length
+            ) {
+                finalCssClass = availablePositions[
+                    currentPosIndex + 1
+                ] as TooltipPositionVariant;
+            } else if (availablePositions.length > 0) {
+                finalCssClass = availablePositions[0] as TooltipPositionVariant;
+            } else {
+                finalCssClass =
+                    (currentToolTipPositionClass as TooltipPositionVariant) ||
+                    DEFAULT_POSITION;
+            }
+        }
     } else {
-      // Requested position has no space — pick the next available one, or first available.
-      const currentBasePosition = getBasePosition(currentToolTipPositionClass);
-      const currentPosIndex = availablePositions.findIndex(p => p === currentBasePosition);
-      if (currentPosIndex > -1 && currentPosIndex + 1 < availablePositions.length) {
-        finalCssClass = availablePositions[currentPosIndex + 1] as TooltipPositionVariant;
-      } else if (availablePositions.length > 0) {
-        finalCssClass = availablePositions[0] as TooltipPositionVariant;
-      } else {
-        finalCssClass = currentToolTipPositionClass as TooltipPositionVariant || DEFAULT_POSITION;
-      }
+        finalCssClass =
+            (currentToolTipPositionClass as TooltipPositionVariant) ||
+            DEFAULT_POSITION;
     }
-  } else {
-    finalCssClass = currentToolTipPositionClass as TooltipPositionVariant || DEFAULT_POSITION;
-  }
 
-  finalCssClass = applyPositionModifiers(
-      getBasePosition(finalCssClass) || DEFAULT_POSITION,
-      gaps,
-      { width: tooltipPos.width, height: tooltipPos.height },
-      PADDING
-  );
+    finalCssClass = applyPositionModifiers(
+        getBasePosition(finalCssClass) || DEFAULT_POSITION,
+        gaps,
+        { width: tooltipPos.width, height: tooltipPos.height },
+        PADDING,
+    );
 
-  return { finalCssClass, availablePositions };
+    return { finalCssClass, availablePositions };
 };

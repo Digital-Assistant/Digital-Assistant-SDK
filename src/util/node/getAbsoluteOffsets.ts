@@ -8,7 +8,7 @@
  * @returns An object with `x` and `y` properties representing the absolute coordinates.
  */
 export const getAbsoluteOffsets = (element: HTMLElement) => {
-    let cords = {x: 0, y: 0};
+    let cords = { x: 0, y: 0 };
     try {
         let currentElement: any = element;
 
@@ -27,8 +27,8 @@ export const getAbsoluteOffsets = (element: HTMLElement) => {
         }
     } catch (e) {
         // Log any errors that occur during the calculation.
-        console.log(e)
+        console.log(e);
     }
 
     return cords;
-}
+};

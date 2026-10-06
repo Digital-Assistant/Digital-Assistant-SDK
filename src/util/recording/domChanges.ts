@@ -1,6 +1,6 @@
-import {addBodyEvents} from "./addBodyEvents";
-import {CONFIG} from "../../config";
-import {StorageUtil} from "../storage";
+import { addBodyEvents } from './addBodyEvents';
+import { CONFIG } from '../../config';
+import { StorageUtil } from '../storage';
 
 // Timer variable to debounce DOM change events.
 export let timer: any = null;
@@ -18,7 +18,9 @@ let _observer: MutationObserver | null = null;
 function getObserver(): MutationObserver {
     if (!_observer) {
         if (typeof MutationObserver === 'undefined') {
-            throw new Error('MutationObserver is not available in this context');
+            throw new Error(
+                'MutationObserver is not available in this context',
+            );
         }
 
         _observer = new MutationObserver((mutationList, observer) => {
@@ -30,7 +32,11 @@ function getObserver(): MutationObserver {
             timer = setTimeout(async () => {
                 try {
                     // Check if recording is currently active.
-                    const isRecording = StorageUtil.getFromStore(CONFIG.RECORDING_SWITCH_KEY, true) == "true";
+                    const isRecording =
+                        StorageUtil.getFromStore(
+                            CONFIG.RECORDING_SWITCH_KEY,
+                            true,
+                        ) == 'true';
 
                     if (isRecording) {
                         console.log('Adding body events.');
@@ -39,7 +45,7 @@ function getObserver(): MutationObserver {
                     }
                 } catch (e) {
                     // Log errors but do not crash the observer.
-                    console.error("Error during DOM change observation:", e);
+                    console.error('Error during DOM change observation:', e);
                 }
             }, CONFIG.indexInterval); // Use a configured interval for debouncing.
         });
@@ -60,7 +66,7 @@ export const observer = {
     },
     takeRecords: () => {
         return getObserver().takeRecords();
-    }
+    },
 };
 
 /**
@@ -70,7 +76,11 @@ export const observer = {
  */
 export function initializeDomChanges() {
     console.log('Initialized dom changes.');
-    getObserver().observe(document.body, {attributes: true, childList: true, subtree: true});
+    getObserver().observe(document.body, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+    });
 }
 
 /**

@@ -1,6 +1,11 @@
 import { ApiClient, apiClient } from '../apiClient';
 import { store } from '../../store';
-import { setKeycloakSessionData, setUserSessionData, setUserData, clearUserData } from '../../store/slices/userSlice';
+import {
+    setKeycloakSessionData,
+    setUserSessionData,
+    setUserData,
+    clearUserData,
+} from '../../store/slices/userSlice';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
@@ -12,17 +17,19 @@ describe('ApiClient', () => {
     beforeEach(() => {
         // Clear store state
         store.dispatch(clearUserData());
-        
+
         // Create a new client instance for each test
         client = new ApiClient({
-            baseURL: 'https://api.test.com'
+            baseURL: 'https://api.test.com',
         });
-        
+
         // Create axios mock adapter on the client's axios instance
         mockAxios = new MockAdapter(client.getAxiosInstance());
 
         // Spy on console.warn to suppress output and allow for assertions
-        consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        consoleWarnSpy = jest
+            .spyOn(console, 'warn')
+            .mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -41,7 +48,7 @@ describe('ApiClient', () => {
         it('should create client with default configuration', () => {
             const defaultClient = new ApiClient();
             const config = defaultClient.getConfig();
-            
+
             expect(config.timeout).toBe(30000);
         });
 
@@ -49,12 +56,12 @@ describe('ApiClient', () => {
             const customConfig = {
                 baseURL: 'https://custom.api.com',
                 timeout: 60000,
-                additionalHeaders: { 'X-Custom': 'header' }
+                additionalHeaders: { 'X-Custom': 'header' },
             };
-            
+
             const customClient = new ApiClient(customConfig);
             const config = customClient.getConfig();
-            
+
             expect(config.baseURL).toBe('https://custom.api.com');
             expect(config.timeout).toBe(60000);
             expect(config.additionalHeaders).toEqual({ 'X-Custom': 'header' });
@@ -63,17 +70,17 @@ describe('ApiClient', () => {
         it('should update base URL after creation', () => {
             const newBaseURL = 'https://new.api.com';
             client.updateBaseURL(newBaseURL);
-            
+
             expect(client.getConfig().baseURL).toBe(newBaseURL);
         });
 
         it('should update headers after creation', () => {
             const newHeaders = { 'X-Updated': 'header' };
             client.updateHeaders(newHeaders);
-            
+
             // Verify headers were updated on the axios instance
             expect(client.getAxiosInstance().defaults.headers.common).toEqual(
-                expect.objectContaining(newHeaders)
+                expect.objectContaining(newHeaders),
             );
         });
     });
@@ -133,7 +140,7 @@ describe('ApiClient', () => {
         it('should handle request with custom config', async () => {
             const responseData = { data: 'test' };
             const customConfig = { timeout: 5000 };
-            
+
             mockAxios.onGet('/test').reply((config) => {
                 expect(config.timeout).toBe(5000);
                 return [200, responseData];
@@ -152,12 +159,18 @@ describe('ApiClient', () => {
             store.dispatch(setKeycloakSessionData({ token }));
 
             // Create new client to get updated interceptors
-            const authenticatedClient = new ApiClient({ baseURL: 'https://api.test.com' });
-            const mockAuth = new MockAdapter(authenticatedClient.getAxiosInstance());
-            
+            const authenticatedClient = new ApiClient({
+                baseURL: 'https://api.test.com',
+            });
+            const mockAuth = new MockAdapter(
+                authenticatedClient.getAxiosInstance(),
+            );
+
             mockAuth.onGet('/protected').reply((config) => {
                 expect(config.headers?.Authorization).toBe(`Bearer ${token}`);
-                expect(config.headers?.['X-SDK-Client']).toBe('@digital-assistant/core');
+                expect(config.headers?.['X-SDK-Client']).toBe(
+                    '@digital-assistant/core',
+                );
                 return [200, { message: 'authenticated' }];
             });
 
@@ -165,7 +178,7 @@ describe('ApiClient', () => {
 
             expect(response.status).toBe(200);
             expect(response.data).toEqual({ message: 'authenticated' });
-            
+
             mockAuth.restore();
         });
 
@@ -173,9 +186,13 @@ describe('ApiClient', () => {
             const token = 'user-session-token';
             store.dispatch(setUserSessionData({ authData: { token } }));
 
-            const authenticatedClient = new ApiClient({ baseURL: 'https://api.test.com' });
-            const mockAuth = new MockAdapter(authenticatedClient.getAxiosInstance());
-            
+            const authenticatedClient = new ApiClient({
+                baseURL: 'https://api.test.com',
+            });
+            const mockAuth = new MockAdapter(
+                authenticatedClient.getAxiosInstance(),
+            );
+
             mockAuth.onGet('/protected').reply((config) => {
                 expect(config.headers?.Authorization).toBe(`Bearer ${token}`);
                 return [200, { message: 'authenticated' }];
@@ -189,9 +206,13 @@ describe('ApiClient', () => {
             const token = 'user-data-token';
             store.dispatch(setUserData({ token }));
 
-            const authenticatedClient = new ApiClient({ baseURL: 'https://api.test.com' });
-            const mockAuth = new MockAdapter(authenticatedClient.getAxiosInstance());
-            
+            const authenticatedClient = new ApiClient({
+                baseURL: 'https://api.test.com',
+            });
+            const mockAuth = new MockAdapter(
+                authenticatedClient.getAxiosInstance(),
+            );
+
             mockAuth.onGet('/protected').reply((config) => {
                 expect(config.headers?.Authorization).toBe(`Bearer ${token}`);
                 return [200, { message: 'authenticated' }];
@@ -204,15 +225,23 @@ describe('ApiClient', () => {
         it('should prioritize Keycloak token over other tokens', async () => {
             const keycloakToken = 'keycloak-priority-token';
             const userToken = 'user-token';
-            
-            store.dispatch(setKeycloakSessionData({ token: keycloakToken }));
-            store.dispatch(setUserSessionData({ authData: { token: userToken } }));
 
-            const authenticatedClient = new ApiClient({ baseURL: 'https://api.test.com' });
-            const mockAuth = new MockAdapter(authenticatedClient.getAxiosInstance());
-            
+            store.dispatch(setKeycloakSessionData({ token: keycloakToken }));
+            store.dispatch(
+                setUserSessionData({ authData: { token: userToken } }),
+            );
+
+            const authenticatedClient = new ApiClient({
+                baseURL: 'https://api.test.com',
+            });
+            const mockAuth = new MockAdapter(
+                authenticatedClient.getAxiosInstance(),
+            );
+
             mockAuth.onGet('/protected').reply((config) => {
-                expect(config.headers?.Authorization).toBe(`Bearer ${keycloakToken}`);
+                expect(config.headers?.Authorization).toBe(
+                    `Bearer ${keycloakToken}`,
+                );
                 return [200, { message: 'authenticated' }];
             });
 
@@ -223,12 +252,18 @@ describe('ApiClient', () => {
         it('should not attach Authorization header when no token exists', async () => {
             store.dispatch(clearUserData());
 
-            const unauthenticatedClient = new ApiClient({ baseURL: 'https://api.test.com' });
-            const mockAuth = new MockAdapter(unauthenticatedClient.getAxiosInstance());
-            
+            const unauthenticatedClient = new ApiClient({
+                baseURL: 'https://api.test.com',
+            });
+            const mockAuth = new MockAdapter(
+                unauthenticatedClient.getAxiosInstance(),
+            );
+
             mockAuth.onGet('/public').reply((config) => {
                 expect(config.headers?.Authorization).toBeUndefined();
-                expect(config.headers?.['X-SDK-Client']).toBe('@digital-assistant/core');
+                expect(config.headers?.['X-SDK-Client']).toBe(
+                    '@digital-assistant/core',
+                );
                 return [200, { message: 'public' }];
             });
 
@@ -239,12 +274,14 @@ describe('ApiClient', () => {
 
     describe('Error Handling', () => {
         it('should handle 400 Bad Request error', async () => {
-            mockAxios.onGet('/invalid').reply(400, { error: 'Invalid request' });
+            mockAxios
+                .onGet('/invalid')
+                .reply(400, { error: 'Invalid request' });
 
             await expect(client.get('/invalid')).rejects.toMatchObject({
                 message: expect.stringContaining('400'),
                 status: 400,
-                data: { error: 'Invalid request' }
+                data: { error: 'Invalid request' },
             });
         });
 
@@ -252,12 +289,15 @@ describe('ApiClient', () => {
             mockAxios.onGet('/unauthorized').reply(401);
 
             await expect(client.get('/unauthorized')).rejects.toMatchObject({
-                message: 'Unauthorized - Authentication required or token expired',
-                status: 401
+                message:
+                    'Unauthorized - Authentication required or token expired',
+                status: 401,
             });
 
             // Verify that the warning was logged
-            expect(consoleWarnSpy).toHaveBeenCalledWith('API Client: Unauthorized request detected. Token may be expired.');
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                'API Client: Unauthorized request detected. Token may be expired.',
+            );
         });
 
         it('should handle 403 Forbidden error', async () => {
@@ -265,7 +305,7 @@ describe('ApiClient', () => {
 
             await expect(client.get('/forbidden')).rejects.toMatchObject({
                 message: 'Forbidden - Insufficient permissions',
-                status: 403
+                status: 403,
             });
         });
 
@@ -274,7 +314,7 @@ describe('ApiClient', () => {
 
             await expect(client.get('/notfound')).rejects.toMatchObject({
                 message: 'Not Found - The requested resource does not exist',
-                status: 404
+                status: 404,
             });
         });
 
@@ -282,8 +322,9 @@ describe('ApiClient', () => {
             mockAxios.onGet('/servererror').reply(500);
 
             await expect(client.get('/servererror')).rejects.toMatchObject({
-                message: 'Internal Server Error - Something went wrong on the server',
-                status: 500
+                message:
+                    'Internal Server Error - Something went wrong on the server',
+                status: 500,
             });
         });
 
@@ -292,7 +333,7 @@ describe('ApiClient', () => {
 
             await expect(client.get('/timeout')).rejects.toMatchObject({
                 message: expect.stringContaining('timeout'),
-                code: 'ECONNABORTED'
+                code: 'ECONNABORTED',
             });
         });
 
@@ -300,7 +341,7 @@ describe('ApiClient', () => {
             mockAxios.onGet('/network').networkError();
 
             await expect(client.get('/network')).rejects.toMatchObject({
-                message: 'Network Error'
+                message: 'Network Error',
             });
         });
 
@@ -315,7 +356,9 @@ describe('ApiClient', () => {
                 // Expected to fail
             }
 
-            expect(consoleWarnSpy).toHaveBeenCalledWith('API Client: Unauthorized request detected. Token may be expired.');
+            expect(consoleWarnSpy).toHaveBeenCalledWith(
+                'API Client: Unauthorized request detected. Token may be expired.',
+            );
         });
     });
 
@@ -327,7 +370,11 @@ describe('ApiClient', () => {
         }
 
         it('should support typed GET requests', async () => {
-            const userData: User = { id: 1, name: 'John Doe', email: 'john@test.com' };
+            const userData: User = {
+                id: 1,
+                name: 'John Doe',
+                email: 'john@test.com',
+            };
             mockAxios.onGet('/users/1').reply(200, userData);
 
             const response = await client.get<User>('/users/1');
@@ -340,7 +387,7 @@ describe('ApiClient', () => {
         it('should support typed POST requests', async () => {
             const createData = { name: 'Jane Doe', email: 'jane@test.com' };
             const responseData: User = { id: 2, ...createData };
-            
+
             mockAxios.onPost('/users', createData).reply(201, responseData);
 
             const response = await client.post<User>('/users', createData);
@@ -368,11 +415,13 @@ describe('ApiClient', () => {
     describe('Request Matching and Validation', () => {
         it('should match requests with query parameters', async () => {
             const responseData = { results: ['item1', 'item2'] };
-            
-            mockAxios.onGet('/search', { params: { q: 'test', limit: 10 } }).reply(200, responseData);
 
-            const response = await client.get('/search', { 
-                params: { q: 'test', limit: 10 } 
+            mockAxios
+                .onGet('/search', { params: { q: 'test', limit: 10 } })
+                .reply(200, responseData);
+
+            const response = await client.get('/search', {
+                params: { q: 'test', limit: 10 },
             });
 
             expect(response.data).toEqual(responseData);
@@ -381,14 +430,14 @@ describe('ApiClient', () => {
         it('should match POST requests with specific headers', async () => {
             const postData = { message: 'test' };
             const responseData = { id: 1, status: 'sent' };
-            
+
             mockAxios.onPost('/messages', postData).reply((config) => {
                 expect(config.headers?.['X-Custom-Header']).toBe('value');
                 return [201, responseData];
             });
 
             const response = await client.post('/messages', postData, {
-                headers: { 'X-Custom-Header': 'value' }
+                headers: { 'X-Custom-Header': 'value' },
             });
 
             expect(response.data).toEqual(responseData);
@@ -398,7 +447,7 @@ describe('ApiClient', () => {
             // Don't set up any mocks
 
             await expect(client.get('/unmatched')).rejects.toMatchObject({
-                message: 'Not Found - The requested resource does not exist'
+                message: 'Not Found - The requested resource does not exist',
             });
         });
     });

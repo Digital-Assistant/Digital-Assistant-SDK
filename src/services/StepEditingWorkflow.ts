@@ -13,13 +13,13 @@ import {
     startValidation,
     markValidationCompleted,
     cancelStepEditing,
-    setAllErrors
+    setAllErrors,
 } from '../store/slices/editableStepFormSlice';
 import {
     validateStepNameWithProfanity,
     saveStepChanges,
     ServiceResult,
-    SaveStepParams
+    SaveStepParams,
 } from './StepEditingService';
 
 /**
@@ -29,22 +29,21 @@ export const initiateStepEditing = (
     dispatch: Function,
     index: number,
     stepData: any,
-    recordingId: number
+    recordingId: number,
 ) => {
-    dispatch(startStepEditing({
-        index,
-        stepData,
-        recordingId
-    }));
+    dispatch(
+        startStepEditing({
+            index,
+            stepData,
+            recordingId,
+        }),
+    );
 };
 
 /**
  * Update step draft data (temporary storage)
  */
-export const updateStepDraft = (
-    dispatch: Function,
-    changes: any
-) => {
+export const updateStepDraft = (dispatch: Function, changes: any) => {
     dispatch(updateDraftChanges(changes));
 };
 
@@ -53,7 +52,7 @@ export const updateStepDraft = (
  */
 export const validateStepForSave = async (
     dispatch: Function,
-    getState: Function
+    getState: Function,
 ): Promise<ServiceResult> => {
     const state = getState();
     // Access the slice state - assuming it's available at state.editableStepForm
@@ -68,7 +67,10 @@ export const validateStepForSave = async (
     dispatch(startValidation());
 
     // Validate step name
-    const nameValidation = await validateStepNameWithProfanity(formFields.stepEditValue, true);
+    const nameValidation = await validateStepNameWithProfanity(
+        formFields.stepEditValue,
+        true,
+    );
 
     if (!nameValidation.success) {
         dispatch(setAllErrors({ stepProfanityError: true }));
@@ -88,7 +90,7 @@ export const validateStepForSave = async (
 export const commitValidatedChanges = async (
     dispatch: Function,
     getState: Function,
-    recordData: any[]
+    recordData: any[],
 ): Promise<ServiceResult> => {
     const state = getState();
     const formState = state.editableStepForm || state.core?.editableStepForm;
@@ -97,7 +99,13 @@ export const commitValidatedChanges = async (
         return { success: false, error: 'Form state not found' };
     }
 
-    const { formFields, currentEditingIndex, isUpdateMode, recordingId, editingWorkflow } = formState;
+    const {
+        formFields,
+        currentEditingIndex,
+        isUpdateMode,
+        recordingId,
+        editingWorkflow,
+    } = formState;
 
     if (!editingWorkflow.validationCompleted) {
         return { success: false, error: 'Validation not completed' };
@@ -108,7 +116,7 @@ export const commitValidatedChanges = async (
         index: currentEditingIndex!,
         stepEditValue: formFields.stepEditValue,
         isUpdateMode,
-        recordingId: recordingId || undefined
+        recordingId: recordingId || undefined,
     };
 
     const result = await saveStepChanges(saveParams);
@@ -117,7 +125,6 @@ export const commitValidatedChanges = async (
         // We don't automatically reset editing here, letting the UI decide when to close
         // But we could dispatch an action to update the "original" data to the new saved data
         // to allow further editing
-
         // For now, let's just return the result
     }
 
@@ -127,8 +134,6 @@ export const commitValidatedChanges = async (
 /**
  * Cancel editing and revert changes
  */
-export const cancelAndRevertChanges = (
-    dispatch: Function
-) => {
+export const cancelAndRevertChanges = (dispatch: Function) => {
     dispatch(cancelStepEditing());
 };

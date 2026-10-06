@@ -39,4 +39,4 @@ export const hasValidScreenInfo = (node: any) => {
         node.screenSize.page.width > 0 && // Fifth validation: Ensure `width` is a positive number (greater than 0).
         node.screenSize.page.height > 0 // Sixth validation: Ensure `height` is a positive number (greater than 0).
     );
-}
+};

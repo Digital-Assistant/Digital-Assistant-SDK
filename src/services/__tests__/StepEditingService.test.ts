@@ -11,12 +11,12 @@ import {
 import {
     profanityCheck,
     updateRecordClicks,
-    updateSequnceIndex
+    updateSequnceIndex,
 } from '../RecordService';
 import {
     validateStepName,
     validateTooltip,
-    validateDelayTime
+    validateDelayTime,
 } from '../../util/validation/formValidators';
 
 jest.mock('../RecordService');
@@ -29,7 +29,10 @@ describe('StepEditingService', () => {
 
     describe('validateStepNameWithProfanity', () => {
         it('returns success false if basic validation fails', async () => {
-            (validateStepName as jest.Mock).mockReturnValue({ isValid: false, error: 'Too short' });
+            (validateStepName as jest.Mock).mockReturnValue({
+                isValid: false,
+                error: 'Too short',
+            });
 
             const result = await validateStepNameWithProfanity('a');
 
@@ -40,13 +43,13 @@ describe('StepEditingService', () => {
         it('returns success true and cleaned value if profanity detected', async () => {
             (validateStepName as jest.Mock).mockReturnValue({ isValid: true });
             (profanityCheck as jest.Mock).mockResolvedValue({
-                Terms: [
-                    { Term: 'badword' },
-                    { Term: 'nasty' }
-                ]
+                Terms: [{ Term: 'badword' }, { Term: 'nasty' }],
             });
 
-            const result = await validateStepNameWithProfanity('This is a badword and nasty string', true);
+            const result = await validateStepNameWithProfanity(
+                'This is a badword and nasty string',
+                true,
+            );
 
             expect(result.success).toBe(true);
             expect(result.data?.hasProfanity).toBe(true);
@@ -58,7 +61,10 @@ describe('StepEditingService', () => {
             (validateStepName as jest.Mock).mockReturnValue({ isValid: true });
             (profanityCheck as jest.Mock).mockResolvedValue({ Terms: [] });
 
-            const result = await validateStepNameWithProfanity('Clean string', true);
+            const result = await validateStepNameWithProfanity(
+                'Clean string',
+                true,
+            );
 
             expect(result.success).toBe(true);
             expect(result.data?.hasProfanity).toBe(false);
@@ -69,14 +75,14 @@ describe('StepEditingService', () => {
     describe('updateStepMetadata', () => {
         it('updates metadata correctly in recordData', () => {
             const recordData = [
-                { objectdata: JSON.stringify({ meta: { existing: 'val' } }) }
+                { objectdata: JSON.stringify({ meta: { existing: 'val' } }) },
             ];
 
             const result = updateStepMetadata({
                 recordData,
                 index: 0,
                 metaKey: 'newKey',
-                value: 'newVal'
+                value: 'newVal',
             });
 
             const updatedObj = JSON.parse(result[0].objectdata);
@@ -88,21 +94,32 @@ describe('StepEditingService', () => {
     describe('toggleSkipDuringPlay', () => {
         it('toggles skipDuringPlay flag', () => {
             const recordData = [
-                { objectdata: JSON.stringify({ meta: { skipDuringPlay: false } }) }
+                {
+                    objectdata: JSON.stringify({
+                        meta: { skipDuringPlay: false },
+                    }),
+                },
             ];
 
             const result = toggleSkipDuringPlay(recordData, 0);
-            expect(JSON.parse(result[0].objectdata).meta.skipDuringPlay).toBe(true);
+            expect(JSON.parse(result[0].objectdata).meta.skipDuringPlay).toBe(
+                true,
+            );
 
             const result2 = toggleSkipDuringPlay(result, 0);
-            expect(JSON.parse(result2[0].objectdata).meta.skipDuringPlay).toBe(false);
+            expect(JSON.parse(result2[0].objectdata).meta.skipDuringPlay).toBe(
+                false,
+            );
         });
     });
 
     describe('saveStepChanges', () => {
         it('updates local records and calls backend in update mode', async () => {
             const recordData = [
-                { objectdata: JSON.stringify({ meta: {} }), clickednodename: 'old' }
+                {
+                    objectdata: JSON.stringify({ meta: {} }),
+                    clickednodename: 'old',
+                },
             ];
 
             const params = {
@@ -110,11 +127,15 @@ describe('StepEditingService', () => {
                 index: 0,
                 stepEditValue: 'new name',
                 isUpdateMode: true,
-                recordingId: 123
+                recordingId: 123,
             };
 
-            (updateRecordClicks as jest.Mock).mockResolvedValue({ success: true });
-            (updateSequnceIndex as jest.Mock).mockResolvedValue({ success: true });
+            (updateRecordClicks as jest.Mock).mockResolvedValue({
+                success: true,
+            });
+            (updateSequnceIndex as jest.Mock).mockResolvedValue({
+                success: true,
+            });
 
             const result = await saveStepChanges(params);
 
@@ -126,14 +147,17 @@ describe('StepEditingService', () => {
 
         it('only updates local records in non-update mode', async () => {
             const recordData = [
-                { objectdata: JSON.stringify({ meta: {} }), clickednodename: 'old' }
+                {
+                    objectdata: JSON.stringify({ meta: {} }),
+                    clickednodename: 'old',
+                },
             ];
 
             const params = {
                 recordData,
                 index: 0,
                 stepEditValue: 'new name',
-                isUpdateMode: false
+                isUpdateMode: false,
             };
 
             const result = await saveStepChanges(params);

@@ -1,4 +1,3 @@
-
 /**
  * UDAErrorLogger class for logging errors.
  */

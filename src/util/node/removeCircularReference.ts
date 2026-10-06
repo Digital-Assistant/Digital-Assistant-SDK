@@ -1,4 +1,4 @@
-import {nodeConfig} from "./nodeConfig";
+import { nodeConfig } from './nodeConfig';
 
 /**
  * Recursively removes properties from a node data object that may cause circular references
@@ -20,15 +20,17 @@ export const removeCircularReference = (nodeData: any) => {
             }
         }
         // If the attribute is marked for ignoring, delete it from the object.
-        if(ignoreAttribute === true){
+        if (ignoreAttribute === true) {
             delete nodeData[key];
         }
         // If the key is 'childNodes', recursively call this function for each child.
-        if(key==='childNodes') {
-            for(let index in nodeData[key]){
-                nodeData[key][index] = removeCircularReference(nodeData[key][index]);
+        if (key === 'childNodes') {
+            for (let index in nodeData[key]) {
+                nodeData[key][index] = removeCircularReference(
+                    nodeData[key][index],
+                );
             }
         }
     }
     return nodeData;
-}
+};

@@ -8,7 +8,7 @@
  *          Returns an empty string if the `recordingSequence` is null or undefined.
  */
 export const getRecordingName = (recordingSequence: any) => {
-    let name = "";
+    let name = '';
     if (recordingSequence) {
         try {
             // The `name` property is expected to be a JSON string representing an array of names.
@@ -21,4 +21,4 @@ export const getRecordingName = (recordingSequence: any) => {
         }
     }
     return name;
-}
+};

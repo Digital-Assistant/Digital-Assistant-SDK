@@ -79,7 +79,9 @@ describe('formValidators', () => {
         it('should return invalid when exceeding 10000', () => {
             const result = validateDelayTime(10001);
             expect(result.isValid).toBe(false);
-            expect(result.error).toBe('Delay time cannot exceed 10000 milliseconds');
+            expect(result.error).toBe(
+                'Delay time cannot exceed 10000 milliseconds',
+            );
         });
 
         it('should return valid for 0', () => {
@@ -133,7 +135,9 @@ describe('formValidators', () => {
         });
 
         it('should return valid for normal metadata', () => {
-            expect(validateCustomMetadata('some metadata value').isValid).toBe(true);
+            expect(validateCustomMetadata('some metadata value').isValid).toBe(
+                true,
+            );
         });
 
         it('should return valid for exactly 200 characters', () => {

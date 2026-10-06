@@ -33,15 +33,21 @@ describe('UserVote Service', () => {
     describe('vote', () => {
         it('should throw an error if user session ID is not found', async () => {
             (getUserId as jest.Mock).mockResolvedValue(null);
-            await expect(vote({ id: mockRequestId }, 'up')).rejects.toThrow('User session ID not found');
+            await expect(vote({ id: mockRequestId }, 'up')).rejects.toThrow(
+                'User session ID not found',
+            );
         });
 
         it('should throw an error for an invalid request', async () => {
-            await expect(vote(null, 'up')).rejects.toThrow('Invalid request: missing id');
+            await expect(vote(null, 'up')).rejects.toThrow(
+                'Invalid request: missing id',
+            );
         });
 
         it('should throw an error for an invalid vote type', async () => {
-            await expect(vote({ id: mockRequestId }, 'invalid-type')).rejects.toThrow('Invalid vote type');
+            await expect(
+                vote({ id: mockRequestId }, 'invalid-type'),
+            ).rejects.toThrow('Invalid vote type');
         });
 
         it('should call apiClient.post with correct parameters for an upvote', async () => {
@@ -66,28 +72,38 @@ describe('UserVote Service', () => {
 
         it('should propagate an error if apiClient.post fails', async () => {
             (apiClient.post as jest.Mock).mockRejectedValue(apiError);
-            await expect(vote({ id: mockRequestId }, 'up')).rejects.toThrow('API Error');
+            await expect(vote({ id: mockRequestId }, 'up')).rejects.toThrow(
+                'API Error',
+            );
         });
     });
 
     describe('getVoteRecord', () => {
         it('should throw an error if user session ID is not found', async () => {
             (getUserId as jest.Mock).mockResolvedValue(null);
-            await expect(getVoteRecord({ id: mockRequestId })).rejects.toThrow('User session ID not found');
+            await expect(getVoteRecord({ id: mockRequestId })).rejects.toThrow(
+                'User session ID not found',
+            );
         });
 
         it('should throw an error for an invalid request', async () => {
-            await expect(getVoteRecord(null)).rejects.toThrow('Invalid request: missing id');
+            await expect(getVoteRecord(null)).rejects.toThrow(
+                'Invalid request: missing id',
+            );
         });
 
         it('should call apiClient.get with the correct parameters', async () => {
             await getVoteRecord({ id: mockRequestId });
-            expect(apiClient.get).toHaveBeenCalledWith(`${ENDPOINT.fetchVoteRecord}${mockRequestId}/${mockUserId}`);
+            expect(apiClient.get).toHaveBeenCalledWith(
+                `${ENDPOINT.fetchVoteRecord}${mockRequestId}/${mockUserId}`,
+            );
         });
 
         it('should propagate an error if apiClient.get fails', async () => {
             (apiClient.get as jest.Mock).mockRejectedValue(apiError);
-            await expect(getVoteRecord({ id: mockRequestId })).rejects.toThrow('API Error');
+            await expect(getVoteRecord({ id: mockRequestId })).rejects.toThrow(
+                'API Error',
+            );
         });
     });
 });

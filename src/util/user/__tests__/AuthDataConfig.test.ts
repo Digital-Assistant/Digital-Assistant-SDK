@@ -23,14 +23,14 @@ describe('AuthDataConfig', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         // Reset AuthConfig to original values
-        Object.keys(AuthConfig).forEach(key => {
+        Object.keys(AuthConfig).forEach((key) => {
             (AuthConfig as any)[key] = (originalAuthConfig as any)[key] || '';
         });
     });
 
     afterAll(() => {
         // Restore original AuthConfig
-        Object.keys(originalAuthConfig).forEach(key => {
+        Object.keys(originalAuthConfig).forEach((key) => {
             (AuthConfig as any)[key] = (originalAuthConfig as any)[key];
         });
     });
@@ -42,7 +42,10 @@ describe('AuthDataConfig', () => {
         await AuthDataConfig({ id: 'user-123', email: 'test@example.com' });
 
         expect(UDADigestMessage).toHaveBeenCalledWith('user-123', 'SHA-512');
-        expect(UDADigestMessage).toHaveBeenCalledWith('test@example.com', 'SHA-512');
+        expect(UDADigestMessage).toHaveBeenCalledWith(
+            'test@example.com',
+            'SHA-512',
+        );
         expect(AuthConfig.id).toBe(encryptedValue);
         expect(AuthConfig.email).toBe(encryptedValue);
     });
@@ -63,7 +66,9 @@ describe('AuthDataConfig', () => {
 
         await AuthDataConfig({ id: 123 as any });
 
-        expect(consoleSpy).toHaveBeenCalledWith('id accepts only string data type.');
+        expect(consoleSpy).toHaveBeenCalledWith(
+            'id accepts only string data type.',
+        );
         consoleSpy.mockRestore();
     });
 
@@ -91,10 +96,11 @@ describe('AuthDataConfig', () => {
 
         await AuthDataConfig({ id: 'same-id' });
 
-        expect(trigger).toHaveBeenCalledWith(
-            'RequestUDASessionData',
-            { detail: { data: 'getusersessiondata' }, bubbles: false, cancelable: false }
-        );
+        expect(trigger).toHaveBeenCalledWith('RequestUDASessionData', {
+            detail: { data: 'getusersessiondata' },
+            bubbles: false,
+            cancelable: false,
+        });
     });
 
     it('should return the updated AuthConfig object', async () => {
@@ -129,7 +135,10 @@ describe('AuthDataConfig', () => {
 
         await AuthDataConfig({ id: 'user-id', token: 'secret-token' });
 
-        expect(UDADigestMessage).toHaveBeenCalledWith('secret-token', 'SHA-512');
+        expect(UDADigestMessage).toHaveBeenCalledWith(
+            'secret-token',
+            'SHA-512',
+        );
         expect(AuthConfig.token).toBe(encryptedToken);
     });
 });

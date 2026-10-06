@@ -8,17 +8,21 @@ describe('getScreenSize', () => {
     // Helper to define properties
     const defineProperty = (obj: any, prop: string, value: any) => {
         // Store original descriptor if it exists
-        originalDescriptors[prop] = Object.getOwnPropertyDescriptor(obj, prop) || {};
+        originalDescriptors[prop] =
+            Object.getOwnPropertyDescriptor(obj, prop) || {};
         Object.defineProperty(obj, prop, {
             configurable: true,
             writable: true, // Make it writable so we can change the value directly
-            value: value,   // Set the value directly
+            value: value, // Set the value directly
         });
     };
 
     // Helper to restore properties
     const restoreProperty = (obj: any, prop: string) => {
-        if (originalDescriptors[prop] && Object.keys(originalDescriptors[prop]).length > 0) {
+        if (
+            originalDescriptors[prop] &&
+            Object.keys(originalDescriptors[prop]).length > 0
+        ) {
             Object.defineProperty(obj, prop, originalDescriptors[prop]);
         } else {
             // If there was no original descriptor, delete the property
@@ -93,7 +97,7 @@ describe('getScreenSize', () => {
     it('should return correct page dimensions (full document size)', () => {
         const result = getScreenSize();
         expect(result.page.height).toBe(2000); // Max of scrollHeight, offsetHeight, etc.
-        expect(result.page.width).toBe(1800);  // Max of scrollWidth, offsetWidth, etc.
+        expect(result.page.width).toBe(1800); // Max of scrollWidth, offsetWidth, etc.
     });
 
     it('should return correct viewport dimensions (visible window area)', () => {
@@ -122,8 +126,16 @@ describe('getScreenSize', () => {
 
     it('should handle fallback for window.innerWidth/innerHeight if undefined', () => {
         // Simulate older browser where innerWidth/innerHeight might be undefined
-        Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: undefined });
-        Object.defineProperty(window, 'innerHeight', { configurable: true, writable: true, value: undefined });
+        Object.defineProperty(window, 'innerWidth', {
+            configurable: true,
+            writable: true,
+            value: undefined,
+        });
+        Object.defineProperty(window, 'innerHeight', {
+            configurable: true,
+            writable: true,
+            value: undefined,
+        });
 
         const result = getScreenSize();
         // Should use document.documentElement.clientWidth/clientHeight as fallback

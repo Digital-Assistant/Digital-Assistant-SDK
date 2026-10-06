@@ -51,7 +51,11 @@ describe('UDABindAuthenticatedAccount', () => {
 
         await UDABindAuthenticatedAccount(mockSessionData);
 
-        expect(UDABindAccount).toHaveBeenCalledWith(mockResponse, mockSessionData, false);
+        expect(UDABindAccount).toHaveBeenCalledWith(
+            mockResponse,
+            mockSessionData,
+            false,
+        );
     });
 
     it('should pass renewToken parameter to UDABindAccount', async () => {
@@ -60,7 +64,11 @@ describe('UDABindAuthenticatedAccount', () => {
 
         await UDABindAuthenticatedAccount(mockSessionData, true);
 
-        expect(UDABindAccount).toHaveBeenCalledWith(mockResponse, mockSessionData, true);
+        expect(UDABindAccount).toHaveBeenCalledWith(
+            mockResponse,
+            mockSessionData,
+            true,
+        );
     });
 
     it('should default renewToken to false when not provided', async () => {
@@ -69,7 +77,11 @@ describe('UDABindAuthenticatedAccount', () => {
 
         await UDABindAuthenticatedAccount(mockSessionData);
 
-        expect(UDABindAccount).toHaveBeenCalledWith(mockResponse, mockSessionData, false);
+        expect(UDABindAccount).toHaveBeenCalledWith(
+            mockResponse,
+            mockSessionData,
+            false,
+        );
     });
 
     it('should not call UDABindAccount when sessionKey is null', async () => {
@@ -112,14 +124,21 @@ describe('UDABindAuthenticatedAccount', () => {
 
         await UDABindAuthenticatedAccount(mockSessionData);
 
-        expect(UDABindAccount).toHaveBeenCalledWith(emptyResponse, mockSessionData, false);
+        expect(UDABindAccount).toHaveBeenCalledWith(
+            emptyResponse,
+            mockSessionData,
+            false,
+        );
     });
 
     it('should handle API errors gracefully', async () => {
-        (apiClient.post as jest.Mock).mockRejectedValue(new Error('Network Error'));
+        (apiClient.post as jest.Mock).mockRejectedValue(
+            new Error('Network Error'),
+        );
 
-        await expect(UDABindAuthenticatedAccount(mockSessionData))
-            .rejects.toThrow('Network Error');
+        await expect(
+            UDABindAuthenticatedAccount(mockSessionData),
+        ).rejects.toThrow('Network Error');
     });
 
     it('should use the correct authentication source from session data', async () => {

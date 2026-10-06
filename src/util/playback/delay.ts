@@ -5,4 +5,4 @@
  * @param ms The number of milliseconds to wait before the promise resolves.
  * @returns A promise that resolves after the specified delay.
  */
-export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));

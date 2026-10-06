@@ -1,5 +1,5 @@
-import {StorageUtil} from "../storage";
-import {CONFIG} from "../../config";
+import { StorageUtil } from '../storage';
+import { CONFIG } from '../../config';
 
 /**
  * Retrieves the current playable item from the stored recording sequence.
@@ -14,12 +14,15 @@ import {CONFIG} from "../../config";
  */
 export const getCurrentPlayItem = () => {
     // Retrieve the selected recording details from storage.
-    const elementsFromStore: any = StorageUtil.getFromStore(CONFIG.SELECTED_RECORDING, false);
-    const retObj: any = {index: 0, node: null};
+    const elementsFromStore: any = StorageUtil.getFromStore(
+        CONFIG.SELECTED_RECORDING,
+        false,
+    );
+    const retObj: any = { index: 0, node: null };
 
     // Iterate through the `userclicknodesSet` to find the first uncompleted node.
     for (let i = 0; i < elementsFromStore?.userclicknodesSet?.length; i++) {
-        if (elementsFromStore?.userclicknodesSet[i].status != "completed") {
+        if (elementsFromStore?.userclicknodesSet[i].status != 'completed') {
             retObj.index = i;
             retObj.node = elementsFromStore?.userclicknodesSet[i];
             retObj.additionalParams = elementsFromStore?.additionalParams;

@@ -26,22 +26,35 @@ describe('addNotification', () => {
     });
 
     it('should call Swal.mixin with the correct parameters', () => {
-        addNotification('Test Title', 'Test Description', 'success', 'top-start');
-        expect(mockedSwal.mixin).toHaveBeenCalledWith(expect.objectContaining({
-            toast: true,
-            position: 'top-start',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            target: expect.any(HTMLElement),
-        }));
+        addNotification(
+            'Test Title',
+            'Test Description',
+            'success',
+            'top-start',
+        );
+        expect(mockedSwal.mixin).toHaveBeenCalledWith(
+            expect.objectContaining({
+                toast: true,
+                position: 'top-start',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                target: expect.any(HTMLElement),
+            }),
+        );
     });
 
     it('should call the mixed-in fire method with correct parameters', () => {
-        addNotification('Test Title', 'Test Description', 'success', 'top-start');
-        
+        addNotification(
+            'Test Title',
+            'Test Description',
+            'success',
+            'top-start',
+        );
+
         // Get the object returned by the mixin call from the mock's results
-        const toastInstance = (mockedSwal.mixin as jest.Mock).mock.results[0].value;
+        const toastInstance = (mockedSwal.mixin as jest.Mock).mock.results[0]
+            .value;
 
         // Check that the 'fire' method on that object was called
         expect(toastInstance.fire).toHaveBeenCalledWith({

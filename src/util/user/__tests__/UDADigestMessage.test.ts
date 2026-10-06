@@ -25,10 +25,10 @@ beforeAll(() => {
     Object.defineProperty(global, 'crypto', {
         value: {
             subtle: {
-                digest: mockDigest
-            }
+                digest: mockDigest,
+            },
         },
-        configurable: true
+        configurable: true,
     });
 });
 
@@ -49,7 +49,7 @@ describe('UDADigestMessage', () => {
 
         expect(mockDigest).toHaveBeenCalledWith(
             'SHA-256',
-            expect.any(Uint8Array)
+            expect.any(Uint8Array),
         );
     });
 
@@ -79,7 +79,7 @@ describe('UDADigestMessage', () => {
 
         expect(mockDigest).toHaveBeenCalledWith(
             'SHA-512',
-            expect.any(Uint8Array)
+            expect.any(Uint8Array),
         );
     });
 
@@ -126,6 +126,8 @@ describe('UDADigestMessage', () => {
         const digestError = new Error('Digest failed');
         mockDigest.mockRejectedValue(digestError);
 
-        await expect(UDADigestMessage('test', 'INVALID')).rejects.toThrow('Digest failed');
+        await expect(UDADigestMessage('test', 'INVALID')).rejects.toThrow(
+            'Digest failed',
+        );
     });
 });

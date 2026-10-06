@@ -26,14 +26,16 @@ describe('UDAGetSessionKey', () => {
             authData: {
                 id: 'test-id',
                 email: 'test@example.com',
-                token: ''
+                token: '',
             },
-            authenticationSource: 'test-source'
+            authenticationSource: 'test-source',
         } as UDASessionData;
     });
 
     it('should call apiClient.get with the correct endpoint', async () => {
-        (apiClient.get as jest.Mock).mockResolvedValue({ data: 'session-key-123' });
+        (apiClient.get as jest.Mock).mockResolvedValue({
+            data: 'session-key-123',
+        });
 
         await UDAGetSessionKey(mockSessionData);
 
@@ -42,7 +44,9 @@ describe('UDAGetSessionKey', () => {
 
     it('should update UDASessionData.sessionKey with the response data', async () => {
         const expectedSessionKey = 'new-session-key-456';
-        (apiClient.get as jest.Mock).mockResolvedValue({ data: expectedSessionKey });
+        (apiClient.get as jest.Mock).mockResolvedValue({
+            data: expectedSessionKey,
+        });
 
         const result = await UDAGetSessionKey(mockSessionData);
 
@@ -83,9 +87,13 @@ describe('UDAGetSessionKey', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-        (apiClient.get as jest.Mock).mockRejectedValue(new Error('Network error'));
+        (apiClient.get as jest.Mock).mockRejectedValue(
+            new Error('Network error'),
+        );
 
-        await expect(UDAGetSessionKey(mockSessionData)).rejects.toThrow('Network error');
+        await expect(UDAGetSessionKey(mockSessionData)).rejects.toThrow(
+            'Network error',
+        );
     });
 
     it('should preserve existing UDASessionData properties', async () => {

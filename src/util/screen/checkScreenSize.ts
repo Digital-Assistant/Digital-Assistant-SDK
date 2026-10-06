@@ -1,6 +1,5 @@
-
-import { getScreenSize } from "./getScreenSize";
-import { UDAConsoleLogger, UDAErrorLogger } from "../error/error-log";
+import { getScreenSize } from './getScreenSize';
+import { UDAConsoleLogger, UDAErrorLogger } from '../error/error-log';
 
 /**
  * Checks the screen size and determines plugin compatibility and alert status.
@@ -41,10 +40,12 @@ export const checkScreenSize = (
         }
 
         // Ensure resolution values are valid numbers
-        if (typeof screenSize.screen.width !== 'number' ||
+        if (
+            typeof screenSize.screen.width !== 'number' ||
             typeof screenSize.screen.height !== 'number' ||
             screenSize.screen.width <= 0 ||
-            screenSize.screen.height <= 0) {
+            screenSize.screen.height <= 0
+        ) {
             throw new Error('Invalid resolution values');
         }
 
@@ -79,18 +80,21 @@ export const checkScreenSize = (
         }
 
         // Log resolution information
-        UDAConsoleLogger.info(`System given resolution is: ${screenSize.screen.width}x${screenSize.screen.height}`);
-        UDAConsoleLogger.info(`Current resolution is: ${effectiveWidth}x${effectiveHeight}`);
+        UDAConsoleLogger.info(
+            `System given resolution is: ${screenSize.screen.width}x${screenSize.screen.height}`,
+        );
+        UDAConsoleLogger.info(
+            `Current resolution is: ${effectiveWidth}x${effectiveHeight}`,
+        );
 
         return { enablePluginForScreen, showScreenAlert };
-
     } catch (error: any) {
         // Log any errors that occur during the screen size check.
         UDAErrorLogger.error(`Screen size check failed: ${error.message}`);
         // Return safe defaults in case of an error.
         return {
             enablePluginForScreen: false,
-            showScreenAlert: true
+            showScreenAlert: true,
         };
     }
-}
+};

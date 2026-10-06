@@ -17,7 +17,9 @@ describe('UserService', () => {
         // Reset mocks before each test
         (store.getState as jest.Mock).mockClear();
         // Spy on console.error to prevent it from polluting test output and to assert its calls
-        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        consoleErrorSpy = jest
+            .spyOn(console, 'error')
+            .mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -29,7 +31,9 @@ describe('UserService', () => {
         it('should return null if store is invalid', async () => {
             (store.getState as jest.Mock).mockReturnValue(undefined);
             await expect(userService.getUserId()).resolves.toBeNull();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('getUserId: invalid store state');
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                'getUserId: invalid store state',
+            );
         });
 
         it('should return null if user state is missing', async () => {
@@ -67,7 +71,9 @@ describe('UserService', () => {
                     },
                 },
             });
-            await expect(userService.getUserId()).resolves.toBe('nested-user-id');
+            await expect(userService.getUserId()).resolves.toBe(
+                'nested-user-id',
+            );
         });
 
         it('should normalize numeric user ID from authData.id to string', async () => {
@@ -105,7 +111,9 @@ describe('UserService', () => {
                     keycloakSessionData: { id: 'keycloak-user' },
                 },
             });
-            await expect(userService.getUserId()).resolves.toBe('keycloak-user');
+            await expect(userService.getUserId()).resolves.toBe(
+                'keycloak-user',
+            );
         });
 
         it('should normalize numeric user ID from keycloakSessionData.id to string', async () => {
@@ -124,9 +132,14 @@ describe('UserService', () => {
 
         it('should return null and log error if store.getState throws', async () => {
             const error = new Error('getState failed');
-            (store.getState as jest.Mock).mockImplementation(() => { throw error; });
+            (store.getState as jest.Mock).mockImplementation(() => {
+                throw error;
+            });
             await expect(userService.getUserId()).resolves.toBeNull();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('getUserId error:', error);
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                'getUserId error:',
+                error,
+            );
         });
     });
 
@@ -134,7 +147,9 @@ describe('UserService', () => {
         it('should return null if store is invalid', async () => {
             (store.getState as jest.Mock).mockReturnValue(undefined);
             await expect(userService.getSessionKey()).resolves.toBeNull();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('getSessionKey: invalid store state');
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                'getSessionKey: invalid store state',
+            );
         });
 
         it('should return session key from userSessionData.sessionKey', async () => {
@@ -143,7 +158,9 @@ describe('UserService', () => {
                     userSessionData: { sessionKey: 'session-key-abc' },
                 },
             });
-            await expect(userService.getSessionKey()).resolves.toBe('session-key-abc');
+            await expect(userService.getSessionKey()).resolves.toBe(
+                'session-key-abc',
+            );
         });
 
         // Updated test case to reflect current implementation which does not normalize numeric sessionKey
@@ -163,9 +180,14 @@ describe('UserService', () => {
 
         it('should return null and log error if store.getState throws', async () => {
             const error = new Error('getState failed');
-            (store.getState as jest.Mock).mockImplementation(() => { throw error; });
+            (store.getState as jest.Mock).mockImplementation(() => {
+                throw error;
+            });
             await expect(userService.getSessionKey()).resolves.toBeNull();
-            expect(consoleErrorSpy).toHaveBeenCalledWith('getSessionKey error:', error);
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+                'getSessionKey error:',
+                error,
+            );
         });
     });
 
