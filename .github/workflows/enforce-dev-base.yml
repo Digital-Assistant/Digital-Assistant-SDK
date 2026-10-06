@@ -1,9 +1,10 @@
-name: Enforce Dev to Main Pull Request
+name: Enforce PR Source Branch
 
 on:
   pull_request:
     branches:
       - main
+      - qa
 
 permissions:
   contents: read
@@ -13,19 +14,26 @@ jobs:
     name: Check source branch
     runs-on: ubuntu-latest
     steps:
-      - name: Check if pull request source is 'dev'
+      - name: Validate source branch
         env:
           BASE_REF: ${{ github.base_ref }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
           echo "Target branch is: $BASE_REF"
           echo "Source branch is: $HEAD_REF"
-          if [[ "$HEAD_REF" == release-please--* ]]; then
-            echo "Automated Release Please PR - validation skipped."
-            exit 0
-          fi
-          if [ "$HEAD_REF" != "dev" ]; then
-            echo "::error::Direct PRs to 'main' must only originate from the 'dev' branch. Please merge your branch to 'dev' first, then create a PR from 'dev' to 'main'."
-            exit 1
+          if [[ "$BASE_REF" == "main" ]]; then
+            if [[ "$HEAD_REF" == release-please--* ]]; then
+              echo "Automated Release Please PR - validation skipped."
+              exit 0
+            fi
+            if [[ "$HEAD_REF" != "qa" ]]; then
+              echo "::error::Direct PRs to 'main' must only originate from the 'qa' branch (or release-please--*). Merge to 'dev', promote 'dev' to 'qa', then open a PR from 'qa' to 'main'."
+              exit 1
+            fi
+          elif [[ "$BASE_REF" == "qa" ]]; then
+            if [[ "$HEAD_REF" != "dev" ]]; then
+              echo "::error::Direct PRs to 'qa' must only originate from the 'dev' branch. Merge your branch to 'dev' first, then open a PR from 'dev' to 'qa'."
+              exit 1
+            fi
           fi
           echo "Validation successful!"

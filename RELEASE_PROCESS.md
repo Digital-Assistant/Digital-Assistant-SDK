@@ -4,27 +4,30 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
 
 - `main` is the production branch. It contains only released code.
 - `dev` is the active development branch — all feature/fix work is PR'd into it.
-- `qa` is the integration / pre-release testing branch. It receives `dev` builds for
-  verification before a release is staged; it is a build environment (see `build:qa`), not a
-  source of production releases.
-- CI (`ci.yml`) guards every push/PR to `main` and `dev` — typecheck, format, lint,
+- `qa` is the integration / pre-release testing branch (see `build:qa`). It receives `dev`
+  for verification before a release is staged; it accepts PRs **only from `dev`**.
+- `main` accepts PRs **only from `qa`** (plus automated `release-please--*` release PRs).
+- CI (`ci.yml`) guards every push/PR to `main`, `dev`, and `qa` — typecheck, format, lint,
   tests, and build are all blocking.
 - Release automation (`release-and-sync.yml`) handles version bumps, changelog generation,
   GitHub releases, and the back-merge to `dev`. **npm publishing is currently disabled.**
-- Direct PRs to `main` may only originate from `dev` (enforced by `enforce-dev-base.yml`).
-- `main` and `dev` are protected by **repository rulesets** — every change must arrive via a PR
-  (see [Branch Protection](#branch-protection-repository-rulesets)).
+- Source branches are enforced by `enforce-dev-base.yml` (`Check source branch`): `qa` only
+  accepts `dev`, and `main` only accepts `qa` (or `release-please--*`).
+- `main`, `dev`, and `qa` are protected by **repository rulesets** — every change must arrive via
+  a PR (see [Branch Protection](#branch-protection-repository-rulesets)).
 - Stale branches are pruned automatically by the local janitor, `npm run git:clean`
   (see [Branch Hygiene & Automated Cleanup](#branch-hygiene--automated-cleanup)).
 
-> **One-time prerequisite:** set the repository **default branch to `main`** (it is currently
-> `MVC-Task-80-Junie`). See [Repository Setup](#repository-setup) below.
+> **One-time prerequisite:** set the repository **default branch to `main`** (it was previously
+> `dev`). See [Repository Setup](#repository-setup) below.
 
 ## The Step-by-Step Release Process
 
 1. **Develop:** All features and fixes are PR'd into `dev`.
-2. **Stage for Release:** When ready to release, a maintainer opens a PR from `dev` to `main`.
-3. **Merge to Main:** Once CI passes, merge `dev` into `main`.
+2. **Verify on QA:** When ready to release, a maintainer opens a PR from `dev` to `qa` and
+   merges it after CI passes. `qa` performs pre-release verification (`build:qa`).
+3. **Promote to Main:** Once `qa` verification passes, a maintainer opens a PR from `qa` to
+   `main` and merges it. (`main` accepts PRs only from `qa`.)
 4. **Release Please:** GitHub Actions automatically opens a new "Release PR" against `main`.
    This PR contains the version bump (in `package.json`) and the updated `CHANGELOG.md`.
 5. **Publish GitHub Release:** The maintainer reviews and merges the Release PR. The GitHub
@@ -36,6 +39,9 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
    **You MUST immediately back-merge `main` into `dev`** or merge the automated PR from
    `main` to `dev` (created by the `back-merge` job). If this is skipped, the next release
    will result in severe Git merge conflicts on `package.json` and `CHANGELOG.md`.
+   > **Note:** post-release sync is `main → dev` only. `qa` intentionally lags `main` by the
+   > release commit until the next `dev → qa` promotion carries it forward. This does not cause
+   > conflicts because `qa` is a strict downstream of `dev`.
 
 > **Note on versioning:** Release Please determines the next version from your commit
 > messages (Conventional Commits — see `AGENTS.md` § 11). To lock a version instead of
@@ -66,7 +72,7 @@ which have no patched release) are reported but do not block.
 One-time settings, applied via `gh api` (or the GitHub UI):
 
 ```bash
-# Use 'main' as the default branch (currently 'MVC-Task-80-Junie').
+# Use 'main' as the default branch (it was previously 'dev').
 gh api -X PATCH repos/Digital-Assistant/Digital-Assistant-SDK \
   -f default_branch=main
 
@@ -77,26 +83,30 @@ gh api -X PATCH repos/Digital-Assistant/Digital-Assistant-SDK \
 
 ## Branch Protection (Repository Rulesets)
 
-Both `main` and `dev` are intended to be protected by **repository rulesets** (the modern
-successor to classic branch protection). Configured with no bypass actors, direct pushes,
-force-pushes, and branch deletion are blocked for everyone, including maintainers.
+`main`, `dev`, and `qa` are protected by **repository rulesets** (the modern successor to
+classic branch protection). Configured with no bypass actors, direct pushes, force-pushes, and
+branch deletion are blocked for everyone, including maintainers.
 
 | Ruleset | Targets | Rules |
 |---|---|---|
-| `Protect main branch` | `refs/heads/main` | require PR, block deletion, block force-push, require status checks (`check-source-branch`, `Build, Check, and Verify`) |
-| `Protect dev branch` | `refs/heads/dev` | require PR, block deletion, block force-push, require status checks (`Build, Check, and Verify`) |
+| `Protect main branch` | `refs/heads/main` | require PR, block deletion, block force-push, require status checks (`Check source branch`, `Build, Check, and Verify (ubuntu-latest)`, `(macos-latest)`, `(windows-latest)`, `Dependency Audit`) |
+| `Protect dev branch` | `refs/heads/dev` | require PR, block deletion, block force-push, require status checks (`Build, Check, and Verify (ubuntu-latest)`, `(macos-latest)`, `(windows-latest)`, `Dependency Audit`) |
+| `Protect qa branch` | `refs/heads/qa` | require PR, block deletion, block force-push, require status checks (`Check source branch`, `Build, Check, and Verify (ubuntu-latest)`, `(macos-latest)`, `(windows-latest)`, `Dependency Audit`) |
 
 Consequences:
 
-- **Every change to `dev` or `main` must arrive via a pull request.** `required_approving_review_count`
+- **Every change to `main`, `dev`, or `qa` must arrive via a pull request.** `required_approving_review_count`
   is `0`, so a PR is required but a human approval is not.
-- **`main` only accepts PRs from `dev` or `release-please--*`.** The `check-source-branch` status
-  (emitted by `.github/workflows/enforce-dev-base.yml`) fails any other head branch.
+- **Source-branch restrictions** are enforced by the `Check source branch` status (emitted by
+  `.github/workflows/enforce-dev-base.yml`): `qa` only accepts `dev`; `main` only accepts `qa`
+  or `release-please--*`. Rulesets cannot express source-branch rules themselves.
 - Merges must pass CI: `Build, Check, and Verify` on `ubuntu-latest`, `macos-latest`, and
-  `windows-latest` (all gates block).
+  `windows-latest`, plus `Dependency Audit` (all gates block).
+- `strict_required_status_checks_policy` is `false` — a PR branch does not need to be up to
+  date with the base branch before merging.
 
-> These rules are the enforcement behind the convention "never commit directly to `main`"
-> (`AGENTS.md` § 11). They are configured in the GitHub UI
+> These rules are the enforcement behind the convention "never commit directly to `main`, `dev`,
+> or `qa`" (`AGENTS.md` § 11). They are configured on GitHub
 > (**Settings → Rules → Rulesets**), not in repository files. Example creation via `gh api`:
 >
 > ```bash
