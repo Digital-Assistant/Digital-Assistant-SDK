@@ -94,14 +94,14 @@ export const getNodeLabels = (
 
         // Get labels from child nodes.
         if (getchildlabels && node.childNodes.length > 0) {
-            let childNodes = node.childNodes;
+            const childNodes = node.childNodes;
             childNodes?.forEach(function (childNode: any) {
                 if (
                     childNode.nodeName.toLowerCase() !== 'script' &&
                     childNode.nodeName.toLowerCase() !== 'select' &&
                     childNode.nodeName.toLowerCase() !== '#comment'
                 ) {
-                    let textcontent = childNode.textContent
+                    const textcontent = childNode.textContent
                         .replace(/[\n\r]+|[\s]{2,}/g, ' ')
                         .trim();
 
@@ -164,7 +164,7 @@ export const getNodeLabels = (
             node.className &&
             node.className !== ''
         ) {
-            let classname = node.className.toString();
+            const classname = node.className.toString();
             inputlabels.push({
                 text:
                     node.nodeName.toLowerCase() +

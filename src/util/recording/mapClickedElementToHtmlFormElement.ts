@@ -9,7 +9,7 @@ import fetchHtmlFormElements from './fetchHtmlFormElements';
  */
 export const mapClickedElementToHtmlFormElement = (node: any) => {
     // Fetch the predefined list of HTML form elements.
-    let htmlFormElements = fetchHtmlFormElements();
+    const htmlFormElements = fetchHtmlFormElements();
     // Initialize with a default 'others' type.
     let selectedFormElement: any = {
         inputElement: 'others',
@@ -19,7 +19,7 @@ export const mapClickedElementToHtmlFormElement = (node: any) => {
     };
 
     // Iterate through each configured HTML form element.
-    for (let htmlFormElement of htmlFormElements) {
+    for (const htmlFormElement of htmlFormElements) {
         // Case 1: The configured `inputElement` is an array (e.g., ["select", "option"]).
         if (
             Array.isArray(htmlFormElement.inputElement) &&

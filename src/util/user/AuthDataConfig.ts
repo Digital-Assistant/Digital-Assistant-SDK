@@ -14,7 +14,7 @@ export const AuthDataConfig = async (data: AuthConfigPropTypes) => {
             if (authData[key] === '') {
                 config[key] = authData[key];
             } else if (typeof config[key] === typeof authData[key]) {
-                let encrypted: any = await UDADigestMessage(
+                const encrypted: any = await UDADigestMessage(
                     authData[key],
                     'SHA-512',
                 );

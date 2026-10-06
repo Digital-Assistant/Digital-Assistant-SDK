@@ -41,7 +41,7 @@ export const addToolTip = (
 ) => {
     // If there is recorded data, extract the tooltip message from it.
     if (recordedData !== null) {
-        let recordedNodeData = JSON.parse(recordedData.objectdata);
+        const recordedNodeData = JSON.parse(recordedData.objectdata);
         if (recordedNodeData?.meta?.tooltipInfo) {
             message = recordedNodeData.meta.tooltipInfo;
         } else if (recordedNodeData?.meta?.selectedElement === 'highlight') {
@@ -60,7 +60,7 @@ export const addToolTip = (
     // pass the initial placement to getToolTipElement for correct rotate cycling.
     // Use a temporary div to get tooltip dimensions for the calculation.
     const tempDiv = document.createElement('div');
-    let {
+    const {
         finalCssClass: initialCssClass,
         availablePositions: initialAvailablePositions,
     } = getTooltipPositionClass(tooltipNode, tempDiv);
@@ -151,7 +151,7 @@ export const addToolTip = (
 export const updateTooltipPosition = (position: string) => {
     if (!currentPopperInstance) return;
 
-    let { finalCssClass, availablePositions } = getTooltipPositionClass(
+    const { finalCssClass, availablePositions } = getTooltipPositionClass(
         currentTooltipNode,
         currentTooltipDivElement,
         position,

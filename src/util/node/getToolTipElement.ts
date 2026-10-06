@@ -21,7 +21,7 @@ export const getToolTipElement = (
     initialPosition: string = 'top',
 ) => {
     // Create the main tooltip container.
-    let tooltipDivElement = document.createElement('div');
+    const tooltipDivElement = document.createElement('div');
     tooltipDivElement.id = 'uda-tooltip';
     tooltipDivElement.classList.add('uda-tooltip');
 

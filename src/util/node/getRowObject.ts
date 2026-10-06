@@ -11,7 +11,7 @@ import { getClickedNodeLabel } from './getClickedNodeLabel';
 export const getRowObject = (data: any) => {
     let path = '';
     // Generate a path string from the first 5 user click nodes.
-    for (let [index, row] of data.userclicknodesSet.entries()) {
+    for (const [index, row] of data.userclicknodesSet.entries()) {
         if (index < 5) {
             if (path !== '') {
                 path += ' >> ';

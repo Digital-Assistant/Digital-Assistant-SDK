@@ -24,7 +24,7 @@ export const saveClickData = async (node: any, text: string, meta: any) => {
         }
 
         // Process the node to get its JSON representation.
-        let objectData: any = await processNodeForClickData(node);
+        const objectData: any = await processNodeForClickData(node);
 
         // Assign the provided meta object to the processed node data.
         objectData.meta = meta;

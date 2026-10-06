@@ -36,7 +36,7 @@ export const compareNodes = (
     }
 
     // Iterate over the properties of the recorded node to compare them with the candidate node.
-    for (let key in recordedNode) {
+    for (const key in recordedNode) {
         /**
          * Angular's View Encapsulation can generate dynamic HTML attributes prefixed with "_ng".
          * These attributes need to be ignored during pattern matching for playback to be reliable.
@@ -140,7 +140,7 @@ export const compareNodes = (
                 match.matched++;
             } else {
                 // Use Jaro-Winkler distance for fuzzy matching of class names.
-                let weight = jaroWinkler(recordedNode[key], compareNode[key]);
+                const weight = jaroWinkler(recordedNode[key], compareNode[key]);
                 if (weight > nodeConfig.JARO_WEIGHT_PERSONAL) {
                     match.matched++;
                 } else {
@@ -188,7 +188,7 @@ export const compareNodes = (
             (key === 'id' || key === 'name') &&
             compareNode[key] !== recordedNode[key]
         ) {
-            let weight = jaroWinkler(recordedNode[key], compareNode[key]);
+            const weight = jaroWinkler(recordedNode[key], compareNode[key]);
             if (weight > 0.9) {
                 match.matched++;
             }
@@ -198,7 +198,7 @@ export const compareNodes = (
             (key === 'innerText' || key === 'outerText') &&
             typeof compareNode[key] === 'undefined'
         ) {
-            let trimmedRecordedNode = recordedNode[key].trim();
+            const trimmedRecordedNode = recordedNode[key].trim();
             if (
                 trimmedRecordedNode === null ||
                 trimmedRecordedNode === '' ||
