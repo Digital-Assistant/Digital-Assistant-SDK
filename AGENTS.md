@@ -41,6 +41,8 @@ Run from repo root.
 - `npm run security` — `npm audit --audit-level=high`
 - `npm run clean` — remove `dist/`
 - `npm run env:generate` — generate `environments/<BUILD_ENV>.env` from env vars (`scripts/generate-env.mjs`, default `local`; `--force` to overwrite)
+- `npm run git:clean:dry` — list local branches whose upstream is gone (safe default, deletes nothing)
+- `npm run git:clean` — delete those stale branches (`scripts/git-branch-janitor.mjs --apply`)
 
 After any code change, run `npm run check` (or the individual gates) and `npm run build` to verify the bundle compiles. `dist/` is generated in CI and is **not** committed.
 
@@ -118,3 +120,36 @@ Standard change loop:
 - **Mocking libraries**: use `axios-mock-adapter` for `apiClient`/axios HTTP, `redux-mock-store` for testing thunks and slice flows without a real store.
 - **Pattern**: one `describe` block per unit, focused `it` cases with arrange/act/assert; export-only functions (RecordService, StepEditingService) are tested via their public names — use the aliased exports where they differ from action names.
 - **Coverage**: default off; run `npm run test:coverage` for reports (text/lcov/json/html).
+
+## 11. CI, Commit Conventions & Release Lifecycle
+
+**Commit format:** all commits MUST follow the Conventional Commits specification
+(`<type>(<scope>): <description>`). Release Please derives versions and the `CHANGELOG.md`
+from these prefixes:
+- `feat:` → MINOR bump
+- `fix:` → PATCH bump
+- `feat!:` / `fix!:` → MAJOR bump (breaking change)
+- `chore:`, `docs:`, `test:`, `refactor:` → no bump, still recorded
+
+**Branch strategy:**
+- All work happens on feature branches and is PR'd into `dev`. Never commit directly to `main`.
+- `main` is production and contains only released code.
+- `qa` is the integration/pre-release testing branch (see `build:qa`).
+- Direct PRs to `main` may only originate from `dev` (enforced by `.github/workflows/enforce-dev-base.yml`).
+- `main` and `dev` are protected by repository rulesets — changes arrive only via PR.
+
+**Gate status** (until Phase 5 of `artefacts/ci-cd-pipeline-plan.md` makes the repo green):
+
+| Gate | Workflow | Status |
+|---|---|---|
+| `npm run typecheck` | CI | **Blocking** |
+| `npm run build` | CI (after `env:generate`) | **Blocking** |
+| `npm run format:check` | CI | Advisory (`continue-on-error`) |
+| `npm run lint` | CI | Advisory |
+| `npm test` | CI | Advisory |
+| `npm run security` | Security Audit | Advisory |
+
+**Release lifecycle:** version bumps, changelog generation, GitHub Releases, and the
+`main` → `dev` back-merge are automated via `.github/workflows/release-and-sync.yml`
+(npm publishing is currently disabled). **See `RELEASE_PROCESS.md` for the full step-by-step
+release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**

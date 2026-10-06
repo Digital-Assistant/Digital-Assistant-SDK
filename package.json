@@ -52,6 +52,8 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run format:check && npm run typecheck && npm test",
     "security": "npm audit --audit-level=high",
+    "git:clean:dry": "node scripts/git-branch-janitor.mjs",
+    "git:clean": "node scripts/git-branch-janitor.mjs --apply",
     "prepublishOnly": "npm run check && npm run build",
     "postinstall": "node ./scripts/postinstall.js"
   },
