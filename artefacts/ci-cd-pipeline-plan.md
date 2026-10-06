@@ -316,6 +316,40 @@ Port of the reference `git-branch-janitor.ts` to plain ESM Node (no build step):
 - Branch enforcement behaves per spec.
 - Release PR generation verified (or a documented reason/blocker captured).
 
+### Verification results (2026-10-06)
+
+**Workflow validation.** `actionlint` 1.7.12 over all four workflows found one issue:
+`enforce-dev-base.yml` interpolated `${{ github.head_ref }}` directly into an inline shell
+script (workflow-expression injection). Fixed by passing `github.base_ref`/`github.head_ref`
+through the step `env:` block; actionlint is now clean (exit 0). PyYAML parses all four files.
+
+**CI / advisory behavior.** Confirmed on `dev` push run `37460576397` (all three OS, green):
+`Type check` and `Build` block; `Format check`, `Lint`, `Tests` each exit 1 (6 suites / 36
+tests failing, plus prettier/ESLint errors) yet the job stays green via `continue-on-error`.
+`npm ci` succeeded on ubuntu/macos/windows from the committed lockfile, and the
+`postinstall` domjson patch survived (optional chaining present, no `setImmediate`). The build
+env step generated `environments/local.env` from `vars`/`secrets` and `Build` passed.
+`Security Audit` run `37460576611` completed green while reporting 25 high / 1 critical.
+
+**Branch enforcement.** Three PRs opened and closed without merging:
+- `ci-cd-part-2 → main` (#159): `check-source-branch` **failed** with the expected `::error::`.
+- `dev → main` (#160): `check-source-branch` **passed** (`Validation successful!`).
+- `release-please--verify → main` (#161): `check-source-branch` **passed** (glob skip).
+
+**Release Please config.** Validated with a local `release-please@16 release-pr --dry-run`
+against `main` (no writes). It generated a candidate Release PR
+(`chore(main): release 1.0.0`, branch `release-please--branches--main--components--core`) and
+wrote the `1.0.0` changelog from the Conventional Commits already on `main`.
+
+**Bootstrap finding (carry into Phase 5):** with no tags, no `.release-please-manifest.json`,
+and `package.json` already at `1.0.0`, the first Release PR is `release 1.0.0` — i.e. **no
+version bump** — and the scoped package name yields the component suffix `--components--core`.
+This is acceptable bootstrap behavior, but the first release must be created deliberately;
+either accept the `1.0.0` tag or pre-seed a `.release-please-manifest.json` / initial tag, and
+consider setting `release-please-config.json` `package-name` to avoid the `core` component
+suffix. The GitHub `release-and-sync.yml` job itself is only exercised by a real push to
+`main`, so it has not been run end-to-end (deferred to the first real release).
+
 ---
 
 ## Phase 5 — Make the repo green, then enforce
