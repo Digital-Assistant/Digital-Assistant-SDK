@@ -114,9 +114,9 @@ export const addToolTip = (
 
     // If buttons are shown, attach event listeners to them.
     if (showButtons) {
-        // @ts-ignore
-        const shadowRoot: any =
-            document.getElementById('udan-react-root').shadowRoot;
+        const shadowRoot: any = (
+            document.getElementById('udan-react-root') as any
+        )?.shadowRoot;
 
         // Attach an event listener to the 'continue' button.
         const continueBtn = shadowRoot.getElementById('uda-autoplay-continue');
@@ -180,9 +180,8 @@ export const removeToolTip = () => {
     currentTooltipNode = null;
     currentTooltipDivElement = null;
 
-    // @ts-ignore
-    const shadowRoot: any =
-        document.getElementById('udan-react-root').shadowRoot;
+    const shadowRoot: any = (document.getElementById('udan-react-root') as any)
+        ?.shadowRoot;
     const toolTipExists: any = shadowRoot.getElementById('uda-tooltip');
     if (toolTipExists) {
         shadowRoot.removeChild(toolTipExists);
