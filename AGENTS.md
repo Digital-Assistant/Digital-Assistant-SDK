@@ -131,12 +131,13 @@ from these prefixes:
 - `feat!:` / `fix!:` → MAJOR bump (breaking change)
 - `chore:`, `docs:`, `test:`, `refactor:` → no bump, still recorded
 
-**Branch strategy:**
-- All work happens on feature branches and is PR'd into `dev`. Never commit directly to `main`.
-- `main` is production and contains only released code.
-- `qa` is the integration/pre-release testing branch (see `build:qa`).
-- Direct PRs to `main` may only originate from `dev` (enforced by `.github/workflows/enforce-dev-base.yml`).
-- `main` and `dev` are protected by repository rulesets — changes arrive only via PR.
+**Branch strategy** (`feature → dev → qa → main`):
+- All work happens on feature branches and is PR'd into `dev`. Never commit directly to `dev`, `qa`, or `main`.
+- `dev` is the integration branch — all feature/fix work lands here first.
+- `qa` is the integration/pre-release testing branch (see `build:qa`); it accepts PRs **only from `dev`**.
+- `main` is production and contains only released code; it accepts PRs **only from `qa`** (plus automated `release-please--*` release PRs).
+- Source-branch rules are enforced by `.github/workflows/enforce-dev-base.yml` (`Check source branch`).
+- `main`, `dev`, and `qa` are protected by repository rulesets — changes arrive only via PR (no direct pushes, no force-push, no deletion).
 
 **Gate status** (all gates are blocking in CI):
 
