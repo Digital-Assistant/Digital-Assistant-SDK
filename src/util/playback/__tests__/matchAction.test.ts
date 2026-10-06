@@ -111,11 +111,12 @@ describe('matchAction', () => {
     node = document.createElement('button');
     matchAction(node, selectedNode, selectedRecordingDetails);
     expect(addToolTip).toHaveBeenCalledWith(node, node, selectedNode, expect.any(Object), false, false, false, 'highLightText', false, true);
-    expect(invokeNextNode).toHaveBeenCalledWith(node, 2000);
+    expect(invokeNextNode).toHaveBeenCalledWith(node, 3000);
   });
 
   it('should use custom slowPlaybackTime from selectedRecordingDetails', () => {
     node = document.createElement('button');
+    (window as any).UDAGlobalConfig.enableSlowReplay = true;
     selectedRecordingDetails.additionalParams.slowPlaybackTime = 5;
     matchAction(node, selectedNode, selectedRecordingDetails);
     expect(invokeNextNode).toHaveBeenCalledWith(node, 5000);
@@ -145,7 +146,7 @@ describe('matchAction', () => {
     node.setAttribute('type', 'submit');
     matchAction(node, selectedNode, selectedRecordingDetails);
     expect(addToolTip).toHaveBeenCalled();
-    expect(invokeNextNode).toHaveBeenCalledWith(node, 2000);
+    expect(invokeNextNode).toHaveBeenCalledWith(node, 3000);
   });
 
   it('should use mapSelectedElementAction when enabled and a specific systemTag is present', () => {
@@ -219,7 +220,7 @@ describe('matchAction', () => {
 
       matchAction(node, selectedNode, selectedRecordingDetails);
 
-      expect(matchLLMInputToNode).toHaveBeenCalledWith(node, selectedNode, selectedRecordingDetails, 2000);
+      expect(matchLLMInputToNode).toHaveBeenCalledWith(node, selectedNode, selectedRecordingDetails, 3000);
       // Since matchLLMInputToNode returned true, no further processing should occur
       expect(addToolTip).not.toHaveBeenCalled();
     });
@@ -237,7 +238,7 @@ describe('matchAction', () => {
 
       matchAction(node, selectedNode, selectedRecordingDetails);
 
-      expect(matchLLMInputToNode).toHaveBeenCalledWith(node, selectedNode, selectedRecordingDetails, 2000);
+      expect(matchLLMInputToNode).toHaveBeenCalledWith(node, selectedNode, selectedRecordingDetails, 3000);
       // Normal processing should continue
       expect(addToolTip).toHaveBeenCalled();
     });
@@ -385,7 +386,7 @@ describe('matchAction', () => {
       matchAction(node, selectedNode, selectedRecordingDetails);
 
       expect(addToolTip).toHaveBeenCalledWith(node, node, selectedNode, expect.any(Object), false, false, false, 'highLightText', false, true);
-      expect(invokeNextNode).toHaveBeenCalledWith(node, 2000);
+      expect(invokeNextNode).toHaveBeenCalledWith(node, 3000);
     });
   });
 

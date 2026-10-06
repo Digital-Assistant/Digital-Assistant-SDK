@@ -31,6 +31,14 @@ jest.mock('../../notification', () => ({
   removeToolTip: jest.fn(),
 }));
 
+// Playback is only triggered while a recording is playing; report it as "on".
+jest.mock('../../storage', () => ({
+  StorageUtil: {
+    getFromStore: jest.fn(() => 'on'),
+    setToStore: jest.fn(),
+  },
+}));
+
 // Use fake timers to control setTimeout
 jest.useFakeTimers();
 
@@ -48,15 +56,9 @@ describe('invokeNextNode', () => {
     node = document.createElement('button');
     node.click = jest.fn();
 
-    // Reset window.location mock for each test
-    Object.defineProperty(window, 'location', {
-      value: {
-        protocol: 'http:',
-        host: 'localhost',
-        pathname: '/',
-      },
-      writable: true,
-    });
+    // Reset the URL for each test. jsdom's `window.location` is
+    // non-configurable, so change it through the exposed jsdom instance.
+    (global as any).jsdom.reconfigure({ url: 'http://localhost/' });
   });
 
   it('should invoke click and remove tooltip after the specified delay', () => {

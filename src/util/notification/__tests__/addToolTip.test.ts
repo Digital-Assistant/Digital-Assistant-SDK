@@ -37,6 +37,14 @@ jest.mock('../../node/events', () => ({
     on: jest.fn(),
 }));
 
+// Playback interactions are gated on the recording being active.
+jest.mock('../../storage', () => ({
+    StorageUtil: {
+        getFromStore: jest.fn(() => 'on'),
+        setToStore: jest.fn(),
+    },
+}));
+
 describe('Tooltip Functions', () => {
     let invokingNode: HTMLElement;
     let tooltipNode: HTMLElement;
@@ -99,19 +107,20 @@ describe('Tooltip Functions', () => {
                 objectdata: JSON.stringify({ meta: { tooltipInfo: 'Custom Message' } }),
             };
             addToolTip(invokingNode, tooltipNode, recordedData, null);
-            expect(getToolTipElement).toHaveBeenCalledWith('Custom Message', true);
+            expect(getToolTipElement).toHaveBeenCalledWith('Custom Message', true, expect.any(Function), 'top');
         });
 
         it('should attach click listeners to continue and exit buttons', () => {
             addToolTip(invokingNode, tooltipNode, null, null, false, false, false, 'message', true);
-            
+
             const continueButton = shadowRoot.getElementById('uda-autoplay-continue');
-            const exitButton = shadowRoot.getElementById('uda-autoplay-exit');
 
             continueButton?.click();
             expect(trigger).toHaveBeenCalledWith('ContinuePlay', { action: 'ContinuePlay' });
 
-            exitButton?.click();
+            // Exit handling is delegated to the onExit callback passed to getToolTipElement.
+            const onExit = (getToolTipElement as jest.Mock).mock.calls[0][2];
+            onExit();
             expect(trigger).toHaveBeenCalledWith('PausePlay', { action: 'PausePlay' });
         });
 

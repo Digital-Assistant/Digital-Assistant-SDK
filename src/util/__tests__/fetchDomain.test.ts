@@ -31,10 +31,15 @@ jest.mock('parse-domain', () => ({
   },
 }));
 
-
 describe('fetchDomain', () => {
-  const originalLocation = window.location;
   const originalUDAGlobalConfig = window.UDAGlobalConfig;
+
+  // jsdom's `window.location` is non-configurable, so we change the URL through
+  // the jsdom instance exposed by test/jsdom-environment.js instead of
+  // redefining `window.location`.
+  const setHost = (host: string) => {
+    (global as any).jsdom.reconfigure({ url: `http://${host}/` });
+  };
 
   beforeAll(() => {
     // Mock UDAGlobalConfig for all tests that expect domain parsing
@@ -43,6 +48,7 @@ describe('fetchDomain', () => {
         enableForAllDomains: true,
       },
       writable: true,
+      configurable: true,
     });
   });
 
@@ -51,73 +57,37 @@ describe('fetchDomain', () => {
     Object.defineProperty(window, 'UDAGlobalConfig', {
       value: originalUDAGlobalConfig,
       writable: true,
+      configurable: true,
     });
-  });
-
-  afterEach(() => {
-    // Restore original window.location after each test
-    Object.defineProperty(window, 'location', {
-      value: originalLocation,
-      writable: true,
-    });
+    (global as any).jsdom.reconfigure({ url: 'http://localhost/' });
   });
 
   it('should fetch a simple domain', () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        ...originalLocation,
-        host: 'example.com',
-      },
-      writable: true,
-    });
+    setHost('example.com');
     const domain = fetchDomain();
     expect(domain).toBe('example.com');
   });
 
   it('should fetch a domain with www', () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        ...originalLocation,
-        host: 'www.example.com',
-      },
-      writable: true,
-    });
+    setHost('www.example.com');
     const domain = fetchDomain();
     expect(domain).toBe('example.com');
   });
 
   it('should fetch a subdomain', () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        ...originalLocation,
-        host: 'sub.example.com',
-      },
-      writable: true,
-    });
+    setHost('sub.example.com');
     const domain = fetchDomain();
     expect(domain).toBe('example.com');
   });
 
   it('should handle localhost', () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        ...originalLocation,
-        host: 'localhost',
-      },
-      writable: true,
-    });
+    setHost('localhost');
     const domain = fetchDomain();
     expect(domain).toBe('localhost');
   });
 
   it('should handle IP addresses', () => {
-    Object.defineProperty(window, 'location', {
-      value: {
-        ...originalLocation,
-        host: '127.0.0.1',
-      },
-      writable: true,
-    });
+    setHost('127.0.0.1');
     const domain = fetchDomain();
     expect(domain).toBe('127.0.0.1');
   });
