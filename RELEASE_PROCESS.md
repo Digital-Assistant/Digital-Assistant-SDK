@@ -7,8 +7,8 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
 - `qa` is the integration / pre-release testing branch. It receives `dev` builds for
   verification before a release is staged; it is a build environment (see `build:qa`), not a
   source of production releases.
-- CI (`ci.yml`) guards every push/PR to `main` and `dev` — typecheck and build are blocking;
-  format/lint/test/audit are advisory until the repo is green (see [Gate Status](#gate-status)).
+- CI (`ci.yml`) guards every push/PR to `main` and `dev` — typecheck, format, lint,
+  tests, and build are all blocking.
 - Release automation (`release-and-sync.yml`) handles version bumps, changelog generation,
   GitHub releases, and the back-merge to `dev`. **npm publishing is currently disabled.**
 - Direct PRs to `main` may only originate from `dev` (enforced by `enforce-dev-base.yml`).
@@ -44,20 +44,22 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
 
 ## Gate Status
 
-Until Phase 5 of `artefacts/ci-cd-pipeline-plan.md` makes the repo green, CI runs a mix of
-blocking and advisory gates:
+All gates are blocking in CI:
 
 | Gate | Workflow step | Status |
 |---|---|---|
 | `npm run typecheck` | CI | **Blocking** |
+| `npm run format:check` | CI | **Blocking** |
+| `npm run lint` | CI | **Blocking** (legacy debt reported as warnings) |
+| `npm test` | CI | **Blocking** |
 | `npm run build` | CI (after `env:generate`) | **Blocking** |
-| `npm run format:check` | CI | Advisory (`continue-on-error`) |
-| `npm run lint` | CI | Advisory |
-| `npm test` | CI | Advisory |
-| `npm run security` | Security Audit | Advisory |
+| `npm run security` | Security Audit | **Blocking** (production deps at `high`; `critical` anywhere) |
 
-Advisory gates are visible in CI but do not fail the pipeline. They flip to blocking in
-Phase 5.
+The `lint` gate passes while reporting pre-existing `no-explicit-any`/unused-var/
+`@ts-ignore` debt as warnings; formatting is enforced as an error. The `security`
+gate enforces production dependencies at `high` (currently 0) plus `critical`
+anywhere (currently 0); dev-only toolchain advisories (chiefly `braces`/`micromatch`,
+which have no patched release) are reported but do not block.
 
 ## Repository Setup
 
@@ -91,8 +93,7 @@ Consequences:
 - **`main` only accepts PRs from `dev` or `release-please--*`.** The `check-source-branch` status
   (emitted by `.github/workflows/enforce-dev-base.yml`) fails any other head branch.
 - Merges must pass CI: `Build, Check, and Verify` on `ubuntu-latest`, `macos-latest`, and
-  `windows-latest` (only the blocking steps gate the check once advisory gates are flipped in
-  Phase 5).
+  `windows-latest` (all gates block).
 
 > These rules are the enforcement behind the convention "never commit directly to `main`"
 > (`AGENTS.md` § 11). They are configured in the GitHub UI
