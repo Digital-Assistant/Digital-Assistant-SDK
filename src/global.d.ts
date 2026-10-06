@@ -4,7 +4,7 @@
  * TypeScript type definitions. By declaring it, we tell TypeScript to
  t * rust that this module exists and to type its contents as 'any'.
  */
-declare module "domjson";
+declare module 'domjson';
 
 /**
  * Augments the global scope with custom variables.

@@ -1,5 +1,5 @@
-import {AuthData} from "./AuthData";
-import {CSPData} from "./CSPData";
+import { AuthData } from './AuthData';
+import { CSPData } from './CSPData';
 
 export class UDASessionData {
     sessionKey: string | null;
@@ -8,12 +8,17 @@ export class UDASessionData {
     authData: AuthData;
     csp: CSPData;
 
-    constructor(sessionKey: string | null=null, authenticated: boolean=false, authenticationSource: string | null = null, authData: AuthData = new AuthData(), csp: CSPData=new CSPData()) {
+    constructor(
+        sessionKey: string | null = null,
+        authenticated: boolean = false,
+        authenticationSource: string | null = null,
+        authData: AuthData = new AuthData(),
+        csp: CSPData = new CSPData(),
+    ) {
         this.sessionKey = sessionKey;
         this.authenticated = authenticated;
         this.authenticationSource = authenticationSource;
         this.authData = authData;
         this.csp = csp;
     }
-
 }

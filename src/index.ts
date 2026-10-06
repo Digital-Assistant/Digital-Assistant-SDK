@@ -54,18 +54,24 @@ export class DigitalAssistantCore {
     private lastRecordingRef: any = null;
 
     constructor(config: DigitalAssistantConfiguration) {
-        console.log("Digital Assistant SDK Core initialized");
+        console.log('Digital Assistant SDK Core initialized');
         this.errorLogger = new ErrorLoggerService(config);
-        this.translateService = new TranslateService(apiClient, config, this.errorLogger);
+        this.translateService = new TranslateService(
+            apiClient,
+            config,
+            this.errorLogger,
+        );
         // Initialize AuthManager
         import('./services/AuthManager').then(({ authManager }) => {
             authManager.init();
         });
 
         // Initialize PlaybackService
-        import('./util/playback/PlaybackService').then(({ playbackService }) => {
-            playbackService.init();
-        });
+        import('./util/playback/PlaybackService').then(
+            ({ playbackService }) => {
+                playbackService.init();
+            },
+        );
     }
 
     getState(): RootState {

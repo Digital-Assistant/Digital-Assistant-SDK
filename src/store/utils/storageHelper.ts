@@ -9,18 +9,25 @@ import { StorageUtil } from '../../util/storage';
 /**
  * Check if we're in a service worker context
  */
-const isServiceWorker = typeof window === 'undefined' && typeof self !== 'undefined';
+const isServiceWorker =
+    typeof window === 'undefined' && typeof self !== 'undefined';
 
 /**
  * Get browser extension API (cross-browser)
  */
 function getBrowserAPI(): any {
     // Firefox, Safari
-    if (typeof (self as any).browser !== 'undefined' && (self as any).browser.storage) {
+    if (
+        typeof (self as any).browser !== 'undefined' &&
+        (self as any).browser.storage
+    ) {
         return (self as any).browser;
     }
     // Chrome, Edge, Opera, Brave
-    if (typeof (self as any).chrome !== 'undefined' && (self as any).chrome.storage) {
+    if (
+        typeof (self as any).chrome !== 'undefined' &&
+        (self as any).chrome.storage
+    ) {
         return (self as any).chrome;
     }
     return null;
@@ -39,7 +46,7 @@ export function loadFromStorage<T>(key: string, defaultValue: T): T {
             if (browserAPI?.storage) {
                 // For initial load in service worker, we return default
                 // and load asynchronously in the background
-                loadAsync(key, defaultValue).catch(err => {
+                loadAsync(key, defaultValue).catch((err) => {
                     console.error(`Error loading ${key} from storage:`, err);
                 });
                 return defaultValue;
@@ -92,9 +99,11 @@ export function saveToStorage<T>(key: string, state: T): void {
                 // Save asynchronously (fire and forget)
                 const storageData: Record<string, string> = {};
                 storageData[key] = serializedState;
-                browserAPI.storage.local.set(storageData).catch((err: Error) => {
-                    console.error(`Error saving ${key} to storage:`, err);
-                });
+                browserAPI.storage.local
+                    .set(storageData)
+                    .catch((err: Error) => {
+                        console.error(`Error saving ${key} to storage:`, err);
+                    });
                 return;
             }
         }
@@ -107,7 +116,7 @@ export function saveToStorage<T>(key: string, state: T): void {
         }
 
         // Fallback - use StorageUtil async (fire and forget)
-        StorageUtil.add(state, key, false).catch(err => {
+        StorageUtil.add(state, key, false).catch((err) => {
             console.error(`Error saving ${key} to storage:`, err);
         });
     } catch (err) {
@@ -140,7 +149,7 @@ export function removeFromStorage(key: string): void {
         }
 
         // Fallback
-        StorageUtil.remove(key).catch(err => {
+        StorageUtil.remove(key).catch((err) => {
             console.error(`Error removing ${key} from storage:`, err);
         });
     } catch (err) {

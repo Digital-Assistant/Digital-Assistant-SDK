@@ -2,9 +2,15 @@
  * Unit tests for UDASendSessionData module
  */
 
-import { UDASendSessionData, UDASendSessionDataToBackground } from '../UDASendSessionData';
+import {
+    UDASendSessionData,
+    UDASendSessionDataToBackground,
+} from '../UDASendSessionData';
 import { UDASessionData } from '../../../models/UDASessionData';
-import { getBrowserVar, getUDABrowserPlugin } from '../../browser/browserConstants';
+import {
+    getBrowserVar,
+    getUDABrowserPlugin,
+} from '../../browser/browserConstants';
 import { UDABindAuthenticatedAccount } from '../UDABindAuthenticatedAccount';
 import { getTab } from '../../screen';
 
@@ -35,7 +41,9 @@ describe('UDASendSessionData', () => {
             authenticationSource: 'test-source',
         } as UDASessionData;
 
-        dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(() => true);
+        dispatchEventSpy = jest
+            .spyOn(document, 'dispatchEvent')
+            .mockImplementation(() => true);
         (getUDABrowserPlugin as jest.Mock).mockReturnValue(false);
     });
 
@@ -54,7 +62,10 @@ describe('UDASendSessionData', () => {
         });
 
         it('should dispatch UDAAuthenticatedUserSessionData custom event', async () => {
-            await UDASendSessionData(mockSessionData, 'UDAAuthenticatedUserSessionData');
+            await UDASendSessionData(
+                mockSessionData,
+                'UDAAuthenticatedUserSessionData',
+            );
 
             const event = dispatchEventSpy.mock.calls[0][0] as CustomEvent;
             expect(event.type).toBe('UDAAuthenticatedUserSessionData');
@@ -62,7 +73,11 @@ describe('UDASendSessionData', () => {
         });
 
         it('should dispatch UDAAlertMessageData custom event with message', async () => {
-            await UDASendSessionData(mockSessionData, 'UDAAlertMessageData', 'Alert message here');
+            await UDASendSessionData(
+                mockSessionData,
+                'UDAAlertMessageData',
+                'Alert message here',
+            );
 
             const event = dispatchEventSpy.mock.calls[0][0] as CustomEvent;
             expect(event.type).toBe('UDAAlertMessageData');
@@ -85,7 +100,11 @@ describe('UDASendSessionData', () => {
                 tabs: { sendMessage: mockSendMessage },
             });
 
-            await UDASendSessionData(mockSessionData, 'UDAAlertMessageData', 'test');
+            await UDASendSessionData(
+                mockSessionData,
+                'UDAAlertMessageData',
+                'test',
+            );
 
             expect(getTab).toHaveBeenCalled();
         });
@@ -122,15 +141,22 @@ describe('UDASendSessionData', () => {
             (getTab as jest.Mock).mockResolvedValue(null);
             const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-            const result = await UDASendSessionDataToBackground(mockSessionData);
+            const result =
+                await UDASendSessionDataToBackground(mockSessionData);
 
             expect(result).toBe(false);
-            expect(consoleSpy).toHaveBeenCalledWith('No active tab identified.');
+            expect(consoleSpy).toHaveBeenCalledWith(
+                'No active tab identified.',
+            );
             consoleSpy.mockRestore();
         });
 
         it('should send alert message directly to tab', async () => {
-            const result = await UDASendSessionDataToBackground(mockSessionData, 'UDAAlertMessageData', 'Alert!');
+            const result = await UDASendSessionDataToBackground(
+                mockSessionData,
+                'UDAAlertMessageData',
+                'Alert!',
+            );
 
             expect(mockSendMessage).toHaveBeenCalledWith(456, {
                 action: 'UDAAlertMessageData',
@@ -148,13 +174,22 @@ describe('UDASendSessionData', () => {
                 },
             } as UDASessionData;
 
-            await UDASendSessionDataToBackground(sessionDataWithoutToken, 'UDAUserSessionData');
+            await UDASendSessionDataToBackground(
+                sessionDataWithoutToken,
+                'UDAUserSessionData',
+            );
 
-            expect(UDABindAuthenticatedAccount).toHaveBeenCalledWith(sessionDataWithoutToken, false);
+            expect(UDABindAuthenticatedAccount).toHaveBeenCalledWith(
+                sessionDataWithoutToken,
+                false,
+            );
         });
 
         it('should send session data to tab when authData has token', async () => {
-            await UDASendSessionDataToBackground(mockSessionData, 'UDAUserSessionData');
+            await UDASendSessionDataToBackground(
+                mockSessionData,
+                'UDAUserSessionData',
+            );
 
             expect(mockSendMessage).toHaveBeenCalledWith(456, {
                 action: 'UDAUserSessionData',
@@ -163,7 +198,10 @@ describe('UDASendSessionData', () => {
         });
 
         it('should return true after sending session data successfully', async () => {
-            const result = await UDASendSessionDataToBackground(mockSessionData, 'UDAUserSessionData');
+            const result = await UDASendSessionDataToBackground(
+                mockSessionData,
+                'UDAUserSessionData',
+            );
 
             expect(result).toBe(true);
         });
@@ -178,7 +216,10 @@ describe('UDASendSessionData', () => {
         });
 
         it('should handle UDAAuthenticatedUserSessionData action with token', async () => {
-            await UDASendSessionDataToBackground(mockSessionData, 'UDAAuthenticatedUserSessionData');
+            await UDASendSessionDataToBackground(
+                mockSessionData,
+                'UDAAuthenticatedUserSessionData',
+            );
 
             expect(mockSendMessage).toHaveBeenCalledWith(456, {
                 action: 'UDAAuthenticatedUserSessionData',

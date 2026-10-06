@@ -12,10 +12,10 @@
  */
 
 // Import required utilities for coordinate calculation and distance measurement.
-import {getAbsoluteOffsets} from "./getAbsoluteOffsets";
-import {getNodeInfo} from "./nodeInfo";
-import {getDistance} from "./getDistance";
-import {UDAConsoleLogger} from "../error/error-log";
+import { getAbsoluteOffsets } from './getAbsoluteOffsets';
+import { getNodeInfo } from './nodeInfo';
+import { getDistance } from './getDistance';
+import { UDAConsoleLogger } from '../error/error-log';
 
 /**
  * Processes a collection of matching nodes to find the one closest to a selected reference node.
@@ -47,68 +47,70 @@ import {UDAConsoleLogger} from "../error/error-log";
  *   console.log('Found closest node:', closest);
  * }
  */
-export const processDistanceOfNodes = (matchingNodes: any, selectedNode: any) => {
-  // Primary validation: Ensure the selectedNode has the required `nodeInfo` property and that multiple candidates exist.
-  // This validation prevents unnecessary processing for single-node arrays and malformed input.
-  if (selectedNode.hasOwnProperty('nodeInfo') && matchingNodes.length > 1) {
+export const processDistanceOfNodes = (
+    matchingNodes: any,
+    selectedNode: any,
+) => {
+    // Primary validation: Ensure the selectedNode has the required `nodeInfo` property and that multiple candidates exist.
+    // This validation prevents unnecessary processing for single-node arrays and malformed input.
+    if (selectedNode.hasOwnProperty('nodeInfo') && matchingNodes.length > 1) {
+        // Debug logging: Output selected node information for development and troubleshooting.
+        UDAConsoleLogger.info(selectedNode, 4);
 
-    // Debug logging: Output selected node information for development and troubleshooting.
-    UDAConsoleLogger.info(selectedNode, 4);
+        // Initialize tracking variables for optimal node selection.
+        // `leastDistanceNode` will store the best match found during iteration.
+        let leastDistanceNode = null;
+        // `leastDistance` uses -1 as a sentinel value to indicate that no distance has been calculated yet.
+        let leastDistance = -1;
 
-    // Initialize tracking variables for optimal node selection.
-    // `leastDistanceNode` will store the best match found during iteration.
-    let leastDistanceNode = null;
-    // `leastDistance` uses -1 as a sentinel value to indicate that no distance has been calculated yet.
-    let leastDistance = -1;
+        // Main algorithm loop: Iterate through all candidate nodes to find the closest match.
+        // This loop implements a two-phase matching strategy for optimal performance.
+        for (let node of matchingNodes) {
+            // Phase 1: Fast coordinate matching - Get absolute positioning for the current candidate.
+            // This provides pixel-perfect coordinate information for exact matching.
+            const _offsets = getAbsoluteOffsets(node);
 
-    // Main algorithm loop: Iterate through all candidate nodes to find the closest match.
-    // This loop implements a two-phase matching strategy for optimal performance.
-    for (let node of matchingNodes) {
+            // Optimization: Check for exact coordinate alignment (same x OR y position).
+            // This represents perfect alignment scenarios that should be prioritized.
+            if (
+                selectedNode.offset &&
+                (_offsets.x == selectedNode.offset.x ||
+                    _offsets.y == selectedNode.offset.y)
+            ) {
+                // A perfect match is found: Set it as the optimal choice with zero distance.
+                // This early exit prevents unnecessary distance calculations.
+                leastDistanceNode = node;
+                leastDistance = 0;
+                // Break immediately since a perfect alignment cannot be improved upon.
+                break;
+            } else {
+                // Phase 2: Distance-based matching - No exact coordinate match was found.
+                // Extract comprehensive node information for distance calculation.
+                let nodeInfo = getNodeInfo(node);
 
-      // Phase 1: Fast coordinate matching - Get absolute positioning for the current candidate.
-      // This provides pixel-perfect coordinate information for exact matching.
-      const _offsets = getAbsoluteOffsets(node);
+                // Calculate the distance between the reference node and the current candidate.
+                let dist = getDistance(selectedNode.nodeInfo, nodeInfo);
 
-      // Optimization: Check for exact coordinate alignment (same x OR y position).
-      // This represents perfect alignment scenarios that should be prioritized.
-      if (selectedNode.offset &&
-          (_offsets.x == selectedNode.offset.x ||
-              _offsets.y == selectedNode.offset.y)
-      ) {
-        // A perfect match is found: Set it as the optimal choice with zero distance.
-        // This early exit prevents unnecessary distance calculations.
-        leastDistanceNode = node;
-        leastDistance = 0;
-        // Break immediately since a perfect alignment cannot be improved upon.
-        break;
-      } else {
-        // Phase 2: Distance-based matching - No exact coordinate match was found.
-        // Extract comprehensive node information for distance calculation.
-        let nodeInfo = getNodeInfo(node);
-
-        // Calculate the distance between the reference node and the current candidate.
-        let dist = getDistance(selectedNode.nodeInfo, nodeInfo);
-
-        // Distance comparison logic: Update tracking variables if a better match is found.
-        // First iteration: Initialize with the first calculated distance as the baseline.
-        if (leastDistance === -1) {
-          // No previous distance has been calculated, so set the current one as the baseline.
-          leastDistance = dist;
-          leastDistanceNode = node;
-        } else if (dist < leastDistance) {
-          // A better match is found: Update the tracking variables with the new minimum.
-          leastDistance = dist;
-          leastDistanceNode = node;
+                // Distance comparison logic: Update tracking variables if a better match is found.
+                // First iteration: Initialize with the first calculated distance as the baseline.
+                if (leastDistance === -1) {
+                    // No previous distance has been calculated, so set the current one as the baseline.
+                    leastDistance = dist;
+                    leastDistanceNode = node;
+                } else if (dist < leastDistance) {
+                    // A better match is found: Update the tracking variables with the new minimum.
+                    leastDistance = dist;
+                    leastDistanceNode = node;
+                }
+            }
         }
-      }
-    }
 
-    // Return the node with the minimum distance or the one with an exact coordinate match.
-    // This represents the optimal choice based on the algorithm's criteria.
-    return leastDistanceNode;
-  } else {
-    // Validation failure: Return `false` for invalid input conditions.
-    // This occurs when `selectedNode` lacks `nodeInfo` or there are insufficient candidates.
-    return false;
-  }
+        // Return the node with the minimum distance or the one with an exact coordinate match.
+        // This represents the optimal choice based on the algorithm's criteria.
+        return leastDistanceNode;
+    } else {
+        // Validation failure: Return `false` for invalid input conditions.
+        // This occurs when `selectedNode` lacks `nodeInfo` or there are insufficient candidates.
+        return false;
+    }
 };

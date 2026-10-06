@@ -75,7 +75,7 @@ describe('UDABindAccount', () => {
                 realm: 'test-realm',
                 clientId: 'test-client-id',
                 clientSecret: 'test-client-secret',
-            }
+            },
         );
     });
 
@@ -96,13 +96,10 @@ describe('UDABindAccount', () => {
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
-        expect(apiClient.post).toHaveBeenCalledWith(
-            ENDPOINT.CheckUserSession,
-            {
-                userauthid: 'user-auth-id-123',
-                usersessionid: 'session-key-456',
-            }
-        );
+        expect(apiClient.post).toHaveBeenCalledWith(ENDPOINT.CheckUserSession, {
+            userauthid: 'user-auth-id-123',
+            usersessionid: 'session-key-456',
+        });
     });
 
     it('should store session data and send it when CheckUserSession succeeds', async () => {
@@ -112,8 +109,14 @@ describe('UDABindAccount', () => {
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
-        expect(StorageUtil.add).toHaveBeenCalledWith(mockUDASessionData, 'uda-session');
-        expect(UDASendSessionData).toHaveBeenCalledWith(mockUDASessionData, 'UDAAuthenticatedUserSessionData');
+        expect(StorageUtil.add).toHaveBeenCalledWith(
+            mockUDASessionData,
+            'uda-session',
+        );
+        expect(UDASendSessionData).toHaveBeenCalledWith(
+            mockUDASessionData,
+            'UDAAuthenticatedUserSessionData',
+        );
     });
 
     it('should not proceed if token request returns no token', async () => {
@@ -154,13 +157,17 @@ describe('UDABindAccount', () => {
 
         await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
 
-        expect(StorageUtil.add).toHaveBeenCalledWith(mockUDASessionData, 'custom-session-name');
+        expect(StorageUtil.add).toHaveBeenCalledWith(
+            mockUDASessionData,
+            'custom-session-name',
+        );
     });
 
     it('should handle API errors gracefully', async () => {
         (apiClient.post as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-        await expect(UDABindAccount(mockUserAuthData, mockUDASessionData, false))
-            .rejects.toThrow('API Error');
+        await expect(
+            UDABindAccount(mockUserAuthData, mockUDASessionData, false),
+        ).rejects.toThrow('API Error');
     });
 });

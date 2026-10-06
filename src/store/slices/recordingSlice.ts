@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { StorageUtil } from "../../util/storage";
-import { CONFIG } from "../../config";
+import { StorageUtil } from '../../util/storage';
+import { CONFIG } from '../../config';
 
 // Define the state interface for recording data
 export interface RecordingState {
@@ -30,14 +30,36 @@ export const defaultRecordingState: RecordingState = {
 const coerceRecordingState = (raw: any): RecordingState => {
     if (!raw || typeof raw !== 'object') return { ...defaultRecordingState };
     return {
-        isRecording: typeof raw.isRecording === 'boolean' ? raw.isRecording : defaultRecordingState.isRecording,
-        isPlaying: typeof raw.isPlaying === 'string' ? raw.isPlaying : defaultRecordingState.isPlaying,
-        manualPlay: typeof raw.manualPlay === 'string' ? raw.manualPlay : defaultRecordingState.manualPlay,
-        playDelay: typeof raw.playDelay === 'string' ? raw.playDelay : defaultRecordingState.playDelay,
-        recSequenceData: Array.isArray(raw.recSequenceData) ? raw.recSequenceData : [...defaultRecordingState.recSequenceData],
-        selectedRecordingDetails: raw.selectedRecordingDetails ?? defaultRecordingState.selectedRecordingDetails,
-        showRecord: typeof raw.showRecord === 'boolean' ? raw.showRecord : defaultRecordingState.showRecord,
-        showLoader: typeof raw.showLoader === 'boolean' ? raw.showLoader : defaultRecordingState.showLoader,
+        isRecording:
+            typeof raw.isRecording === 'boolean'
+                ? raw.isRecording
+                : defaultRecordingState.isRecording,
+        isPlaying:
+            typeof raw.isPlaying === 'string'
+                ? raw.isPlaying
+                : defaultRecordingState.isPlaying,
+        manualPlay:
+            typeof raw.manualPlay === 'string'
+                ? raw.manualPlay
+                : defaultRecordingState.manualPlay,
+        playDelay:
+            typeof raw.playDelay === 'string'
+                ? raw.playDelay
+                : defaultRecordingState.playDelay,
+        recSequenceData: Array.isArray(raw.recSequenceData)
+            ? raw.recSequenceData
+            : [...defaultRecordingState.recSequenceData],
+        selectedRecordingDetails:
+            raw.selectedRecordingDetails ??
+            defaultRecordingState.selectedRecordingDetails,
+        showRecord:
+            typeof raw.showRecord === 'boolean'
+                ? raw.showRecord
+                : defaultRecordingState.showRecord,
+        showLoader:
+            typeof raw.showLoader === 'boolean'
+                ? raw.showLoader
+                : defaultRecordingState.showLoader,
     };
 };
 
@@ -46,8 +68,14 @@ export const initializeRecordingState = createAsyncThunk(
     'recording/initialize',
     async () => {
         try {
-            const serializedState: any = await StorageUtil.get(CONFIG.RECORDING_SEQUENCE_REDUX, false);
-            if (serializedState === null || typeof serializedState === 'undefined') {
+            const serializedState: any = await StorageUtil.get(
+                CONFIG.RECORDING_SEQUENCE_REDUX,
+                false,
+            );
+            if (
+                serializedState === null ||
+                typeof serializedState === 'undefined'
+            ) {
                 return { ...defaultRecordingState };
             }
             return coerceRecordingState(serializedState);
@@ -55,7 +83,7 @@ export const initializeRecordingState = createAsyncThunk(
             console.error('Error loading recording state from storage:', err);
             return { ...defaultRecordingState };
         }
-    }
+    },
 );
 
 const initialState: RecordingState = { ...defaultRecordingState };
@@ -82,7 +110,10 @@ export const recordingSlice = createSlice({
         addRecSequenceData: (state, action: PayloadAction<any>) => {
             state.recSequenceData.push(action.payload);
         },
-        setSelectedRecordingDetails: (state, action: PayloadAction<any | null>) => {
+        setSelectedRecordingDetails: (
+            state,
+            action: PayloadAction<any | null>,
+        ) => {
             state.selectedRecordingDetails = action.payload;
         },
         setShowRecord: (state, action: PayloadAction<boolean>) => {
@@ -112,7 +143,7 @@ export const {
     setSelectedRecordingDetails,
     setShowRecord,
     setShowLoader,
-    resetRecordingState
+    resetRecordingState,
 } = recordingSlice.actions;
 
 export default recordingSlice.reducer;

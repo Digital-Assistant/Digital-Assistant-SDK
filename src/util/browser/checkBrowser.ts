@@ -1,7 +1,7 @@
 /**
  * @file Browser detection and enabling UDA plugin
  */
-import {detect} from "detect-browser";
+import { detect } from 'detect-browser';
 declare const chrome: any;
 
 /**
@@ -32,5 +32,9 @@ export const checkBrowser = () => {
             break;
     }
 
-    return {enableUDAPlugin: enableUDAPlugin, udaBrowserVar: udaBrowserVar, udaIdentifiedBrowser: udaIdentifiedBrowser};
-}
+    return {
+        enableUDAPlugin: enableUDAPlugin,
+        udaBrowserVar: udaBrowserVar,
+        udaIdentifiedBrowser: udaIdentifiedBrowser,
+    };
+};

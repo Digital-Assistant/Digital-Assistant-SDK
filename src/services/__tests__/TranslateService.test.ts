@@ -23,11 +23,13 @@ describe('TranslateService', () => {
             },
             logging: {
                 host: 'log-host.com',
-                path: '/logs'
-            }
+                path: '/logs',
+            },
         });
         apiClient = new ApiClient() as jest.Mocked<ApiClient>;
-        errorLogger = new ErrorLoggerService(config) as jest.Mocked<ErrorLoggerService>;
+        errorLogger = new ErrorLoggerService(
+            config,
+        ) as jest.Mocked<ErrorLoggerService>;
         translateService = new TranslateService(apiClient, config, errorLogger);
     });
 
@@ -47,7 +49,7 @@ describe('TranslateService', () => {
 
         expect(result).toBe('Hello');
         expect(apiClient.get).toHaveBeenCalledWith(
-            'https://translation.googleapis.com/language/translate/v2?key=test-api-key&source=es&target=en&q=Hola'
+            'https://translation.googleapis.com/language/translate/v2?key=test-api-key&source=es&target=en&q=Hola',
         );
         expect(errorLogger.error).not.toHaveBeenCalled();
     });
@@ -56,14 +58,24 @@ describe('TranslateService', () => {
         const apiError = new Error('Network Error');
         apiClient.get.mockRejectedValue(apiError);
 
-        await expect(translateService.translateText('Hola', 'es', 'en')).rejects.toThrow('Network Error');
+        await expect(
+            translateService.translateText('Hola', 'es', 'en'),
+        ).rejects.toThrow('Network Error');
 
-        expect(errorLogger.error).toHaveBeenCalledWith('Error in translateText: Network Error', apiError);
+        expect(errorLogger.error).toHaveBeenCalledWith(
+            'Error in translateText: Network Error',
+            apiError,
+        );
     });
 
     it('should throw and log an error if required parameters are missing', async () => {
         const error = new Error('Required parameters are missing');
-        await expect(translateService.translateText('', 'es', 'en')).rejects.toThrow(error);
-        expect(errorLogger.error).toHaveBeenCalledWith(`Error in translateText: ${error.message}`, error);
+        await expect(
+            translateService.translateText('', 'es', 'en'),
+        ).rejects.toThrow(error);
+        expect(errorLogger.error).toHaveBeenCalledWith(
+            `Error in translateText: ${error.message}`,
+            error,
+        );
     });
 });

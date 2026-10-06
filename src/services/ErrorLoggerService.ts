@@ -1,5 +1,5 @@
 import winston from 'winston';
-import {type RootState, store} from '../store';
+import { type RootState, store } from '../store';
 import { DigitalAssistantConfiguration } from '../DigitalAssistantConfiguration';
 
 /**
@@ -21,7 +21,9 @@ export class ErrorLoggerService {
 
         if (!loggingConfig?.host || !loggingConfig?.path) {
             // If no remote logging is configured, log a warning and fallback to console.
-            console.warn('Remote error logging is not configured. Falling back to console.');
+            console.warn(
+                'Remote error logging is not configured. Falling back to console.',
+            );
             this.logger = this.createConsoleLogger();
         } else {
             this.logger = winston.createLogger({
@@ -46,7 +48,7 @@ export class ErrorLoggerService {
                 new winston.transports.Console({
                     format: winston.format.combine(
                         winston.format.timestamp(),
-                        winston.format.json()
+                        winston.format.json(),
                     ),
                 }),
             ],

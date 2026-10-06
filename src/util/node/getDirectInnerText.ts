@@ -8,12 +8,15 @@
  */
 export const getDirectInnerText = (element: any): string => {
     try {
-        if (!element) return "";
+        if (!element) return '';
 
         // Prefer using native properties like `innerText` or `textContent` if they are available and not empty.
-        const direct = (typeof element.innerText === 'string' && element.innerText !== '')
-            ? element.innerText
-            : (typeof element.textContent === 'string' ? element.textContent : "");
+        const direct =
+            typeof element.innerText === 'string' && element.innerText !== ''
+                ? element.innerText
+                : typeof element.textContent === 'string'
+                  ? element.textContent
+                  : '';
 
         if (direct && direct.trim().length > 0) {
             // Normalize whitespace by replacing multiple spaces with a single space and trimming.
@@ -46,6 +49,6 @@ export const getDirectInnerText = (element: any): string => {
         return collected.join(' ').replace(/\s+/g, ' ').trim();
     } catch (_) {
         // In case of an error, return an empty string.
-        return "";
+        return '';
     }
-}
+};

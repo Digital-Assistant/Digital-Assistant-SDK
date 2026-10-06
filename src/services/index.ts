@@ -5,32 +5,29 @@ export type { ApiClientConfig, ApiResponse, ApiError } from './apiClient';
 // Export SearchService functions (direct usage)
 export { TranslateService } from './TranslateService';
 export {
-  fetchSearchResults,
-  fetchRecord,
-  fetchSpecialNodes
+    fetchSearchResults,
+    fetchRecord,
+    fetchSpecialNodes,
 } from './SearchService';
-export type {
-  SearchRequest,
-  RecordRequest
-} from './SearchService';
+export type { SearchRequest, RecordRequest } from './SearchService';
 
 // Export RecordService functions
 export {
-  recordClicks,
-  updateRecordClicks,
-  updateSequnceIndex,
-  recordSequence,
-  postRecordSequenceData,
-  updateRecordSequenceData,
-  prepareRecordSequencePayload,
-  // userClick as recordUserClick, // alias to avoid clash with trackingService export name
-  deleteRecording,
-  updateRecording,
-  fetchStatuses,
-  profanityCheck,
-  startRecording,
-  cancelRecording,
-  finalSaveSequence,
+    recordClicks,
+    updateRecordClicks,
+    updateSequnceIndex,
+    recordSequence,
+    postRecordSequenceData,
+    updateRecordSequenceData,
+    prepareRecordSequencePayload,
+    // userClick as recordUserClick, // alias to avoid clash with trackingService export name
+    deleteRecording,
+    updateRecording,
+    fetchStatuses,
+    profanityCheck,
+    startRecording,
+    cancelRecording,
+    finalSaveSequence,
 } from './RecordService';
 
 // Export user services
@@ -44,21 +41,21 @@ export * from './UserVote';
 
 // Export StepEditingService functions (with aliases to avoid conflicts with Redux actions)
 export {
-  validateStepNameWithProfanity,
-  updateStepMetadata,
-  toggleSkipDuringPlay,
-  togglePersonalInfo,
-  updateTooltipMetadata,
-  updateDelayTimeMetadata,
-  updateStepType,
-  updateCustomMetadata as updateCustomMetadataService,  // Aliased to avoid conflict
-  saveStepChanges,
-  updateStepName as updateStepNameService,  // Aliased to avoid conflict
+    validateStepNameWithProfanity,
+    updateStepMetadata,
+    toggleSkipDuringPlay,
+    togglePersonalInfo,
+    updateTooltipMetadata,
+    updateDelayTimeMetadata,
+    updateStepType,
+    updateCustomMetadata as updateCustomMetadataService, // Aliased to avoid conflict
+    saveStepChanges,
+    updateStepName as updateStepNameService, // Aliased to avoid conflict
 } from './StepEditingService';
 export type {
-  UpdateMetadataParams,
-  SaveStepParams,
-  ServiceResult,
+    UpdateMetadataParams,
+    SaveStepParams,
+    ServiceResult,
 } from './StepEditingService';
 
 // Export AuthManager

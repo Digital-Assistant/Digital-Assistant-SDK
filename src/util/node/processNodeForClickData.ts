@@ -17,7 +17,7 @@ export const processNodeForClickData = async (node: any) => {
 
     // Dynamic import to avoid loading domjson in service workers
     // @ts-ignore
-    const domJSON = await import("domjson");
+    const domJSON = await import('domjson');
     const domJSONModule = domJSON.default || domJSON;
 
     // Convert the cloned node to a JSON object, including its serializable properties.

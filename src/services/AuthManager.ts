@@ -1,6 +1,9 @@
 import Keycloak from 'keycloak-js';
 import { store } from '../store';
-import { setKeycloakSessionData, clearUserData } from '../store/slices/userSlice';
+import {
+    setKeycloakSessionData,
+    clearUserData,
+} from '../store/slices/userSlice';
 import { CustomConfig } from '../config/CustomConfig';
 import { StorageUtil } from '../util/storage';
 import { CONFIG } from '../config/constants';
@@ -16,7 +19,7 @@ export interface AuthManagerConfig {
 
 /**
  * AuthManager Service
- * 
+ *
  * Centralizes authentication logic using Keycloak.
  * Manages Keycloak initialization, login, logout, and token refresh.
  * Syncs authentication state with the Redux store.
@@ -26,7 +29,7 @@ export class AuthManager {
     private keycloak: Keycloak | null = null;
     private authenticated: boolean = false;
 
-    private constructor() { }
+    private constructor() {}
 
     /**
      * Get the singleton instance of AuthManager
@@ -50,8 +53,14 @@ export class AuthManager {
         };
 
         // Validate config
-        if (!keycloakConfig.url || !keycloakConfig.realm || !keycloakConfig.clientId) {
-            console.warn('AuthManager: Keycloak configuration missing. Authentication disabled.');
+        if (
+            !keycloakConfig.url ||
+            !keycloakConfig.realm ||
+            !keycloakConfig.clientId
+        ) {
+            console.warn(
+                'AuthManager: Keycloak configuration missing. Authentication disabled.',
+            );
             return false;
         }
 
@@ -59,9 +68,10 @@ export class AuthManager {
 
         try {
             // Build redirect URI - only use window.location in browser context
-            const redirectUri = (typeof window !== 'undefined' && window.location)
-                ? window.location.origin + '/silent-check-sso.html'
-                : undefined;
+            const redirectUri =
+                typeof window !== 'undefined' && window.location
+                    ? window.location.origin + '/silent-check-sso.html'
+                    : undefined;
 
             this.authenticated = await this.keycloak.init({
                 onLoad: 'check-sso',
@@ -75,7 +85,8 @@ export class AuthManager {
 
             // Set up automatic token refresh
             this.keycloak.onTokenExpired = () => {
-                this.keycloak?.updateToken(30)
+                this.keycloak
+                    ?.updateToken(30)
                     .then((refreshed) => {
                         if (refreshed) {
                             this.syncState();
@@ -88,7 +99,6 @@ export class AuthManager {
             };
 
             return this.authenticated;
-
         } catch (error) {
             console.error('AuthManager: Initialization failed', error);
             return false;
@@ -100,13 +110,15 @@ export class AuthManager {
      */
     private syncState() {
         if (this.keycloak && this.authenticated) {
-            store.dispatch(setKeycloakSessionData({
-                token: this.keycloak.token,
-                refreshToken: this.keycloak.refreshToken,
-                id: this.keycloak.subject,
-                // email can be extracted from tokenParsed if available
-                email: (this.keycloak.tokenParsed as any)?.email,
-            }));
+            store.dispatch(
+                setKeycloakSessionData({
+                    token: this.keycloak.token,
+                    refreshToken: this.keycloak.refreshToken,
+                    id: this.keycloak.subject,
+                    // email can be extracted from tokenParsed if available
+                    email: (this.keycloak.tokenParsed as any)?.email,
+                }),
+            );
         } else {
             store.dispatch(clearUserData());
         }
@@ -126,7 +138,9 @@ export class AuthManager {
     /**
      * Logout from Keycloak and clear all session storage.
      */
-    public async logout(options?: Keycloak.KeycloakLogoutOptions): Promise<void> {
+    public async logout(
+        options?: Keycloak.KeycloakLogoutOptions,
+    ): Promise<void> {
         // Always clear storage and Redux state regardless of Keycloak status
         await Promise.all([
             StorageUtil.remove(CONFIG.USER_AUTH_DATA_KEY),
@@ -169,7 +183,9 @@ export class AuthManager {
     /**
      * Get user profile
      */
-    public async getUserProfile(): Promise<Keycloak.KeycloakProfile | undefined> {
+    public async getUserProfile(): Promise<
+        Keycloak.KeycloakProfile | undefined
+    > {
         if (!this.keycloak) return undefined;
         return await this.keycloak.loadUserProfile();
     }

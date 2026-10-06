@@ -1,10 +1,10 @@
-import { translate } from "../translate/translation";
-import { createPopperLite as createPopper } from "@popperjs/core";
-import { trigger, on } from "../node/events";
-import { CONFIG } from "../../config";
-import { getToolTipElement } from "../node/getToolTipElement";
-import { getTooltipPositionClass } from "../node/getTooltipPositionClass";
-import { StorageUtil } from "../storage";
+import { translate } from '../translate/translation';
+import { createPopperLite as createPopper } from '@popperjs/core';
+import { trigger, on } from '../node/events';
+import { CONFIG } from '../../config';
+import { getToolTipElement } from '../node/getToolTipElement';
+import { getTooltipPositionClass } from '../node/getTooltipPositionClass';
+import { StorageUtil } from '../storage';
 
 // Global variables to store the current Popper.js instance and related nodes.
 let currentPopperInstance: any = null;
@@ -27,8 +27,18 @@ let currentAvailablePositions: any = [];
  * @param showButtons A boolean to show buttons in the tooltip.
  * @param isNavigating A boolean indicating if a navigation is in progress.
  */
-export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: any = null, navigationCookieData: any, enableClick = false, enableFocus = false, enableAnimate = false, message = translate('tooltipMessage'), showButtons = true, isNavigating = false) => {
-
+export const addToolTip = (
+    invokingNode: any,
+    tooltipNode: any,
+    recordedData: any = null,
+    navigationCookieData: any,
+    enableClick = false,
+    enableFocus = false,
+    enableAnimate = false,
+    message = translate('tooltipMessage'),
+    showButtons = true,
+    isNavigating = false,
+) => {
     // If there is recorded data, extract the tooltip message from it.
     if (recordedData !== null) {
         let recordedNodeData = JSON.parse(recordedData.objectdata);
@@ -40,20 +50,32 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
     }
 
     // Scroll the target element into view.
-    tooltipNode.scrollIntoView({ behavior: 'smooth', block: "center", inline: "center" });
+    tooltipNode.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+    });
 
     // Calculate the optimal position before creating the tooltip so we can
     // pass the initial placement to getToolTipElement for correct rotate cycling.
     // Use a temporary div to get tooltip dimensions for the calculation.
-    const tempDiv = document.createElement("div");
-    let { finalCssClass: initialCssClass, availablePositions: initialAvailablePositions } = getTooltipPositionClass(tooltipNode, tempDiv);
+    const tempDiv = document.createElement('div');
+    let {
+        finalCssClass: initialCssClass,
+        availablePositions: initialAvailablePositions,
+    } = getTooltipPositionClass(tooltipNode, tempDiv);
 
     // Create the tooltip element, passing onExit callback and initial position.
-    const tooltipDivElement = getToolTipElement(message, showButtons, () => {
-        removeToolTip();
-        StorageUtil.setToStore("off", CONFIG.RECORDING_IS_PLAYING, true);
-        trigger("PausePlay", { action: 'PausePlay' });
-    }, initialCssClass);
+    const tooltipDivElement = getToolTipElement(
+        message,
+        showButtons,
+        () => {
+            removeToolTip();
+            StorageUtil.setToStore('off', CONFIG.RECORDING_IS_PLAYING, true);
+            trigger('PausePlay', { action: 'PausePlay' });
+        },
+        initialCssClass,
+    );
 
     // Store references to the current tooltip and its related nodes for later updates.
     currentTooltipNode = tooltipNode;
@@ -65,15 +87,26 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
     currentPopperInstance = createPopper(tooltipNode, tooltipDivElement, {
         placement: initialCssClass,
         modifiers: [
-            { name: 'popperOffsets', enabled: true, phase: 'main', options: { offset: () => [0, 30] } },
+            {
+                name: 'popperOffsets',
+                enabled: true,
+                phase: 'main',
+                options: { offset: () => [0, 30] },
+            },
             { name: 'offset', options: { offset: [0, 12] } },
-            { name: 'arrow', options: { padding: 5, element: '[data-popper-arrow]' } },
-            { name: 'preventOverflow', options: { boundary: 'viewport', padding: 10 } }
+            {
+                name: 'arrow',
+                options: { padding: 5, element: '[data-popper-arrow]' },
+            },
+            {
+                name: 'preventOverflow',
+                options: { boundary: 'viewport', padding: 10 },
+            },
         ],
     });
 
     // Listen for custom events to change the tooltip's position.
-    on("ChangeTooltipPosition", (event: any) => {
+    on('ChangeTooltipPosition', (event: any) => {
         if (currentPopperInstance && event.detail?.position) {
             updateTooltipPosition(event.detail.position);
         }
@@ -82,20 +115,25 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
     // If buttons are shown, attach event listeners to them.
     if (showButtons) {
         // @ts-ignore
-        const shadowRoot: any = document.getElementById('udan-react-root').shadowRoot;
+        const shadowRoot: any =
+            document.getElementById('udan-react-root').shadowRoot;
 
         // Attach an event listener to the 'continue' button.
-        const continueBtn = shadowRoot.getElementById("uda-autoplay-continue");
+        const continueBtn = shadowRoot.getElementById('uda-autoplay-continue');
         if (continueBtn) {
-            continueBtn.addEventListener("click", () => {
+            continueBtn.addEventListener('click', () => {
                 removeToolTip();
-                trigger("ContinuePlay", { action: 'ContinuePlay' });
+                trigger('ContinuePlay', { action: 'ContinuePlay' });
             });
         }
 
         // After a short delay, focus or click the invoking node if enabled.
         setTimeout(function () {
-            if (StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true) !== "on") return;
+            if (
+                StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true) !==
+                'on'
+            )
+                return;
             if (enableFocus) {
                 invokingNode.focus();
             }
@@ -104,7 +142,7 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
             }
         }, CONFIG.DEBOUNCE_INTERVAL);
     }
-}
+};
 
 /**
  * Updates the tooltip's position based on the user's selection.
@@ -113,7 +151,13 @@ export const addToolTip = (invokingNode: any, tooltipNode: any, recordedData: an
 export const updateTooltipPosition = (position: string) => {
     if (!currentPopperInstance) return;
 
-    let { finalCssClass, availablePositions } = getTooltipPositionClass(currentTooltipNode, currentTooltipDivElement, position, currentToolTipPositionClass, currentAvailablePositions);
+    let { finalCssClass, availablePositions } = getTooltipPositionClass(
+        currentTooltipNode,
+        currentTooltipDivElement,
+        position,
+        currentToolTipPositionClass,
+        currentAvailablePositions,
+    );
     currentToolTipPositionClass = finalCssClass;
     currentAvailablePositions = availablePositions;
 
@@ -137,8 +181,9 @@ export const removeToolTip = () => {
     currentTooltipDivElement = null;
 
     // @ts-ignore
-    const shadowRoot: any = document.getElementById('udan-react-root').shadowRoot;
-    const toolTipExists: any = shadowRoot.getElementById("uda-tooltip");
+    const shadowRoot: any =
+        document.getElementById('udan-react-root').shadowRoot;
+    const toolTipExists: any = shadowRoot.getElementById('uda-tooltip');
     if (toolTipExists) {
         shadowRoot.removeChild(toolTipExists);
     }

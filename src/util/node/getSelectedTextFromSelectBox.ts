@@ -15,4 +15,4 @@ export const getSelectedTextFromSelectBox = (node: any) => {
         // If any error occurs during property access (e.g., if the node is not a <select> element),
         // the error is caught, and the function returns `undefined`.
     }
-}
+};

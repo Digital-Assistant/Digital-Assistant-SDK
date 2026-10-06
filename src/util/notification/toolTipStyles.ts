@@ -196,10 +196,10 @@ export const tooltipStyles = `
  * Injects the tooltip styles into the given ShadowRoot.
  */
 export const injectToolTipStyles = (shadowRoot: ShadowRoot) => {
-    const styleId = "uda-tooltip-styles";
+    const styleId = 'uda-tooltip-styles';
     if (shadowRoot.getElementById(styleId)) return;
 
-    const styleElement = document.createElement("style");
+    const styleElement = document.createElement('style');
     styleElement.id = styleId;
     styleElement.textContent = tooltipStyles;
     shadowRoot.appendChild(styleElement);

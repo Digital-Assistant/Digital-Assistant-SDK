@@ -2,9 +2,9 @@
  * Imports the getUserId function from the userService module, the ENDPOINT constant from the endpoints configuration, and the apiClient instance.
  * These imports are used to support the user voting functionality.
  */
-import { getUserId } from "./userService";
-import { ENDPOINT } from "../config/endpoints";
-import { apiClient } from "./index";
+import { getUserId } from './userService';
+import { ENDPOINT } from '../config/endpoints';
+import { apiClient } from './index';
 
 /**
  * Votes on a recording with the specified vote type.
@@ -14,31 +14,31 @@ import { apiClient } from "./index";
  * @throws {Error} If the user session ID is not found, the request is invalid, or an error occurs during the API call.
  */
 export const vote = async (request?: any, type?: string) => {
-  try {
-    const usersessionid = await getUserId();
-    if (!usersessionid) {
-      throw new Error("User session ID not found");
+    try {
+        const usersessionid = await getUserId();
+        if (!usersessionid) {
+            throw new Error('User session ID not found');
+        }
+
+        if (!request || !request.id) {
+            throw new Error('Invalid request: missing id');
+        }
+
+        if (type !== 'up' && type !== 'down') {
+            throw new Error('Invalid vote type');
+        }
+
+        const payload = {
+            usersessionid: usersessionid,
+            sequenceid: request.id,
+            upvote: type === 'up' ? 1 : 0,
+            downvote: type === 'down' ? 1 : 0,
+        };
+
+        return await apiClient.post(ENDPOINT.VoteRecord, payload);
+    } catch (error) {
+        throw error;
     }
-
-    if (!request || !request.id) {
-      throw new Error("Invalid request: missing id");
-    }
-
-    if (type !== "up" && type !== "down") {
-      throw new Error("Invalid vote type");
-    }
-
-    const payload = {
-      usersessionid: usersessionid,
-      sequenceid: request.id,
-      upvote: type === "up" ? 1 : 0,
-      downvote: type === "down" ? 1 : 0,
-    };
-
-    return await apiClient.post(ENDPOINT.VoteRecord, payload);
-  } catch (error) {
-    throw error;
-  }
 };
 
 /**
@@ -48,20 +48,20 @@ export const vote = async (request?: any, type?: string) => {
  * @throws {Error} If an error occurs during the API call.
  */
 export const getVoteRecord = async (request?: any) => {
-  try {
-    const usersessionid = await getUserId();
-    if (!usersessionid) {
-      throw new Error("User session ID not found");
-    }
+    try {
+        const usersessionid = await getUserId();
+        if (!usersessionid) {
+            throw new Error('User session ID not found');
+        }
 
-    if (!request || !request.id) {
-      throw new Error("Invalid request: missing id");
-    }
+        if (!request || !request.id) {
+            throw new Error('Invalid request: missing id');
+        }
 
-    const url = `${ENDPOINT.fetchVoteRecord}${request.id}/${usersessionid}`;
-    const response = await apiClient.get(url);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+        const url = `${ENDPOINT.fetchVoteRecord}${request.id}/${usersessionid}`;
+        const response = await apiClient.get(url);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };

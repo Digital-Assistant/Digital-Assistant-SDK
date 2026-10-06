@@ -1,6 +1,6 @@
-import { UDAGetSessionKey } from "./UDAGetSessionKey";
-import { UDABindAuthenticatedAccount } from "./UDABindAuthenticatedAccount";
-import { UDASessionData } from "../../models/UDASessionData";
+import { UDAGetSessionKey } from './UDAGetSessionKey';
+import { UDABindAuthenticatedAccount } from './UDABindAuthenticatedAccount';
+import { UDASessionData } from '../../models/UDASessionData';
 
 /**
  * Store keycloak authentication data in session
@@ -15,10 +15,13 @@ import { UDASessionData } from "../../models/UDASessionData";
  * @param data - Keycloak authentication data
  * @returns Promise<void>
  */
-export const keyCloakStore = async (sessionData: UDASessionData, data: any): Promise<void> => {
+export const keyCloakStore = async (
+    sessionData: UDASessionData,
+    data: any,
+): Promise<void> => {
     sessionData = await UDAGetSessionKey(sessionData);
     sessionData.authData = data;
     sessionData.authenticated = true;
     sessionData.authenticationSource = 'keycloak';
     await UDABindAuthenticatedAccount(sessionData);
-}
+};

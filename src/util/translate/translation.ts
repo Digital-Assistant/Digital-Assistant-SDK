@@ -1,4 +1,4 @@
-import i18next from "i18next";
+import i18next from 'i18next';
 
 /**
  * Translates a given attribute (key) using the i18next internationalization framework.
@@ -8,5 +8,5 @@ import i18next from "i18next";
  * @returns The translated string corresponding to the given key.
  */
 export const translate = (attr: any) => {
-  return i18next.t(attr);
-}
+    return i18next.t(attr);
+};

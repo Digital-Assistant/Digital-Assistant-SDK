@@ -57,7 +57,9 @@ const safeParseJson = <T = any>(input: unknown): T | null => {
  * @param userState - the `user` slice from the app state
  * @returns object containing `id` and/or `token` fields, or `null`
  */
-const extractAuthData = (userState: any): { id?: unknown; token?: unknown } | null => {
+const extractAuthData = (
+    userState: any,
+): { id?: unknown; token?: unknown } | null => {
     // Attempt to read the stored authData entry
     const raw = userState?.userSessionData?.authData;
     if (!raw) return null;
@@ -134,7 +136,10 @@ export const getUserId = async (): Promise<string | null> => {
         // Fallback to Storage if Redux is empty (common during recording/extension context)
         const storedAuth = await StorageUtil.get(CONFIG.USER_AUTH_DATA_KEY);
         if (storedAuth) {
-            const parsedAuth = typeof storedAuth === 'string' ? JSON.parse(storedAuth) : storedAuth;
+            const parsedAuth =
+                typeof storedAuth === 'string'
+                    ? JSON.parse(storedAuth)
+                    : storedAuth;
             const id = parsedAuth?.authData?.id || parsedAuth?.id;
             const normalizedId = normalizeToString(id);
             if (normalizedId) return normalizedId;
@@ -177,7 +182,10 @@ export const getSessionKey = async (): Promise<string | null> => {
         // Fallback to Storage
         const storedAuth = await StorageUtil.get(CONFIG.USER_AUTH_DATA_KEY);
         if (storedAuth) {
-            const parsedAuth = typeof storedAuth === 'string' ? JSON.parse(storedAuth) : storedAuth;
+            const parsedAuth =
+                typeof storedAuth === 'string'
+                    ? JSON.parse(storedAuth)
+                    : storedAuth;
             if (parsedAuth?.sessionKey) return parsedAuth.sessionKey;
             if (parsedAuth?.token) return parsedAuth.token;
         }

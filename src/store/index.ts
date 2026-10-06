@@ -24,7 +24,8 @@ export const store = configureStore({
         editableStepForm: editableStepFormReducer,
         notification: notificationReducer,
     },
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(storageMiddleware),
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware().concat(storageMiddleware),
 });
 
 // Infer the state type from the store itself

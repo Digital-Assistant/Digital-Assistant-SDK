@@ -13,8 +13,16 @@
  * @param ignorenode A node to be ignored during traversal.
  * @returns An array of objects, where each object contains the `text` of a found label and a `match` flag.
  */
-export const getNodeLabels = (node: any, inputlabels: any, iterationno: any, iterate = true, getchildlabels = true, fromclick = false, iteratelimit = 3, ignorenode: any = []) => {
-
+export const getNodeLabels = (
+    node: any,
+    inputlabels: any,
+    iterationno: any,
+    iterate = true,
+    getchildlabels = true,
+    fromclick = false,
+    iteratelimit = 3,
+    ignorenode: any = [],
+) => {
     if (!node) return inputlabels;
 
     try {
@@ -24,8 +32,8 @@ export const getNodeLabels = (node: any, inputlabels: any, iterationno: any, ite
 
         // For <select> and <checkbox> elements, start by looking at the parent node for labels.
         if (
-            (node.nodeName.toLowerCase() === "select" ||
-                node.nodeName.toLowerCase() === "checkbox") &&
+            (node.nodeName.toLowerCase() === 'select' ||
+                node.nodeName.toLowerCase() === 'checkbox') &&
             iterate &&
             inputlabels.length === 0
         ) {
@@ -38,7 +46,7 @@ export const getNodeLabels = (node: any, inputlabels: any, iterationno: any, ite
                 true,
                 fromclick,
                 iteratelimit,
-                ignorenode
+                ignorenode,
             );
             if (fromclick) {
                 // TODO: Rework this part for click events.
@@ -47,38 +55,38 @@ export const getNodeLabels = (node: any, inputlabels: any, iterationno: any, ite
 
         // For <input>, <textarea>, and <img> elements, check for specific attributes.
         if (
-            node.nodeName.toLowerCase() === "input" ||
-            node.nodeName.toLowerCase() === "textarea" ||
-            node.nodeName.toLowerCase() === "img"
+            node.nodeName.toLowerCase() === 'input' ||
+            node.nodeName.toLowerCase() === 'textarea' ||
+            node.nodeName.toLowerCase() === 'img'
         ) {
             // Use the placeholder attribute as a label.
             if (
-                node.getAttribute("placeholder") &&
-                node.getAttribute("placeholder") !== ""
+                node.getAttribute('placeholder') &&
+                node.getAttribute('placeholder') !== ''
             ) {
                 inputlabels.push({
-                    text: node.getAttribute("placeholder").toString(),
+                    text: node.getAttribute('placeholder').toString(),
                     match: false,
                 });
             }
             // For submit and file inputs, use the value attribute.
             if (
-                node.getAttribute("type") &&
-                (node.getAttribute("type").toLowerCase() === "submit" ||
-                    node.getAttribute("type").toLowerCase() === "file")
+                node.getAttribute('type') &&
+                (node.getAttribute('type').toLowerCase() === 'submit' ||
+                    node.getAttribute('type').toLowerCase() === 'file')
             ) {
-                if (node.getAttribute("value")) {
+                if (node.getAttribute('value')) {
                     inputlabels.push({
-                        text: node.getAttribute("value").toString(),
+                        text: node.getAttribute('value').toString(),
                         match: false,
                     });
                     iterate = false;
                 }
             }
             // For images, use the alt attribute.
-            if (node.getAttribute("alt")) {
+            if (node.getAttribute('alt')) {
                 inputlabels.push({
-                    text: node.getAttribute("alt").toString(),
+                    text: node.getAttribute('alt').toString(),
                     match: false,
                 });
             }
@@ -89,37 +97,37 @@ export const getNodeLabels = (node: any, inputlabels: any, iterationno: any, ite
             let childNodes = node.childNodes;
             childNodes?.forEach(function (childNode: any) {
                 if (
-                    childNode.nodeName.toLowerCase() !== "script" &&
-                    childNode.nodeName.toLowerCase() !== "select" &&
-                    childNode.nodeName.toLowerCase() !== "#comment"
+                    childNode.nodeName.toLowerCase() !== 'script' &&
+                    childNode.nodeName.toLowerCase() !== 'select' &&
+                    childNode.nodeName.toLowerCase() !== '#comment'
                 ) {
                     let textcontent = childNode.textContent
-                        .replace(/[\n\r]+|[\s]{2,}/g, " ")
+                        .replace(/[\n\r]+|[\s]{2,}/g, ' ')
                         .trim();
 
                     if (
-                        textcontent !== "" &&
-                        typeof ignorenode?.isSameNode === "function" &&
+                        textcontent !== '' &&
+                        typeof ignorenode?.isSameNode === 'function' &&
                         ignorenode?.isSameNode(childNode) === false
                     ) {
-                        inputlabels.push({text: textcontent, match: false});
+                        inputlabels.push({ text: textcontent, match: false });
                     }
                 }
             });
         }
 
         // If no labels are found, check for tooltip attributes.
-        if (inputlabels.length === 0 && node.getAttribute("data-tooltip")) {
+        if (inputlabels.length === 0 && node.getAttribute('data-tooltip')) {
             inputlabels.push({
-                text: node.getAttribute("data-tooltip").toString(),
+                text: node.getAttribute('data-tooltip').toString(),
                 match: false,
             });
         }
 
         // If still no labels, check for aria-label.
-        if (inputlabels.length === 0 && node.getAttribute("aria-label")) {
+        if (inputlabels.length === 0 && node.getAttribute('aria-label')) {
             inputlabels.push({
-                text: node.getAttribute("aria-label").toString(),
+                text: node.getAttribute('aria-label').toString(),
                 match: false,
             });
         }
@@ -127,7 +135,7 @@ export const getNodeLabels = (node: any, inputlabels: any, iterationno: any, ite
         // If no labels are found and iteration is allowed, move to the parent node.
         if (
             iterate &&
-            node.nodeName.toLowerCase() !== "img" &&
+            node.nodeName.toLowerCase() !== 'img' &&
             inputlabels.length === 0 &&
             iterationno <= iteratelimit
         ) {
@@ -140,33 +148,38 @@ export const getNodeLabels = (node: any, inputlabels: any, iterationno: any, ite
                 getchildlabels,
                 fromclick,
                 iteratelimit,
-                null
+                null,
             );
         }
 
         // As a last resort, use the node's ID, class, or tag name as a label.
-        if (inputlabels.length === 0 && node.id !== "") {
+        if (inputlabels.length === 0 && node.id !== '') {
             inputlabels.push({
-                text: node.nodeName.toLowerCase() + "-" + node.id,
+                text: node.nodeName.toLowerCase() + '-' + node.id,
                 match: false,
             });
         } else if (
             inputlabels.length === 0 &&
-            node.hasAttribute("class") &&
+            node.hasAttribute('class') &&
             node.className &&
-            node.className !== ""
+            node.className !== ''
         ) {
             let classname = node.className.toString();
             inputlabels.push({
-                text: node.nodeName.toLowerCase() + "-" + classname.replace(" ", "-"),
+                text:
+                    node.nodeName.toLowerCase() +
+                    '-' +
+                    classname.replace(' ', '-'),
                 match: false,
             });
         } else if (inputlabels.length === 0) {
-            inputlabels.push({text: node.nodeName.toLowerCase(), match: false});
+            inputlabels.push({
+                text: node.nodeName.toLowerCase(),
+                match: false,
+            });
         }
     } catch (e) {
         // console.log(e);
     }
     return inputlabels;
-
-}
+};

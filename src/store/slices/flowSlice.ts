@@ -72,7 +72,10 @@ export const flowSlice = createSlice({
             state.showSearch = action.payload;
             saveStateToStorage(state);
         },
-        setRecordSequenceDetailsVisibility: (state, action: PayloadAction<boolean>) => {
+        setRecordSequenceDetailsVisibility: (
+            state,
+            action: PayloadAction<boolean>,
+        ) => {
             state.recordSequenceDetailsVisibility = action.payload;
             saveStateToStorage(state);
         },
@@ -92,17 +95,17 @@ export const flowSlice = createSlice({
     },
 });
 
-export const { 
-    setSearchKeyword, 
-    setSearchResults, 
-    appendSearchResults, 
-    setPage, 
-    incrementPage, 
-    setHasMorePages, 
-    setReFetchSearch, 
-    setShowSearch, 
-    setRecordSequenceDetailsVisibility, 
-    resetFlowState 
+export const {
+    setSearchKeyword,
+    setSearchResults,
+    appendSearchResults,
+    setPage,
+    incrementPage,
+    setHasMorePages,
+    setReFetchSearch,
+    setShowSearch,
+    setRecordSequenceDetailsVisibility,
+    resetFlowState,
 } = flowSlice.actions;
 
 export default flowSlice.reducer;

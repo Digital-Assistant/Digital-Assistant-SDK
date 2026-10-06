@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { store } from '../store';
 import type { RootState } from '../store';
-import { specialNodes, trigger } from "../util";
+import { specialNodes, trigger } from '../util';
 import { CONFIG } from '../config';
 
 /**
@@ -34,22 +34,22 @@ export interface ApiError {
 
 /**
  * Central API Client for Digital Assistant SDK
- * 
+ *
  * This class provides a centralized HTTP client with automatic JWT authentication
  * for all internal SDK services. It reads the JWT token from the Redux store
  * and attaches it to every outgoing request.
- * 
+ *
  * Features:
  * - Automatic JWT token attachment from centralized state
  * - Request/Response interceptors for authentication
  * - Error handling for 401 responses
  * - Environment-aware base URL configuration
  * - TypeScript support with proper type definitions
- * 
+ *
  * Usage:
  * ```typescript
  * import { apiClient } from '@digital-assistant/core';
- * 
+ *
  * // Make authenticated requests
  * const response = await apiClient.get('/api/user/profile');
  * const data = await apiClient.post('/api/data', { payload });
@@ -62,7 +62,7 @@ export class ApiClient {
     constructor(config: ApiClientConfig = {}) {
         this.config = {
             timeout: 30000,
-            ...config
+            ...config,
         };
 
         // Determine base URL from environment variables (logic mirrored from invokeApi.ts)
@@ -83,8 +83,8 @@ export class ApiClient {
             timeout: this.config.timeout,
             headers: {
                 'Content-Type': 'application/json',
-                ...this.config.additionalHeaders
-            }
+                ...this.config.additionalHeaders,
+            },
         });
 
         this.setupRequestInterceptor();
@@ -116,12 +116,19 @@ export class ApiClient {
                 else if (userState.userSessionData?.authData) {
                     try {
                         // Handle case where authData is a stringified JSON
-                        const authData = typeof userState.userSessionData.authData === 'string'
-                            ? JSON.parse(userState.userSessionData.authData)
-                            : userState.userSessionData.authData;
+                        const authData =
+                            typeof userState.userSessionData.authData ===
+                            'string'
+                                ? JSON.parse(userState.userSessionData.authData)
+                                : userState.userSessionData.authData;
 
-                        token = authData?.authData?.token || authData?.token || null;
-                    } catch (e) { /* Ignore parsing errors */ }
+                        token =
+                            authData?.authData?.token ||
+                            authData?.token ||
+                            null;
+                    } catch (e) {
+                        /* Ignore parsing errors */
+                    }
                 }
                 // 3. Fall back to direct token in userData
                 else if (userState.userData?.token) {
@@ -135,7 +142,10 @@ export class ApiClient {
 
                 // Add UDAN-Realm header if realm is not default (matches original logic)
                 // Access global UDAGlobalConfig like the original implementation
-                if (typeof window !== 'undefined' && (window as any).UDAGlobalConfig) {
+                if (
+                    typeof window !== 'undefined' &&
+                    (window as any).UDAGlobalConfig
+                ) {
                     const globalConfig = (window as any).UDAGlobalConfig;
                     if (globalConfig.realm && globalConfig.realm !== 'UDAN') {
                         config.headers['UDAN-Realm'] = globalConfig.realm;
@@ -149,7 +159,7 @@ export class ApiClient {
             },
             (error: any) => {
                 return Promise.reject(error);
-            }
+            },
         );
     }
 
@@ -166,40 +176,49 @@ export class ApiClient {
                     message: error.message || 'An unknown error occurred',
                     status: error.response?.status,
                     code: error.code,
-                    data: error.response?.data
+                    data: error.response?.data,
                 };
 
                 // Handle specific HTTP status codes
                 if (error.response) {
                     switch (error.response.status) {
                         case 401:
-                            apiError.message = 'Unauthorized - Authentication required or token expired';
+                            apiError.message =
+                                'Unauthorized - Authentication required or token expired';
                             // Dispatch event for token refresh if needed
                             this.handleUnauthorizedError();
                             break;
                         case 403:
-                            apiError.message = 'Forbidden - Insufficient permissions';
+                            apiError.message =
+                                'Forbidden - Insufficient permissions';
                             break;
                         case 404:
-                            apiError.message = 'Not Found - The requested resource does not exist';
+                            apiError.message =
+                                'Not Found - The requested resource does not exist';
                             break;
                         case 408:
-                            apiError.message = 'Request Timeout - The server timed out waiting for the request';
+                            apiError.message =
+                                'Request Timeout - The server timed out waiting for the request';
                             break;
                         case 429:
-                            apiError.message = 'Too Many Requests - Rate limit exceeded';
+                            apiError.message =
+                                'Too Many Requests - Rate limit exceeded';
                             break;
                         case 500:
-                            apiError.message = 'Internal Server Error - Something went wrong on the server';
+                            apiError.message =
+                                'Internal Server Error - Something went wrong on the server';
                             break;
                         case 502:
-                            apiError.message = 'Bad Gateway - Invalid response from upstream server';
+                            apiError.message =
+                                'Bad Gateway - Invalid response from upstream server';
                             break;
                         case 503:
-                            apiError.message = 'Service Unavailable - The server is temporarily unavailable';
+                            apiError.message =
+                                'Service Unavailable - The server is temporarily unavailable';
                             break;
                         case 504:
-                            apiError.message = 'Gateway Timeout - The upstream server timed out';
+                            apiError.message =
+                                'Gateway Timeout - The upstream server timed out';
                             break;
                         default:
                             apiError.message = `HTTP Error ${error.response.status}: ${error.response.statusText}`;
@@ -207,7 +226,7 @@ export class ApiClient {
                 }
 
                 return Promise.reject(apiError);
-            }
+            },
         );
     }
 
@@ -218,12 +237,18 @@ export class ApiClient {
     private handleUnauthorizedError(): void {
         // For now, just log the error
         // In the future, this could dispatch Redux actions for token refresh
-        console.warn('API Client: Unauthorized request detected. Token may be expired.');
+        console.warn(
+            'API Client: Unauthorized request detected. Token may be expired.',
+        );
 
         // Emit custom event for handling in the main application
         if (typeof window !== 'undefined') {
             trigger('UDAGetNewToken', {
-                detail: { data: 'UDAGetNewToken', source: 'api-client', timestamp: Date.now() }
+                detail: {
+                    data: 'UDAGetNewToken',
+                    source: 'api-client',
+                    timestamp: Date.now(),
+                },
             });
         }
     }
@@ -242,67 +267,85 @@ export class ApiClient {
     public updateHeaders(headers: Record<string, string>): void {
         this.axiosInstance.defaults.headers.common = {
             ...this.axiosInstance.defaults.headers.common,
-            ...headers
+            ...headers,
         };
     }
 
     /**
      * Generic GET request
      */
-    public async get<T = any>(url: string, config?: any): Promise<ApiResponse<T>> {
+    public async get<T = any>(
+        url: string,
+        config?: any,
+    ): Promise<ApiResponse<T>> {
         const response = await this.axiosInstance.get(url, config);
         return {
             data: response.data,
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
         };
     }
 
     /**
      * Generic POST request
      */
-    public async post<T = any>(url: string, data?: any, config?: any): Promise<ApiResponse<T>> {
+    public async post<T = any>(
+        url: string,
+        data?: any,
+        config?: any,
+    ): Promise<ApiResponse<T>> {
         const response = await this.axiosInstance.post(url, data, config);
         return {
             data: response.data,
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
         };
     }
 
     /**
      * Generic PUT request
      */
-    public async put<T = any>(url: string, data?: any, config?: any): Promise<ApiResponse<T>> {
+    public async put<T = any>(
+        url: string,
+        data?: any,
+        config?: any,
+    ): Promise<ApiResponse<T>> {
         const response = await this.axiosInstance.put(url, data, config);
         return {
             data: response.data,
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
         };
     }
 
     /**
      * Generic PATCH request
      */
-    public async patch<T = any>(url: string, data?: any, config?: any): Promise<ApiResponse<T>> {
+    public async patch<T = any>(
+        url: string,
+        data?: any,
+        config?: any,
+    ): Promise<ApiResponse<T>> {
         const response = await this.axiosInstance.patch(url, data, config);
         return {
             data: response.data,
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
         };
     }
 
     /**
      * Generic DELETE request
      */
-    public async delete<T = any>(url: string, config?: any): Promise<ApiResponse<T>> {
+    public async delete<T = any>(
+        url: string,
+        config?: any,
+    ): Promise<ApiResponse<T>> {
         const response = await this.axiosInstance.delete(url, config);
         return {
             data: response.data,
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
         };
     }
 
@@ -318,7 +361,9 @@ export class ApiClient {
      */
     public async fetchSpecialNodes(): Promise<any> {
         // Replace this with an actual API call when the endpoint is available
-        console.warn('API Client: Using mock fetchSpecialNodes. Implement real API call.');
+        console.warn(
+            'API Client: Using mock fetchSpecialNodes. Implement real API call.',
+        );
         return specialNodes;
     }
 

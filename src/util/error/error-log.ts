@@ -1,7 +1,7 @@
 // Import necessary modules and configurations.
-import { CONFIG } from "../../config";
-import { StorageUtil } from "../storage";
-import * as winston from "winston";
+import { CONFIG } from '../../config';
+import { StorageUtil } from '../storage';
+import * as winston from 'winston';
 
 // Destructure Winston's format and transports, keeping it simple to avoid breaking tests.
 const { format, transports: WinstonTransports } = winston as any;
@@ -15,20 +15,21 @@ const UDA_LOG_URL = process.env.tokenUrl;
 
 // Define a type for supported Winston levels.
 export type WinstonLevel =
-    | "error"
-    | "warn"
-    | "info"
-    | "http"
-    | "verbose"
-    | "debug"
-    | "silly";
+    | 'error'
+    | 'warn'
+    | 'info'
+    | 'http'
+    | 'verbose'
+    | 'debug'
+    | 'silly';
 
 // Resolve the minimum console log level from configuration or environment variables.
 function resolveConsoleLevel(): WinstonLevel {
     // Get log level from config or environment variables, defaulting to "info".
     const cfgLvl = (CONFIG as any)?.LOG_LEVEL as WinstonLevel | undefined;
-    const envLvl = (process.env.UDA_LOG_LEVEL as WinstonLevel | undefined) || undefined;
-    const level = (cfgLvl || envLvl || "info") as WinstonLevel;
+    const envLvl =
+        (process.env.UDA_LOG_LEVEL as WinstonLevel | undefined) || undefined;
+    const level = (cfgLvl || envLvl || 'info') as WinstonLevel;
     return level;
 }
 
@@ -36,15 +37,15 @@ function resolveConsoleLevel(): WinstonLevel {
 function mapNumericToLevel(n?: number): WinstonLevel {
     switch (n) {
         case 1:
-            return "info";
+            return 'info';
         case 2:
-            return "warn";
+            return 'warn';
         case 3:
-            return "debug";
+            return 'debug';
         case 4:
-            return "verbose";
+            return 'verbose';
         default:
-            return "info";
+            return 'info';
     }
 }
 
@@ -57,24 +58,22 @@ function getLogger(): winston.Logger {
     if (sharedLogger) return sharedLogger;
 
     // Check if the current environment is for testing.
-    const isTestEnv = process.env.NODE_ENV === "test";
+    const isTestEnv = process.env.NODE_ENV === 'test';
     // Resolve the console log level.
     const consoleLevel = resolveConsoleLevel();
 
     // Define the transports for Winston.
-    const tx: any[] = [
-        new WinstonTransports.Console({ level: consoleLevel }),
-    ];
+    const tx: any[] = [new WinstonTransports.Console({ level: consoleLevel })];
 
     // Add HTTP transport for error level logs, but not in test environments and only if a host is present.
     if (!isTestEnv && WinstonTransports?.Http && UDA_LOG_URL) {
         tx.push(
             new WinstonTransports.Http({
-                level: "error",
+                level: 'error',
                 host: UDA_LOG_URL, // Remote server host.
                 port: 443,
-                path: "logging/error",
-            })
+                path: 'logging/error',
+            }),
         );
     }
 
@@ -84,7 +83,10 @@ function getLogger(): winston.Logger {
         // Combine timestamp and a custom printf format for log messages.
         format: format.combine(
             format.timestamp(),
-            format.printf(({ level, message, timestamp }: any) => `${timestamp} [${level}] ${message}`)
+            format.printf(
+                ({ level, message, timestamp }: any) =>
+                    `${timestamp} [${level}] ${message}`,
+            ),
         ),
         transports: tx,
     });
@@ -109,7 +111,9 @@ export const UDAConsoleLogger = {
         // Log the message at the selected level.
         // The console transport will only emit if the level is at or above the configured console level.
         if (levelNumber >= (process.env.UDA_LOG_LEVELNumber || 1)) {
-            (logger as any)[consoleLevel]?.(typeof mes === "string" ? mes : JSON.stringify(mes));
+            (logger as any)[consoleLevel]?.(
+                typeof mes === 'string' ? mes : JSON.stringify(mes),
+            );
         }
     },
 };
@@ -120,9 +124,13 @@ export const UDAErrorLogger = {
      * Sends error logs to the server via HTTP transport and to the console,
      * subject to the minimum log level. By design, only errors are sent to the server.
      */
-    error: async function (message: any, exception: any = {message: "Error"}) {
+    error: async function (
+        message: any,
+        exception: any = { message: 'Error' },
+    ) {
         // If the message is not a string, stringify it for better logging.
-        const errorMessage = typeof message === 'string' ? message : JSON.stringify(message);
+        const errorMessage =
+            typeof message === 'string' ? message : JSON.stringify(message);
 
         let finalMessage: string;
 
@@ -130,19 +138,19 @@ export const UDAErrorLogger = {
             // Retrieve user authentication data from storage.
             const UDAUserAuthData: any = await StorageUtil.get(
                 CONFIG.USER_AUTH_DATA_KEY,
-                false
+                false,
             );
             // Get the user ID from the authentication data.
             const userId = UDAUserAuthData?.authdata?.id;
             // Prepend the user ID to the message if it exists.
             if (userId) {
-                finalMessage = "UserID: " + userId + " Error: " + errorMessage;
+                finalMessage = 'UserID: ' + userId + ' Error: ' + errorMessage;
             } else {
-                finalMessage = "Error: " + errorMessage;
+                finalMessage = 'Error: ' + errorMessage;
             }
         } catch (e) {
             // If an error occurs while getting user data, format the message without user ID.
-            finalMessage = "Error: " + errorMessage;
+            finalMessage = 'Error: ' + errorMessage;
         }
 
         // Get the logger instance and log the error message.
