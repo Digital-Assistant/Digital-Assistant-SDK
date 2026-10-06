@@ -404,7 +404,12 @@ green. `npm run security` exits 0.
 `continue-on-error`; all gates are blocking. `AGENTS.md` § 11 and `RELEASE_PROCESS.md` updated.
 
 **Local result:** `npm run check`, `npm run lint`, `npm run security`, and `npm run build` all
-exit 0. CI confirmation on all three OS runners is pending push.
+exit 0.
+
+**CI result (PR #162 → dev):** all checks green on `ubuntu-latest`, `macos-latest`, and
+`windows-latest`, plus `Dependency Audit`. Windows initially failed `format:check` because the
+runner checks out CRLF (`core.autocrlf=true`); fixed by adding `.gitattributes` with
+`* text=auto eol=lf`.
 
 ---
 
