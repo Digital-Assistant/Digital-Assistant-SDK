@@ -19,5 +19,4 @@ coverage/
 .idea/
 
 # Misc
-package-lock.json
 .venv/

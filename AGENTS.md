@@ -28,15 +28,20 @@ Run from repo root.
 
 - `npm run build` — webpack build, `local` env, development mode
 - `npm run build:dev` / `build:qa` / `build:prod` — per-environment builds
+- `npm run build:full` — remove `dist/` then build
 - `npm start` — watch build (`--env build=local --mode=development`)
 - `npm test` — Jest (jsdom)
-- `npm test:watch` — Jest watch mode
+- `npm run test:watch` — Jest watch mode
 - `npm test:coverage` — Jest with coverage (text, lcov, json, html)
 - `npm run lint` — ESLint over `src/**/*.ts`
 - `npm run format` — Prettier write over `src/**/*.ts`
-- `npx tsc --noEmit` — type check (NOTE: no dedicated `typecheck` script exists; use this)
+- `npm run format:check` — Prettier check (verify only, no writes)
+- `npm run typecheck` — `tsc --noEmit`
+- `npm run check` — `format:check` → `typecheck` → `test` (full local gate)
+- `npm run security` — `npm audit --audit-level=high`
+- `npm run clean` — remove `dist/`
 
-After any code change, run in order: `npm run lint` → `npx tsc --noEmit` → `npm test`. Build (`npm run build`) to verify the bundle compiles.
+After any code change, run `npm run check` (or the individual gates) and `npm run build` to verify the bundle compiles. `dist/` is generated in CI and is **not** committed.
 
 ## 4. Architecture Map
 
@@ -80,7 +85,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 - **Redux singleton**: `src/store` is a single global store instance; consumers interact via `DigitalAssistantCore.dispatch/getState/getSliceState`, not by creating new stores.
 - **domjson patch**: after `npm install`, `postinstall` rewrites `node_modules/domjson` in place. Re-running install without the patch breaks DOM snapshotting.
 - **ESM-only deps**: `parse-domain` and `winston` are mocked in `test/setup.ts` because they break Jest's CommonJS runtime — keep those mocks intact when touching tests.
-- **`dist/` is committed**: built artifacts live in the repo; rebuild and include the diff when consumer-facing APIs change.
+- **`dist/` is untracked**: build output is gitignored and generated in CI (`npm run build`); never commit it. Rebuild locally to verify the bundle compiles.
 
 ## 8. Security
 
@@ -95,10 +100,10 @@ Standard change loop:
 
 1. Locate code with graph tools (`search_graph` → `trace_path` inbound to size the blast radius).
 2. Implement the change following section 6 conventions.
-3. Run `npm run lint`, then `npx tsc --noEmit`.
+3. Run `npm run check` (format + typecheck + tests); fix any regressions.
 4. Add/update colocated unit tests; run `npm test` (targeted: `npm test -- path/to/__tests__`).
 5. Run `npm run build` to confirm the bundle compiles.
-6. If public exports/`dist/` change, rebuild and commit the `dist/` diff.
+6. Public API changes ship through the release pipeline — `dist/` is built in CI and never committed (see § 7).
 
 ## 10. Testing Conventions
 
