@@ -214,8 +214,8 @@ export const matchLLMInputToNode = (
         }
 
         // Variables for node matching logic
-        let compareElements: any[] = [];
-        let matchedElements: any[] = [];
+        const compareElements: any[] = [];
+        const matchedElements: any[] = [];
         let finalMatchElement: HTMLElement | null = null;
         const originalElement = recordedNodeData?.node;
 

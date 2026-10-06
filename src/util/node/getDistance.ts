@@ -16,8 +16,8 @@ export const getDistance = (node1: any, node2: any) => {
     // Check if both nodes have valid screen information for normalization.
     if (hasValidScreenInfo(node1) && hasValidScreenInfo(node2)) {
         // Get the page positions of the nodes.
-        let x1 = node1.nodePagePosition.left;
-        let y1 = node1.nodePagePosition.top;
+        const x1 = node1.nodePagePosition.left;
+        const y1 = node1.nodePagePosition.top;
         let x2 = node2.nodePagePosition.left;
         let y2 = node2.nodePagePosition.top;
 

@@ -8,7 +8,7 @@ import { getActiveTabId, getBrowserVar, getUDABrowserPlugin } from '../browser';
  * @returns {Promise<Object|boolean>} A promise that resolves to the active tab object if found, otherwise `false`.
  */
 export const getTab = async () => {
-    let queryOptions = { active: true, currentWindow: true };
+    const queryOptions = { active: true, currentWindow: true };
     const browserVar = getBrowserVar();
     const activeTabId = getActiveTabId();
     const UDABrowserPlugin = getUDABrowserPlugin(); // Although not directly used here, it's part of the browser context.

@@ -10,7 +10,7 @@ import { initSpecialNodes } from '../node';
 export const squeezeBody = async (hide: boolean) => {
     await initSpecialNodes();
     if (!window.UDAGlobalConfig.enableOverlay) {
-        let documentBody = document.body;
+        const documentBody = document.body;
         if (!hide) {
             documentBody.style.maxWidth = '77%';
             documentBody.style.minWidth = '77%';

@@ -4,7 +4,7 @@ import { UDASessionData } from '../../models/UDASessionData';
 import { apiClient, ApiClient } from '../../services';
 
 export const UDAGetSessionKey = async (UDASessionData: UDASessionData) => {
-    let response = await apiClient.get(ENDPOINT.GetSessionKey);
+    const response = await apiClient.get(ENDPOINT.GetSessionKey);
     if (!response) {
         return response;
     }

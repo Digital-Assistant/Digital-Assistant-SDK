@@ -24,12 +24,12 @@ export const invokeNextNode = (node: any, timeToInvoke: any) => {
             // toggleautoplay(navigationCookieData);
         } else {
             // Construct the current hostname to compare with the link's href.
-            let hostname =
+            const hostname =
                 window.location.protocol +
                 '//' +
                 window.location.host +
                 window.location.pathname;
-            let href = node.href.substr(hostname.length);
+            const href = node.href.substr(hostname.length);
             // If the href is not empty and not a hash link, it's considered a navigation link.
             if (href !== '' && !href.startsWith('#')) {
                 link = true;

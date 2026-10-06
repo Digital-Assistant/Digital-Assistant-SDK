@@ -24,8 +24,8 @@ export const addClickToNode = (node: any) => {
             return;
         }
 
-        let clickableNode = node; // The node to which the event will be added.
-        let recordNode = node; // The node whose data will be recorded (often the same as clickableNode).
+        const clickableNode = node; // The node to which the event will be added.
+        const recordNode = node; // The node whose data will be recorded (often the same as clickableNode).
 
         const nodeName = clickableNode.nodeName.toLowerCase();
 

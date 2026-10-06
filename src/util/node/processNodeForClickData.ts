@@ -21,7 +21,7 @@ export const processNodeForClickData = async (node: any) => {
     const domJSONModule = domJSON.default || domJSON;
 
     // Convert the cloned node to a JSON object, including its serializable properties.
-    let objectData: any = domJSONModule.toJSON(processedNode, {
+    const objectData: any = domJSONModule.toJSON(processedNode, {
         serialProperties: true,
     });
 

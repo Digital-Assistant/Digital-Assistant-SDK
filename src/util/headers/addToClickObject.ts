@@ -37,7 +37,7 @@ export const AddToClickObjects = (node: any) => {
         }
 
         // Create a click object to store the element and its ID.
-        let clickObject: any = { element: node, id: '' };
+        const clickObject: any = { element: node, id: '' };
 
         // Do not track the window object itself.
         if (clickObject.element === window) {

@@ -42,14 +42,14 @@ export const searchNodes = async (recordedNode: any, compareElements: any) => {
     }
 
     // Iterate through the candidate elements to find potential matches.
-    for (let searchNode of compareElements) {
+    for (const searchNode of compareElements) {
         let searchLabelExists = false;
         // Convert the candidate DOM node to a JSON object for comparison.
-        let compareNode = domJSONModule.toJSON(searchNode.node, {
+        const compareNode = domJSONModule.toJSON(searchNode.node, {
             serialProperties: true,
         });
         // Compare the recorded node with the candidate node.
-        let match = compareNodes(
+        const match = compareNodes(
             compareNode.node,
             recordedNodeData.node,
             isPersonalNode,

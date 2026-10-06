@@ -23,7 +23,7 @@ export const getClickedInputLabels = (
         return null;
     }
     let inputLabels: any = '';
-    let nodeName = node.nodeName.toLowerCase();
+    const nodeName = node.nodeName.toLowerCase();
     let textLabels: any = [];
 
     try {
@@ -44,7 +44,7 @@ export const getClickedInputLabels = (
                 // Otherwise, get labels from the surrounding context.
                 textLabels = getNodeLabels(node, [], 1, true, false, true);
                 if (textLabels.length > 0) {
-                    let labels = [];
+                    const labels = [];
                     for (let j = 0; j < textLabels.length; j++) {
                         labels.push(textLabels[j].text);
                     }
@@ -57,7 +57,7 @@ export const getClickedInputLabels = (
                 // For inputs without a type, get labels from the context.
                 textLabels = getNodeLabels(node, [], 1, true, true, true);
                 if (textLabels.length > 0) {
-                    let labels = [];
+                    const labels = [];
                     for (let j = 0; j < textLabels.length; j++) {
                         labels.push(textLabels[j].text);
                     }
@@ -76,7 +76,7 @@ export const getClickedInputLabels = (
                             true,
                         );
                         if (textLabels.length > 0) {
-                            let labels = [];
+                            const labels = [];
                             for (let j = 0; j < textLabels.length; j++) {
                                 labels.push(textLabels[j].text);
                             }
@@ -88,7 +88,7 @@ export const getClickedInputLabels = (
         case 'textarea':
             textLabels = getNodeLabels(node, [], 1, true, true, true);
             if (textLabels.length > 0) {
-                let labels = [];
+                const labels = [];
                 for (let j = 0; j < textLabels.length; j++) {
                     labels.push(textLabels[j].text);
                 }
@@ -99,7 +99,7 @@ export const getClickedInputLabels = (
             // For images, don't get labels from child nodes.
             textLabels = getNodeLabels(node, [], 1, true, false, true);
             if (textLabels.length > 0) {
-                let labels = [];
+                const labels = [];
                 for (let j = 0; j < textLabels.length; j++) {
                     labels.push(textLabels[j].text);
                 }
@@ -117,7 +117,7 @@ export const getClickedInputLabels = (
             // Otherwise, get labels from child nodes but don't iterate up to the parent.
             textLabels = getNodeLabels(node, [], 1, false, true, true);
             if (textLabels.length > 0) {
-                let labels = [];
+                const labels = [];
                 for (let j = 0; j < textLabels.length; j++) {
                     labels.push(textLabels[j].text);
                 }

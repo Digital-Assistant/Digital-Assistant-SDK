@@ -36,12 +36,12 @@ export const UDABindAccount = async (
     if (authTokenResponse && authTokenResponse?.data?.token) {
         UDASessionData.authData.token = authTokenResponse.data.token;
         console.log(UDASessionData);
-        let userSessionData: any = {
+        const userSessionData: any = {
             userauthid: userAuthData.id,
             usersessionid: UDASessionData.sessionKey,
         };
         console.log(userSessionData);
-        let response = await apiClient.post(
+        const response = await apiClient.post(
             ENDPOINT.CheckUserSession,
             userSessionData,
         );

@@ -12,7 +12,7 @@ export const getRecordingName = (recordingSequence: any) => {
     if (recordingSequence) {
         try {
             // The `name` property is expected to be a JSON string representing an array of names.
-            let names = JSON.parse(recordingSequence.name);
+            const names = JSON.parse(recordingSequence.name);
             // Return the first name in the array, or 'NA' if the array is empty.
             name = names[0] ? names[0] : 'NA';
         } catch (e) {

@@ -56,7 +56,7 @@ export const UDASendSessionDataToBackground = async (
     sendAction = 'UDAUserSessionData',
     message = '',
 ) => {
-    let tab = await getTab();
+    const tab = await getTab();
     if (!tab) {
         console.log('No active tab identified.');
         return false;

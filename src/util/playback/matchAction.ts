@@ -61,7 +61,7 @@ export const matchAction = (
     }
 
     // Convert the tooltip visibility time from seconds to milliseconds for use with setTimeout.
-    let timeToInvoke: number = playBackDelayTime * 1000;
+    const timeToInvoke: number = playBackDelayTime * 1000;
 
     // The objectdata property is expected to be a JSON string. If it's already an object,
     // something is wrong, so we abort to prevent errors.
@@ -108,7 +108,7 @@ export const matchAction = (
             recordedNodeData.meta.selectedElement.systemTag.trim() != 'others'
         ) {
             // Attempt to perform a mapped action based on the element's system tag.
-            let performedAction = mapSelectedElementAction(
+            const performedAction = mapSelectedElementAction(
                 node,
                 selectedNode,
                 navigationData,
@@ -505,7 +505,7 @@ export const matchAction = (
             let specialInputNode = false;
             // Check if the element has a class name indicating it's a special clickable area.
             if (node.classList) {
-                classListLoop: for (let val of node.classList) {
+                classListLoop: for (const val of node.classList) {
                     if (inArray(val, nodeConfig.specialInputClickClassNames)) {
                         specialInputNode = true;
                         break classListLoop;

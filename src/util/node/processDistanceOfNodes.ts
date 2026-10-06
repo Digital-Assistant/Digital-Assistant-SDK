@@ -65,7 +65,7 @@ export const processDistanceOfNodes = (
 
         // Main algorithm loop: Iterate through all candidate nodes to find the closest match.
         // This loop implements a two-phase matching strategy for optimal performance.
-        for (let node of matchingNodes) {
+        for (const node of matchingNodes) {
             // Phase 1: Fast coordinate matching - Get absolute positioning for the current candidate.
             // This provides pixel-perfect coordinate information for exact matching.
             const _offsets = getAbsoluteOffsets(node);
@@ -86,10 +86,10 @@ export const processDistanceOfNodes = (
             } else {
                 // Phase 2: Distance-based matching - No exact coordinate match was found.
                 // Extract comprehensive node information for distance calculation.
-                let nodeInfo = getNodeInfo(node);
+                const nodeInfo = getNodeInfo(node);
 
                 // Calculate the distance between the reference node and the current candidate.
-                let dist = getDistance(selectedNode.nodeInfo, nodeInfo);
+                const dist = getDistance(selectedNode.nodeInfo, nodeInfo);
 
                 // Distance comparison logic: Update tracking variables if a better match is found.
                 // First iteration: Initialize with the first calculated distance as the baseline.

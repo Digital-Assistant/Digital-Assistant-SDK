@@ -86,7 +86,7 @@ export const recordUserClick = async (node: any, event: any) => {
 
     window.clickedNode = recordingNode; // Store the last recorded node to prevent immediate duplicates.
 
-    let meta: any = {}; // Metadata object for the recorded click.
+    const meta: any = {}; // Metadata object for the recorded click.
 
     // Get descriptive labels for the clicked input.
     let _text = getClickedInputLabels(recordingNode);

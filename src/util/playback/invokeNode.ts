@@ -28,7 +28,7 @@ export const getSelectedRecordFromStore = async () => {
  * @param index The index of the node within the `userclicknodesSet` array to update.
  */
 export const updateRecordToStore = async (index: any) => {
-    let selectedRecordingDetails: any = await StorageUtil.getFromStore(
+    const selectedRecordingDetails: any = await StorageUtil.getFromStore(
         CONFIG.SELECTED_RECORDING,
         false,
     );
@@ -94,9 +94,9 @@ export const matchNode = async (recordedNode: any) => {
     }
 
     let clickObjects: any = [];
-    let originalElement = originalNode?.node;
+    const originalElement = originalNode?.node;
 
-    let startTime = performance.now(); // Start time for performance measurement.
+    const startTime = performance.now(); // Start time for performance measurement.
 
     // Attempt to find elements by class name if the original element is a common tag (span, div).
     if (
@@ -126,13 +126,13 @@ export const matchNode = async (recordedNode: any) => {
         clickObjects = document.getElementsByTagName(originalElement.nodeName);
     }
 
-    let compareElements: any = []; // Stores elements for the old search logic.
-    let matchedElements: any = []; // Stores elements that match by node name.
+    const compareElements: any = []; // Stores elements for the old search logic.
+    const matchedElements: any = []; // Stores elements that match by node name.
     let finalMatchElement: any = null; // The best matching element found.
 
     // Iterate through potential live elements to find a match.
     for (let i = 0; i < clickObjects.length; i++) {
-        let compareElement = clickObjects[i];
+        const compareElement = clickObjects[i];
         // Only compare elements with the same node name.
         if (
             compareElement.nodeName.toLowerCase() ===
@@ -177,9 +177,9 @@ export const matchNode = async (recordedNode: any) => {
         }
     }
 
-    let endTime = performance.now(); // End time for performance measurement.
+    const endTime = performance.now(); // End time for performance measurement.
 
-    let difference = endTime - startTime; // Calculate the time taken for matching.
+    const difference = endTime - startTime; // Calculate the time taken for matching.
 
     /* UDAConsoleLogger.info('StartTime: '+ startTime, 1);
   UDAConsoleLogger.info('EndTime: '+ endTime, 1);

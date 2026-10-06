@@ -9,10 +9,10 @@
  * @returns An object containing various screen and window dimensions.
  */
 export const getScreenSize = (): any => {
-    let page = { height: 0, width: 0 }; // Represents the full document size.
-    let viewport = { height: 0, width: 0 }; // Represents the original, unscaled visible window area.
-    let availableContentArea = { height: 0, width: 0 }; // Viewport adjusted for a plugin (e.g., sidebar).
-    let body = document.body,
+    const page = { height: 0, width: 0 }; // Represents the full document size.
+    const viewport = { height: 0, width: 0 }; // Represents the original, unscaled visible window area.
+    const availableContentArea = { height: 0, width: 0 }; // Viewport adjusted for a plugin (e.g., sidebar).
+    const body = document.body,
         html = document.documentElement;
 
     const docEl = document.documentElement;
@@ -21,7 +21,7 @@ export const getScreenSize = (): any => {
     const scrollLeft =
         window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
 
-    let physicalScreen = { height: 0, width: 0 }; // Represents the physical screen resolution.
+    const physicalScreen = { height: 0, width: 0 }; // Represents the physical screen resolution.
 
     // Calculate the full document size (including scrollable content).
     page.height = Math.max(
