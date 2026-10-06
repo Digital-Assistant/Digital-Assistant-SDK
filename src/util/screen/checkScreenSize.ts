@@ -21,10 +21,14 @@ import { UDAConsoleLogger, UDAErrorLogger } from "../error/error-log";
  *   - `enablePluginForScreen`: `boolean` - Whether the plugin should be enabled.
  *   - `showScreenAlert`: `boolean` - Whether to show a resolution warning.
  */
-export const checkScreenSize = (): { enablePluginForScreen: boolean; showScreenAlert: boolean } => {
+type ScreenWindow = Pick<Window, 'devicePixelRatio'>;
+
+export const checkScreenSize = (
+    win: ScreenWindow | null = typeof window !== 'undefined' ? window : null,
+): { enablePluginForScreen: boolean; showScreenAlert: boolean } => {
     try {
         // Verify browser environment
-        if (typeof window === 'undefined') {
+        if (!win) {
             throw new Error('Window object is not available');
         }
 
@@ -45,7 +49,7 @@ export const checkScreenSize = (): { enablePluginForScreen: boolean; showScreenA
         }
 
         // Get device pixel ratio for high DPI displays, defaulting to 1 if null or undefined
-        const devicePixelRatio = window.devicePixelRatio ?? 1;
+        const devicePixelRatio = win.devicePixelRatio ?? 1;
 
         // Validate device pixel ratio
         if (devicePixelRatio <= 0) {

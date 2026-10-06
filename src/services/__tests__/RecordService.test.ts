@@ -204,11 +204,9 @@ describe('RecordService (core)', () => {
 describe('prepareRecordSequencePayload (core)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Stub window.location.host for domain resolution fallback
-    Object.defineProperty(window, 'location', {
-      value: { host: 'test.local' },
-      writable: true,
-    });
+    // Set the URL used by fetchDomain's window.location.host fallback.
+    // jsdom's `window.location` is non-configurable; use the exposed jsdom instance.
+    (global as any).jsdom.reconfigure({ url: 'http://test.local/' });
   });
 
   it('uses provided userclicknodesSet override and preserves domain in request', async () => {
@@ -247,10 +245,7 @@ describe('postRecordSequenceData and updateRecordSequenceData (core)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (getUserId as jest.Mock).mockResolvedValue('user-1');
-    Object.defineProperty(window, 'location', {
-      value: { host: 'host.local' },
-      writable: true,
-    });
+    (global as any).jsdom.reconfigure({ url: 'http://host.local/' });
   });
 
   it('postRecordSequenceData builds payload via prepareRecordSequencePayload and posts to RecordSequence', async () => {
