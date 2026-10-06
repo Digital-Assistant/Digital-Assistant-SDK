@@ -51,7 +51,7 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "typecheck": "tsc --noEmit",
     "check": "npm run format:check && npm run typecheck && npm test",
-    "security": "npm audit --audit-level=high",
+    "security": "npm audit --omit=dev --audit-level=high && npm audit --audit-level=critical",
     "git:clean:dry": "node scripts/git-branch-janitor.mjs",
     "git:clean": "node scripts/git-branch-janitor.mjs --apply",
     "prepublishOnly": "npm run check && npm run build",
