@@ -38,7 +38,7 @@ Run from repo root.
 - `npm run format:check` — Prettier check (verify only, no writes)
 - `npm run typecheck` — `tsc --noEmit`
 - `npm run check` — `format:check` → `typecheck` → `test` (full local gate)
-- `npm run security` — `npm audit --audit-level=high`
+- `npm run security` — `npm audit` gate: production deps at `high` + `critical` anywhere (dev-only toolchain advisories are reported but non-blocking)
 - `npm run clean` — remove `dist/`
 - `npm run env:generate` — generate `environments/<BUILD_ENV>.env` from env vars (`scripts/generate-env.mjs`, default `local`; `--force` to overwrite)
 - `npm run git:clean:dry` — list local branches whose upstream is gone (safe default, deletes nothing)
@@ -138,16 +138,26 @@ from these prefixes:
 - Direct PRs to `main` may only originate from `dev` (enforced by `.github/workflows/enforce-dev-base.yml`).
 - `main` and `dev` are protected by repository rulesets — changes arrive only via PR.
 
-**Gate status** (until Phase 5 of `artefacts/ci-cd-pipeline-plan.md` makes the repo green):
+**Gate status** (all gates are blocking in CI):
 
 | Gate | Workflow | Status |
 |---|---|---|
 | `npm run typecheck` | CI | **Blocking** |
+| `npm run format:check` | CI | **Blocking** |
+| `npm run lint` | CI | **Blocking** (legacy debt reported as warnings) |
+| `npm test` | CI | **Blocking** |
 | `npm run build` | CI (after `env:generate`) | **Blocking** |
-| `npm run format:check` | CI | Advisory (`continue-on-error`) |
-| `npm run lint` | CI | Advisory |
-| `npm test` | CI | Advisory |
-| `npm run security` | Security Audit | Advisory |
+| `npm run security` | Security Audit | **Blocking** (production deps at `high`; `critical` anywhere) |
+
+**Known lint debt:** the ESLint config downgrades `no-explicit-any`,
+`no-unused-vars`, `ban-ts-comment`, `ban-types`, `no-var-requires`, `no-var`, and
+`prefer-const` to warnings. These surface 600+ warnings across the legacy codebase;
+formatting (`prettier/prettier`) remains an error. Gradual cleanup is a tracked
+follow-up.
+
+**Known audit debt:** `npm audit` reports dev-only toolchain advisories (chiefly
+`braces`/`micromatch`, which currently have no patched release). The `security` gate
+therefore enforces production dependencies at `high` severity plus `critical` anywhere.
 
 **Release lifecycle:** version bumps, changelog generation, GitHub Releases, and the
 `main` → `dev` back-merge are automated via `.github/workflows/release-and-sync.yml`
