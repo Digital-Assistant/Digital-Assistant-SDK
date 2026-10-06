@@ -1,0 +1,4 @@
+# Normalize line endings to LF in the working tree on every platform so
+# formatting checks (Prettier `endOfLine: lf`) behave identically on
+# ubuntu/macos/windows. Git auto-detects binary files and leaves them alone.
+* text=auto eol=lf
