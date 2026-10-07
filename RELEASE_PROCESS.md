@@ -185,7 +185,7 @@ git branch <branch-name> <recovered-sha>
 The `publish` job in `release-and-sync.yml` is intentionally commented out. To enable it:
 
 1. **Configure npm Trusted Publishing** (GitHub OIDC — no stored token). On
-   <https://npmjs.com> open the `@digital-assistant/core` package →
+   <https://npmjs.com> open the `@udan/digital-assistant-core` package →
    **Settings → Trusted Publishing**, enable it for source **GitHub** / owner
    **Digital-Assistant** / repository **Digital-Assistant-SDK**, and restrict it to the
    workflow **`release-and-sync.yml`**.

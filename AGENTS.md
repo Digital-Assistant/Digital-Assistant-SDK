@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-`@digital-assistant/core` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
+`@udan/digital-assistant-core` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
 
 Stack: TypeScript 4.9 (strict, `allowJs`), Redux Toolkit + redux-thunk, webpack 5 multi-env builds, Jest 30 (jsdom) + ts-jest, ESLint 8 + Prettier, i18next, Keycloak, winston (remote logging).
 
