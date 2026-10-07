@@ -108,4 +108,49 @@ describe('storageHelper', () => {
             consoleSpy.mockRestore();
         });
     });
+
+    describe('service worker context', () => {
+        const root: any = globalThis;
+        let local: any;
+
+        beforeEach(() => {
+            local = {
+                set: jest.fn().mockResolvedValue(undefined),
+                get: jest.fn().mockResolvedValue({}),
+                remove: jest.fn().mockResolvedValue(undefined),
+            };
+            root.chrome = { storage: { local } };
+            jest.resetModules();
+            jest.doMock('../detect', () => ({
+                ...jest.requireActual('../detect'),
+                isServiceWorker: () => true,
+            }));
+        });
+
+        afterEach(() => {
+            delete root.chrome;
+            jest.dontMock('../detect');
+            jest.resetModules();
+        });
+
+        it('saves to extension storage instead of localStorage', () => {
+            const helper = require('../storageHelper');
+            helper.saveToStorage('swKey', { n: 1 });
+            expect(local.set).toHaveBeenCalledWith({
+                swKey: JSON.stringify({ n: 1 }),
+            });
+            expect(localStorageMock.setItem).not.toHaveBeenCalled();
+        });
+
+        it('removes from extension storage', () => {
+            const helper = require('../storageHelper');
+            helper.removeFromStorage('swKey');
+            expect(local.remove).toHaveBeenCalledWith(['swKey']);
+        });
+
+        it('returns the default synchronously on load', () => {
+            const helper = require('../storageHelper');
+            expect(helper.loadFromStorage('swKey', 'dflt')).toBe('dflt');
+        });
+    });
 });
