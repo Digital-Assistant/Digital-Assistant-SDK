@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.10.0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.9.0...v0.10.0) (2026-10-07)
+
+
+### Features
+
+* **package:** npm publishing prerequisites for @udan/digital-assistant-core ([2f037f8](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/2f037f8f27ca47ec5040576b68fe5b85d131921a))
+* **package:** publish as @udan/digital-assistant-core ([3d984d8](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/3d984d83f755c9c726c4375554c67ab628687b70))
+
+
+### Bug Fixes
+
+* **build:** build production bundle before publish ([9f80794](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/9f807943610cbfc151c9939921af35dd75960e5f))
+* **build:** exclude tests from emitted declarations ([cc370a1](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/cc370a128e242b56eed8e4f04a46e55a0971882e))
+* **build:** run domjson patch only in this repo ([318cbbb](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/318cbbb0e23e1df6cf0e7c6e259d14cb691acd77))
+* **config:** align keycloakUrl env key ([f4eadf4](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/f4eadf46a20ad1cd4d713c1ab9a7ec509017389d))
+
 ## 0.9.0 (2026-10-07)
 
 
