@@ -55,7 +55,7 @@ jobs:
           profanityUrl: ${{ vars.PROFANITY_URL }}
           profanityRegion: ${{ vars.PROFANITY_REGION }}
           googleTranslateUrl: ${{ vars.GOOGLE_TRANSLATE_URL }}
-          keyCloakUrl: ${{ vars.KEYCLOAK_URL }}
+          keycloakUrl: ${{ vars.KEYCLOAK_URL }}
           tokenUrl: ${{ vars.TOKEN_URL }}
           llmUrl: ${{ vars.LLM_URL }}
           keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
