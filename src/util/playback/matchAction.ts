@@ -82,7 +82,7 @@ export const matchAction = (
 
     // invoking the node based on the LLM api
     if (
-        window.UDAGlobalConfig.enableAISearch &&
+        window.UDAGlobalConfig?.enableAISearch &&
         recordedNodeData.meta?.inputType
     ) {
         const invokedNodeFromLLM = matchLLMInputToNode(
@@ -100,7 +100,7 @@ export const matchAction = (
 
     // If the "Node Type Selection" feature is enabled, try a more specific action mapping first.
     // This allows for custom handling of elements tagged with a specific systemTag.
-    if (window.UDAGlobalConfig.enableNodeTypeSelection) {
+    if (window.UDAGlobalConfig?.enableNodeTypeSelection) {
         if (
             recordedNodeData.meta &&
             recordedNodeData.meta.hasOwnProperty('selectedElement') &&

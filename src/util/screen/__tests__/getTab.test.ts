@@ -14,10 +14,14 @@ jest.mock('../../browser', () => ({
     getUDABrowserPlugin: () => false, // Mock this as it's not directly used but might be imported
 }));
 
+jest.mock('../../error', () => ({
+    UDAConsoleLogger: { info: jest.fn() },
+}));
+
+import { UDAConsoleLogger } from '../../error';
 import { getTab } from '../getTab';
 
 describe('getTab', () => {
-    let consoleLogSpy: jest.SpyInstance;
     let consoleErrorSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -34,15 +38,13 @@ describe('getTab', () => {
             url: 'http://example.com/tab2',
         });
 
-        // Spy on console.log and console.error to check for messages and suppress output
-        consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+        // Spy on console.error to check for messages and suppress output
         consoleErrorSpy = jest
             .spyOn(console, 'error')
             .mockImplementation(() => {});
     });
 
     afterEach(() => {
-        consoleLogSpy.mockRestore(); // Restore original console.log
         consoleErrorSpy.mockRestore(); // Restore original console.error
     });
 
@@ -94,8 +96,9 @@ describe('getTab', () => {
         });
         expect(getMock).not.toHaveBeenCalled(); // Should not call get if activeTabId is -1
         expect(tab).toBe(false);
-        expect(consoleLogSpy).not.toHaveBeenCalledWith(
+        expect(UDAConsoleLogger.info).not.toHaveBeenCalledWith(
             'No active tab identified.',
+            2,
         ); // Should not log if activeTabId is -1
     });
 
@@ -111,7 +114,10 @@ describe('getTab', () => {
         });
         expect(getMock).toHaveBeenCalledWith(99);
         expect(tab).toBe(false);
-        expect(consoleLogSpy).toHaveBeenCalledWith('No active tab identified.');
+        expect(UDAConsoleLogger.info).toHaveBeenCalledWith(
+            'No active tab identified.',
+            2,
+        );
     });
 
     it('should handle errors from browser.tabs.query gracefully', async () => {
@@ -142,6 +148,9 @@ describe('getTab', () => {
         });
         expect(getMock).toHaveBeenCalledWith(100);
         expect(tab).toBe(false);
-        expect(consoleLogSpy).toHaveBeenCalledWith('No active tab identified.'); // The console.log is a fallback for get failing
+        expect(UDAConsoleLogger.info).toHaveBeenCalledWith(
+            'No active tab identified.',
+            2,
+        ); // The console.log is a fallback for get failing
     });
 });

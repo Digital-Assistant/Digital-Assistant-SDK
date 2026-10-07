@@ -12,9 +12,6 @@ export const addBodyEvents = async () => {
         len = els?.length,
         i = 0;
 
-    console.log(window.UDAClickObjects); // Log existing click objects for debugging.
-    console.log(els); // Log all selected elements for debugging.
-
     // Iterate through each selected element.
     for (; i < len; i++) {
         try {

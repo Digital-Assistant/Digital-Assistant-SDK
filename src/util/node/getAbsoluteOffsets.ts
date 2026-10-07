@@ -1,3 +1,4 @@
+import { UDAConsoleLogger } from '../error';
 /**
  * Calculates the absolute coordinates (x, y) of an HTML element relative to the document.
  * This function traverses up the DOM tree from the given element, accumulating the `offsetLeft` and `offsetTop`
@@ -27,7 +28,7 @@ export const getAbsoluteOffsets = (element: HTMLElement) => {
         }
     } catch (e) {
         // Log any errors that occur during the calculation.
-        console.log(e);
+        UDAConsoleLogger.info(e, 2);
     }
 
     return cords;

@@ -7,6 +7,7 @@ import {
 } from '../browser/browserConstants';
 import { UDABindAuthenticatedAccount } from './UDABindAuthenticatedAccount';
 import { getTab } from '../screen';
+import { UDAConsoleLogger } from '../error';
 
 export const UDASendSessionData = async (
     udaSessionData: UDASessionData,
@@ -58,7 +59,7 @@ export const UDASendSessionDataToBackground = async (
 ) => {
     const tab = await getTab();
     if (!tab) {
-        console.log('No active tab identified.');
+        UDAConsoleLogger.info('No active tab identified.', 2);
         return false;
     }
     if (sendAction === 'UDAAlertMessageData') {

@@ -7,7 +7,6 @@ export const setInputValue = (node: HTMLInputElement, value: string) => {
     const inputElement = node;
     if (inputElement) {
         // Set the value of the input element
-        console.log(value);
         inputElement.value = value;
 
         // Create and dispatch the input event

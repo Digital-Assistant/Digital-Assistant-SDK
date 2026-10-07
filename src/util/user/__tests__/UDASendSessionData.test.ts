@@ -13,6 +13,7 @@ import {
 } from '../../browser/browserConstants';
 import { UDABindAuthenticatedAccount } from '../UDABindAuthenticatedAccount';
 import { getTab } from '../../screen';
+import { UDAConsoleLogger } from '../../error';
 
 // Mock dependencies
 jest.mock('../../browser/browserConstants', () => ({
@@ -20,6 +21,9 @@ jest.mock('../../browser/browserConstants', () => ({
     getBrowserVar: jest.fn(),
 }));
 jest.mock('../UDABindAuthenticatedAccount');
+jest.mock('../../error', () => ({
+    UDAConsoleLogger: { info: jest.fn() },
+}));
 jest.mock('../../screen', () => ({
     getTab: jest.fn(),
 }));
@@ -139,16 +143,15 @@ describe('UDASendSessionData', () => {
 
         it('should return false if no active tab is found', async () => {
             (getTab as jest.Mock).mockResolvedValue(null);
-            const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
             const result =
                 await UDASendSessionDataToBackground(mockSessionData);
 
             expect(result).toBe(false);
-            expect(consoleSpy).toHaveBeenCalledWith(
+            expect(UDAConsoleLogger.info).toHaveBeenCalledWith(
                 'No active tab identified.',
+                2,
             );
-            consoleSpy.mockRestore();
         });
 
         it('should send alert message directly to tab', async () => {
