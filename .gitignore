@@ -19,5 +19,8 @@ coverage/
 .vscode/
 .idea/
 
+# Agent/developer scratch space (never committed)
+artefacts/
+
 # Misc
 .venv/
