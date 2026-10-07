@@ -7,17 +7,17 @@
  * - Safari (browser API)
  * - Opera, Brave (chrome API)
  */
-import {CONFIG} from "../../config";
+import { CONFIG } from '../../config';
 
 /**
  * A boolean indicating whether the UDA browser plugin is active.
  */
-let UDABrowserPlugin: boolean=false;
+let UDABrowserPlugin: boolean = false;
 
 /**
  * The session name for UDA.
  */
-let UDASessionName= CONFIG.USER_AUTH_DATA_KEY;
+let UDASessionName = CONFIG.USER_AUTH_DATA_KEY;
 
 /**
  * The ID of the active tab.
@@ -59,7 +59,11 @@ function getBrowserExtensionAPI(): any {
         return chrome;
     }
     // Fallback - try window.browser for Firefox
-    if (typeof window !== 'undefined' && (window as any).browser && (window as any).browser.storage) {
+    if (
+        typeof window !== 'undefined' &&
+        (window as any).browser &&
+        (window as any).browser.storage
+    ) {
         return (window as any).browser;
     }
     return null;
@@ -75,14 +79,14 @@ const supportedBrowsers = [
     'safari',
     'opera',
     'brave',
-    'chromium-webview'
+    'chromium-webview',
 ];
 
 // Detect browser and set appropriate API
 if (browser && browser.name) {
     const browserName = browser.name.toLowerCase();
 
-    if (supportedBrowsers.some(name => browserName.includes(name))) {
+    if (supportedBrowsers.some((name) => browserName.includes(name))) {
         enablePlugin = true;
         browserVar = getBrowserExtensionAPI() || browser;
     } else {
@@ -101,24 +105,24 @@ if (browser && browser.name) {
  * @param plugin - The new value.
  */
 export const updateBrowserPlugin = (plugin: boolean) => {
-    UDABrowserPlugin=plugin;
-}
+    UDABrowserPlugin = plugin;
+};
 
 /**
  * Updates the `UDASessionName` constant.
  * @param sessionName - The new session name.
  */
 export const updateSessionName = (sessionName: string) => {
-    UDASessionName=CONFIG.USER_AUTH_DATA_KEY+"-"+sessionName;
-}
+    UDASessionName = CONFIG.USER_AUTH_DATA_KEY + '-' + sessionName;
+};
 
 /**
  * Updates the `activeTabId` constant.
  * @param tabId - The new tab ID.
  */
-export const updateActiveTabId = (tabId: any) =>{
-    activeTabId=tabId;
-}
+export const updateActiveTabId = (tabId: any) => {
+    activeTabId = tabId;
+};
 
 export const getUDABrowserPlugin = () => UDABrowserPlugin;
 export const getUDASessionName = () => UDASessionName;

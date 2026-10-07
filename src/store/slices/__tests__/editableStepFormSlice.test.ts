@@ -2,9 +2,15 @@ const localStorageMock = (() => {
     let store: Record<string, string> = {};
     return {
         getItem: jest.fn((key: string) => store[key] ?? null),
-        setItem: jest.fn((key: string, value: string) => { store[key] = value; }),
-        removeItem: jest.fn((key: string) => { delete store[key]; }),
-        clear: jest.fn(() => { store = {}; }),
+        setItem: jest.fn((key: string, value: string) => {
+            store[key] = value;
+        }),
+        removeItem: jest.fn((key: string) => {
+            delete store[key];
+        }),
+        clear: jest.fn(() => {
+            store = {};
+        }),
     };
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
@@ -27,10 +33,27 @@ describe('editableStepFormSlice', () => {
     beforeEach(() => getFreshModule());
 
     const defaultState = {
-        formFields: { stepEditValue: '', tooltip: '', slowPlaybackTime: '', customMetadata: {} },
-        errors: { stepProfanityError: false, stepInputError: false, tooltipError: false, slowPlaybackTimeError: false },
+        formFields: {
+            stepEditValue: '',
+            tooltip: '',
+            slowPlaybackTime: '',
+            customMetadata: {},
+        },
+        errors: {
+            stepProfanityError: false,
+            stepInputError: false,
+            tooltipError: false,
+            slowPlaybackTimeError: false,
+        },
         uiState: { disableTooltipSubmitBtn: true, isMounted: true },
-        editingWorkflow: { isEditing: false, originalStepData: null, draftChanges: null, validationRequired: false, validationCompleted: false, validationInProgress: false },
+        editingWorkflow: {
+            isEditing: false,
+            originalStepData: null,
+            draftChanges: null,
+            validationRequired: false,
+            validationCompleted: false,
+            validationInProgress: false,
+        },
         currentEditingIndex: null,
         isUpdateMode: false,
         recordingId: null,
@@ -41,8 +64,25 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should handle initializeFormForStep', () => {
-        const item = { objectdata: JSON.stringify({ meta: { displayText: 'My Step', tooltipInfo: 'tip', slowPlaybackTime: 500 } }), clickednodename: 'fallback' };
-        const state = reducer(undefined, actions.initializeFormForStep({ item, index: 1, isUpdateMode: true, recordingId: 10 }));
+        const item = {
+            objectdata: JSON.stringify({
+                meta: {
+                    displayText: 'My Step',
+                    tooltipInfo: 'tip',
+                    slowPlaybackTime: 500,
+                },
+            }),
+            clickednodename: 'fallback',
+        };
+        const state = reducer(
+            undefined,
+            actions.initializeFormForStep({
+                item,
+                index: 1,
+                isUpdateMode: true,
+                recordingId: 10,
+            }),
+        );
         expect(state.formFields.stepEditValue).toBe('My Step');
         expect(state.formFields.tooltip).toBe('tip');
         expect(state.formFields.slowPlaybackTime).toBe('500');
@@ -52,14 +92,30 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should fall back to clickednodename when meta.displayText is absent', () => {
-        const item = { objectdata: JSON.stringify({}), clickednodename: 'Fallback Name' };
-        const state = reducer(undefined, actions.initializeFormForStep({ item, index: 0, isUpdateMode: false }));
+        const item = {
+            objectdata: JSON.stringify({}),
+            clickednodename: 'Fallback Name',
+        };
+        const state = reducer(
+            undefined,
+            actions.initializeFormForStep({
+                item,
+                index: 0,
+                isUpdateMode: false,
+            }),
+        );
         expect(state.formFields.stepEditValue).toBe('Fallback Name');
     });
 
     it('should handle startStepEditing', () => {
-        const stepData = { objectdata: JSON.stringify({ meta: { displayText: 'Edit Me' } }), clickednodename: 'Edit Me' };
-        const state = reducer(undefined, actions.startStepEditing({ index: 3, stepData, recordingId: 55 }));
+        const stepData = {
+            objectdata: JSON.stringify({ meta: { displayText: 'Edit Me' } }),
+            clickednodename: 'Edit Me',
+        };
+        const state = reducer(
+            undefined,
+            actions.startStepEditing({ index: 3, stepData, recordingId: 55 }),
+        );
         expect(state.currentEditingIndex).toBe(3);
         expect(state.isUpdateMode).toBe(true);
         expect(state.recordingId).toBe(55);
@@ -67,8 +123,13 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should handle updateDraftChanges', () => {
-        const state = reducer(undefined, actions.updateDraftChanges({ clickednodename: 'Draft' }));
-        expect(state.editingWorkflow.draftChanges).toEqual({ clickednodename: 'Draft' });
+        const state = reducer(
+            undefined,
+            actions.updateDraftChanges({ clickednodename: 'Draft' }),
+        );
+        expect(state.editingWorkflow.draftChanges).toEqual({
+            clickednodename: 'Draft',
+        });
         expect(state.editingWorkflow.validationRequired).toBe(true);
         expect(state.editingWorkflow.validationCompleted).toBe(false);
     });
@@ -88,7 +149,14 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should handle cancelStepEditing', () => {
-        const started = reducer(undefined, actions.startStepEditing({ index: 1, stepData: {}, recordingId: 1 }));
+        const started = reducer(
+            undefined,
+            actions.startStepEditing({
+                index: 1,
+                stepData: {},
+                recordingId: 1,
+            }),
+        );
         const state = reducer(started, actions.cancelStepEditing());
         expect(state.isUpdateMode).toBe(false);
         expect(state.currentEditingIndex).toBeNull();
@@ -96,7 +164,14 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should handle resetForm', () => {
-        const started = reducer(undefined, actions.startStepEditing({ index: 1, stepData: {}, recordingId: 1 }));
+        const started = reducer(
+            undefined,
+            actions.startStepEditing({
+                index: 1,
+                stepData: {},
+                recordingId: 1,
+            }),
+        );
         const state = reducer(started, actions.resetForm());
         expect(state).toEqual(defaultState);
     });
@@ -112,17 +187,26 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should handle updateSlowPlaybackTime', () => {
-        const state = reducer(undefined, actions.updateSlowPlaybackTime('1000'));
+        const state = reducer(
+            undefined,
+            actions.updateSlowPlaybackTime('1000'),
+        );
         expect(state.formFields.slowPlaybackTime).toBe('1000');
     });
 
     it('should handle updateCustomMetadata', () => {
-        const state = reducer(undefined, actions.updateCustomMetadata({ key: 'inputType', value: 'text' }));
+        const state = reducer(
+            undefined,
+            actions.updateCustomMetadata({ key: 'inputType', value: 'text' }),
+        );
         expect(state.formFields.customMetadata.inputType).toBe('text');
     });
 
     it('should handle clearCustomMetadata', () => {
-        let state = reducer(undefined, actions.updateCustomMetadata({ key: 'inputType', value: 'text' }));
+        let state = reducer(
+            undefined,
+            actions.updateCustomMetadata({ key: 'inputType', value: 'text' }),
+        );
         state = reducer(state, actions.clearCustomMetadata('inputType'));
         expect(state.formFields.customMetadata.inputType).toBeUndefined();
     });
@@ -143,12 +227,18 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should handle setSlowPlaybackTimeError', () => {
-        const state = reducer(undefined, actions.setSlowPlaybackTimeError(true));
+        const state = reducer(
+            undefined,
+            actions.setSlowPlaybackTimeError(true),
+        );
         expect(state.errors.slowPlaybackTimeError).toBe(true);
     });
 
     it('should handle setDisableTooltipSubmit', () => {
-        const state = reducer(undefined, actions.setDisableTooltipSubmit(false));
+        const state = reducer(
+            undefined,
+            actions.setDisableTooltipSubmit(false),
+        );
         expect(state.uiState.disableTooltipSubmitBtn).toBe(false);
     });
 
@@ -158,7 +248,13 @@ describe('editableStepFormSlice', () => {
     });
 
     it('should handle setAllErrors', () => {
-        const state = reducer(undefined, actions.setAllErrors({ stepProfanityError: true, tooltipError: true }));
+        const state = reducer(
+            undefined,
+            actions.setAllErrors({
+                stepProfanityError: true,
+                tooltipError: true,
+            }),
+        );
         expect(state.errors.stepProfanityError).toBe(true);
         expect(state.errors.tooltipError).toBe(true);
         expect(state.errors.stepInputError).toBe(false);

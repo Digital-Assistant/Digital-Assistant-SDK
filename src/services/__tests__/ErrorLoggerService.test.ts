@@ -30,21 +30,31 @@ describe('ErrorLoggerService', () => {
 
     describe('constructor', () => {
         it('should fall back to console logger when host is missing', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const consoleSpy = jest
+                .spyOn(console, 'warn')
+                .mockImplementation(() => {});
             new ErrorLoggerService({ logging: { path: '/log' } } as any);
-            expect(consoleSpy).toHaveBeenCalledWith('Remote error logging is not configured. Falling back to console.');
+            expect(consoleSpy).toHaveBeenCalledWith(
+                'Remote error logging is not configured. Falling back to console.',
+            );
             consoleSpy.mockRestore();
         });
 
         it('should fall back to console logger when path is missing', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-            new ErrorLoggerService({ logging: { host: 'logs.example.com' } } as any);
+            const consoleSpy = jest
+                .spyOn(console, 'warn')
+                .mockImplementation(() => {});
+            new ErrorLoggerService({
+                logging: { host: 'logs.example.com' },
+            } as any);
             expect(consoleSpy).toHaveBeenCalled();
             consoleSpy.mockRestore();
         });
 
         it('should fall back to console logger when logging config is absent', () => {
-            const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+            const consoleSpy = jest
+                .spyOn(console, 'warn')
+                .mockImplementation(() => {});
             new ErrorLoggerService({} as any);
             expect(consoleSpy).toHaveBeenCalled();
             consoleSpy.mockRestore();
@@ -52,9 +62,19 @@ describe('ErrorLoggerService', () => {
 
         it('should create Http transport when host and path are provided', () => {
             jest.spyOn(console, 'warn').mockImplementation(() => {});
-            new ErrorLoggerService({ logging: { host: 'logs.example.com', path: '/log', ssl: true, port: 443 } } as any);
+            new ErrorLoggerService({
+                logging: {
+                    host: 'logs.example.com',
+                    path: '/log',
+                    ssl: true,
+                    port: 443,
+                },
+            } as any);
             expect(winston.transports.Http).toHaveBeenCalledWith(
-                expect.objectContaining({ host: 'logs.example.com', path: '/log' })
+                expect.objectContaining({
+                    host: 'logs.example.com',
+                    path: '/log',
+                }),
             );
         });
     });
@@ -64,7 +84,11 @@ describe('ErrorLoggerService', () => {
             jest.spyOn(console, 'warn').mockImplementation(() => {});
             const service = new ErrorLoggerService({} as any);
             service.error('Something went wrong');
-            expect(winston.__mockLogger.log).toHaveBeenCalledWith('error', 'Something went wrong', expect.any(Object));
+            expect(winston.__mockLogger.log).toHaveBeenCalledWith(
+                'error',
+                'Something went wrong',
+                expect.any(Object),
+            );
         });
 
         it('should enrich message with userId when user is in store', () => {
@@ -75,7 +99,7 @@ describe('ErrorLoggerService', () => {
             expect(winston.__mockLogger.log).toHaveBeenCalledWith(
                 'error',
                 'UserID: user-42 | Error: DB error',
-                expect.any(Object)
+                expect.any(Object),
             );
         });
 
@@ -84,14 +108,22 @@ describe('ErrorLoggerService', () => {
             const service = new ErrorLoggerService({} as any);
             const err = new Error('boom');
             service.error('Crash', err);
-            expect(winston.__mockLogger.log).toHaveBeenCalledWith('error', expect.any(String), { exception: err });
+            expect(winston.__mockLogger.log).toHaveBeenCalledWith(
+                'error',
+                expect.any(String),
+                { exception: err },
+            );
         });
 
         it('should default exception to empty object when not provided', () => {
             jest.spyOn(console, 'warn').mockImplementation(() => {});
             const service = new ErrorLoggerService({} as any);
             service.error('No exception');
-            expect(winston.__mockLogger.log).toHaveBeenCalledWith('error', expect.any(String), { exception: {} });
+            expect(winston.__mockLogger.log).toHaveBeenCalledWith(
+                'error',
+                expect.any(String),
+                { exception: {} },
+            );
         });
     });
 });

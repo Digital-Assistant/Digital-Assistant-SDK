@@ -1,4 +1,4 @@
-import {getDirectInnerText} from "./getDirectInnerText";
+import { getDirectInnerText } from './getDirectInnerText';
 
 /**
  * Finds the descriptive labels associated with an input element.
@@ -31,7 +31,7 @@ export const getLabelsForInputElement = (element: any) => {
 
     // Strategy 2: Traverse up the DOM to find a parent <label> element.
     while ((element = element.parentNode)) {
-        if (element?.tagName?.toLowerCase() == "label") {
+        if (element?.tagName?.toLowerCase() == 'label') {
             // If a parent <label> is found, get its inner text.
             labels.push(element?.innerText());
         }

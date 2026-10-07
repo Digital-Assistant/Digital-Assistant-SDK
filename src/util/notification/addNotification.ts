@@ -12,16 +12,23 @@ import { addNotificationAction } from '../../store/slices/notificationSlice';
  * @param status The type of notification (e.g., 'info', 'success', 'warning', 'error').
  * @param placement The position where the notification should appear on the screen.
  */
-export const addNotification = (title = '', description = '', status: 'info' | 'success' | 'warning' | 'error' = 'info', placement = 'top-end') => {
+export const addNotification = (
+    title = '',
+    description = '',
+    status: 'info' | 'success' | 'warning' | 'error' = 'info',
+    placement = 'top-end',
+) => {
     // Dispatch to Redux store for reactive UI
     try {
-        store.dispatch(addNotificationAction({
-            title,
-            description,
-            status
-        }));
+        store.dispatch(
+            addNotificationAction({
+                title,
+                description,
+                status,
+            }),
+        );
     } catch (e) {
-        console.error("Failed to dispatch notification to store", e);
+        console.error('Failed to dispatch notification to store', e);
     }
 
     // Keep SweetAlert2 as a secondary/legacy mechanism or for non-react contexts
@@ -38,7 +45,7 @@ export const addNotification = (title = '', description = '', status: 'info' | '
         didOpen: (toast) => {
             toast.addEventListener('mouseenter', Swal.stopTimer);
             toast.addEventListener('mouseleave', Swal.resumeTimer);
-        }
+        },
     });
 
     Toast.fire({

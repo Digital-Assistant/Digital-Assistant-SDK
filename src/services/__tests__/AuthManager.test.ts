@@ -1,8 +1,10 @@
-
 import { AuthManager, AuthManagerConfig } from '../AuthManager';
 import { CustomConfig } from '../../config/CustomConfig';
 import { store } from '../../store';
-import { setKeycloakSessionData, clearUserData } from '../../store/slices/userSlice';
+import {
+    setKeycloakSessionData,
+    clearUserData,
+} from '../../store/slices/userSlice';
 import Keycloak from 'keycloak-js';
 
 // Mock Keycloak
@@ -33,7 +35,9 @@ describe('AuthManager', () => {
             login: jest.fn().mockResolvedValue(undefined),
             logout: jest.fn().mockResolvedValue(undefined),
             updateToken: jest.fn().mockResolvedValue(true),
-            loadUserProfile: jest.fn().mockResolvedValue({ username: 'testuser' }),
+            loadUserProfile: jest
+                .fn()
+                .mockResolvedValue({ username: 'testuser' }),
             token: 'mock-token',
             refreshToken: 'mock-refresh-token',
             subject: 'mock-user-id',
@@ -58,16 +62,20 @@ describe('AuthManager', () => {
                 realm: config.realm,
                 clientId: config.clientId,
             });
-            expect(mockKeycloakInstance.init).toHaveBeenCalledWith(expect.objectContaining({
-                onLoad: 'check-sso',
-            }));
+            expect(mockKeycloakInstance.init).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    onLoad: 'check-sso',
+                }),
+            );
             expect(result).toBe(true);
-            expect(store.dispatch).toHaveBeenCalledWith(setKeycloakSessionData({
-                token: 'mock-token',
-                refreshToken: 'mock-refresh-token',
-                id: 'mock-user-id',
-                email: 'test@example.com',
-            }));
+            expect(store.dispatch).toHaveBeenCalledWith(
+                setKeycloakSessionData({
+                    token: 'mock-token',
+                    refreshToken: 'mock-refresh-token',
+                    id: 'mock-user-id',
+                    email: 'test@example.com',
+                }),
+            );
         });
 
         it('should fall back to CustomConfig if config not provided', async () => {
@@ -86,15 +94,25 @@ describe('AuthManager', () => {
         });
 
         it('should return false if init fails', async () => {
-            mockKeycloakInstance.init.mockRejectedValue(new Error('Init failed'));
-            const result = await authManager.init({ url: 'url', realm: 'realm', clientId: 'client' });
+            mockKeycloakInstance.init.mockRejectedValue(
+                new Error('Init failed'),
+            );
+            const result = await authManager.init({
+                url: 'url',
+                realm: 'realm',
+                clientId: 'client',
+            });
             expect(result).toBe(false);
         });
     });
 
     describe('login', () => {
         it('should call keycloak login', async () => {
-            await authManager.init({ url: 'url', realm: 'realm', clientId: 'client' });
+            await authManager.init({
+                url: 'url',
+                realm: 'realm',
+                clientId: 'client',
+            });
             await authManager.login();
             expect(mockKeycloakInstance.login).toHaveBeenCalled();
         });
@@ -102,7 +120,11 @@ describe('AuthManager', () => {
 
     describe('logout', () => {
         it('should call keycloak logout and clear user data', async () => {
-            await authManager.init({ url: 'url', realm: 'realm', clientId: 'client' });
+            await authManager.init({
+                url: 'url',
+                realm: 'realm',
+                clientId: 'client',
+            });
             await authManager.logout();
             expect(mockKeycloakInstance.logout).toHaveBeenCalled();
             expect(store.dispatch).toHaveBeenCalledWith(clearUserData());

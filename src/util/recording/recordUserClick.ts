@@ -2,18 +2,18 @@
 // It performs various checks to determine if a click should be recorded, processes the node data,
 // and then saves the relevant information for later playback.
 
-import { CONFIG } from "../../config";
-import { nodeConfig } from "../node/nodeConfig";
-import { getClickedInputLabels } from "../node/getClickedInputLabels";
-import { saveClickData } from "./saveClickData";
-import { checkNodeValues } from "../node/checkNodeValues";
-import mapClickedElementToHtmlFormElement from "../recording/mapClickedElementToHtmlFormElement";
-import { addNotification } from "../notification/addNotification";
-import { translate } from "../translate/translation";
-import { UDAErrorLogger } from "../error/";
-import { StorageUtil } from "../storage";
-import { clickableElementExists, trigger } from "../node";
-import { setRecSequenceData, store } from "../../store";
+import { CONFIG } from '../../config';
+import { nodeConfig } from '../node/nodeConfig';
+import { getClickedInputLabels } from '../node/getClickedInputLabels';
+import { saveClickData } from './saveClickData';
+import { checkNodeValues } from '../node/checkNodeValues';
+import mapClickedElementToHtmlFormElement from '../recording/mapClickedElementToHtmlFormElement';
+import { addNotification } from '../notification/addNotification';
+import { translate } from '../translate/translation';
+import { UDAErrorLogger } from '../error/';
+import { StorageUtil } from '../storage';
+import { clickableElementExists, trigger } from '../node';
+import { setRecSequenceData, store } from '../../store';
 
 /**
  * Records a user click event on a given DOM node.
@@ -25,11 +25,11 @@ import { setRecSequenceData, store } from "../../store";
  * @returns A boolean indicating whether the click was processed (`true`) or ignored (`false`).
  */
 export const recordUserClick = async (node: any, event: any) => {
-
     if (!node) return false;
 
     // Check if recording is currently active.
-    const isRecording = StorageUtil.getFromStore(CONFIG.RECORDING_SWITCH_KEY, true) == "true";
+    const isRecording =
+        StorageUtil.getFromStore(CONFIG.RECORDING_SWITCH_KEY, true) == 'true';
 
     if (!isRecording) {
         return false; // If not recording, ignore the click.
@@ -41,7 +41,11 @@ export const recordUserClick = async (node: any, event: any) => {
     }
 
     // Debounce clicks to prevent multiple rapid recordings from a single user action.
-    if (CONFIG.lastClickedTime && (CONFIG.lastClickedTime === Date.now() || ((CONFIG.lastClickedTime + 300) >= Date.now()))) {
+    if (
+        CONFIG.lastClickedTime &&
+        (CONFIG.lastClickedTime === Date.now() ||
+            CONFIG.lastClickedTime + 300 >= Date.now())
+    ) {
         return false;
     }
 
@@ -82,7 +86,7 @@ export const recordUserClick = async (node: any, event: any) => {
 
     window.clickedNode = recordingNode; // Store the last recorded node to prevent immediate duplicates.
 
-    let meta: any = {}; // Metadata object for the recorded click.
+    const meta: any = {}; // Metadata object for the recorded click.
 
     // Get descriptive labels for the clicked input.
     let _text = getClickedInputLabels(recordingNode);
@@ -142,10 +146,17 @@ export const recordUserClick = async (node: any, event: any) => {
         CONFIG.lastClickedTime = Date.now(); // Update the last clicked time for debouncing.
 
         // Retrieve and update the active recording sequence in storage.
-        const activeRecordingData: any = StorageUtil.getFromStore(CONFIG.RECORDING_SEQUENCE, false);
+        const activeRecordingData: any = StorageUtil.getFromStore(
+            CONFIG.RECORDING_SEQUENCE,
+            false,
+        );
         if (activeRecordingData) {
             activeRecordingData.push(resp);
-            StorageUtil.setToStore(activeRecordingData, CONFIG.RECORDING_SEQUENCE, false);
+            StorageUtil.setToStore(
+                activeRecordingData,
+                CONFIG.RECORDING_SEQUENCE,
+                false,
+            );
         } else {
             StorageUtil.setToStore([resp], CONFIG.RECORDING_SEQUENCE, false);
         }
@@ -154,15 +165,26 @@ export const recordUserClick = async (node: any, event: any) => {
         const state: any = (store as any).getState?.();
         const curr = state?.recording?.recSequenceData || [];
         (store as any).dispatch(setRecSequenceData([...curr, resp]));
-        console.log("SDK: Triggering updateRecordedData event");
-        trigger("updateRecordedData", {});
+        console.log('SDK: Triggering updateRecordedData event');
+        trigger('updateRecordedData', {});
 
         // Display a success notification.
-        addNotification(translate('clickAdded'), translate('clickAddedDescription'), 'success');
+        addNotification(
+            translate('clickAdded'),
+            translate('clickAddedDescription'),
+            'success',
+        );
     } else {
         // Display an error notification if saving fails.
-        addNotification(translate('clickAddError'), translate('clickAddErrorDescription'), 'error');
-        await UDAErrorLogger.error("Unable to save record click ", node.outerHTML);
+        addNotification(
+            translate('clickAddError'),
+            translate('clickAddErrorDescription'),
+            'error',
+        );
+        await UDAErrorLogger.error(
+            'Unable to save record click ',
+            node.outerHTML,
+        );
     }
 
     return true;

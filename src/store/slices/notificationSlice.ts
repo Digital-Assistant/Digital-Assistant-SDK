@@ -20,7 +20,10 @@ export const notificationSlice: Slice<NotificationState> = createSlice({
     name: 'notification',
     initialState,
     reducers: {
-        addNotificationAction: (state, action: PayloadAction<Omit<Notification, 'id' | 'timestamp'>>) => {
+        addNotificationAction: (
+            state,
+            action: PayloadAction<Omit<Notification, 'id' | 'timestamp'>>,
+        ) => {
             const newNotification: Notification = {
                 ...action.payload,
                 id: Math.random().toString(36).substring(2, 9),
@@ -34,5 +37,6 @@ export const notificationSlice: Slice<NotificationState> = createSlice({
     },
 });
 
-export const { addNotificationAction, clearNotifications } = notificationSlice.actions;
+export const { addNotificationAction, clearNotifications } =
+    notificationSlice.actions;
 export default notificationSlice.reducer;

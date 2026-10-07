@@ -1,7 +1,7 @@
 /**
  * @file Toggles(squeeze) content body element width
  */
-import {initSpecialNodes} from "../node";
+import { initSpecialNodes } from '../node';
 
 /**
  * Toggles(squeeze) content body element width
@@ -9,8 +9,8 @@ import {initSpecialNodes} from "../node";
  */
 export const squeezeBody = async (hide: boolean) => {
     await initSpecialNodes();
-    if(!window.UDAGlobalConfig.enableOverlay) {
-        let documentBody = document.body;
+    if (!window.UDAGlobalConfig.enableOverlay) {
+        const documentBody = document.body;
         if (!hide) {
             documentBody.style.maxWidth = '77%';
             documentBody.style.minWidth = '77%';

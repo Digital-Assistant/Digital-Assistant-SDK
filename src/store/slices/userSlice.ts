@@ -53,7 +53,7 @@ export const {
     setUserSessionData,
     setKeycloakSessionData,
     clearUserData,
-    setUserSessionId
+    setUserSessionId,
 } = userSlice.actions;
 
 export default userSlice.reducer;

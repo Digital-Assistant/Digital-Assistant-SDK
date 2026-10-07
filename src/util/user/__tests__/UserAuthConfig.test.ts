@@ -8,7 +8,7 @@ describe('UserAuthConfig', () => {
     describe('AuthConfigPropTypes interface', () => {
         it('should allow creating an object with required id property', () => {
             const config: AuthConfigPropTypes = {
-                id: 'test-id'
+                id: 'test-id',
             };
             expect(config.id).toBe('test-id');
         });
@@ -16,7 +16,7 @@ describe('UserAuthConfig', () => {
         it('should allow optional email property', () => {
             const config: AuthConfigPropTypes = {
                 id: 'test-id',
-                email: 'test@example.com'
+                email: 'test@example.com',
             };
             expect(config.email).toBe('test@example.com');
         });
@@ -24,7 +24,7 @@ describe('UserAuthConfig', () => {
         it('should allow optional token property', () => {
             const config: AuthConfigPropTypes = {
                 id: 'test-id',
-                token: 'abc123'
+                token: 'abc123',
             };
             expect(config.token).toBe('abc123');
         });
@@ -33,7 +33,7 @@ describe('UserAuthConfig', () => {
             const config: AuthConfigPropTypes = {
                 id: 'test-id',
                 customField: 'custom-value',
-                numericField: 123
+                numericField: 123,
             };
             expect(config.customField).toBe('custom-value');
             expect(config.numericField).toBe(123);

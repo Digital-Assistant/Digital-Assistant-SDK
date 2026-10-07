@@ -1,11 +1,11 @@
 // This module provides a function to invoke the click action on a given node and then
 // trigger the playback of the next item in a sequence.
 
-import {CONFIG} from "../../config";
-import {UDAConsoleLogger} from "../error";
-import {trigger} from "../node";
-import {removeToolTip} from "../notification";
-import {StorageUtil} from "../storage";
+import { CONFIG } from '../../config';
+import { UDAConsoleLogger } from '../error';
+import { trigger } from '../node';
+import { removeToolTip } from '../notification';
+import { StorageUtil } from '../storage';
 
 /**
  * Invokes a click action on the provided node and schedules the playback of the next node.
@@ -15,47 +15,54 @@ import {StorageUtil} from "../storage";
  * @param timeToInvoke The delay (in milliseconds) before invoking the click and triggering the next playback.
  */
 export const invokeNextNode = (node: any, timeToInvoke: any) => {
-  let link = false;
-  // Check if the node is a link and if it leads to a different page.
-  if (typeof node.href !== 'undefined' && node.href !== '') {
-    if (typeof node.target !== 'undefined' && node.target === '_blank') {
-      // If the link opens in a new tab, special handling might be needed (e.g., toggling autoplay).
-      // This part is commented out but indicates a potential area for future development.
-      // toggleautoplay(navigationCookieData);
-    } else {
-      // Construct the current hostname to compare with the link's href.
-      let hostname = window.location.protocol + "//" + window.location.host + window.location.pathname;
-      let href = node.href.substr(hostname.length);
-      // If the href is not empty and not a hash link, it's considered a navigation link.
-      if (href !== '' && !href.startsWith("#")) {
-        link = true;
-        CONFIG.navigatedToNextPage.check = true;
-        CONFIG.navigatedToNextPage.url = node.href;
-      }
+    let link = false;
+    // Check if the node is a link and if it leads to a different page.
+    if (typeof node.href !== 'undefined' && node.href !== '') {
+        if (typeof node.target !== 'undefined' && node.target === '_blank') {
+            // If the link opens in a new tab, special handling might be needed (e.g., toggling autoplay).
+            // This part is commented out but indicates a potential area for future development.
+            // toggleautoplay(navigationCookieData);
+        } else {
+            // Construct the current hostname to compare with the link's href.
+            const hostname =
+                window.location.protocol +
+                '//' +
+                window.location.host +
+                window.location.pathname;
+            const href = node.href.substr(hostname.length);
+            // If the href is not empty and not a hash link, it's considered a navigation link.
+            if (href !== '' && !href.startsWith('#')) {
+                link = true;
+                CONFIG.navigatedToNextPage.check = true;
+                CONFIG.navigatedToNextPage.url = node.href;
+            }
+        }
     }
-  }
 
-  // Schedule the click action and tooltip removal after `timeToInvoke`.
-  setTimeout(function () {
-    // Check if playback is still active before invoking the click action. Having this check created a problem
-    // const playStatus1 = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
-    // if (playStatus1 !== "on") return;
-    node.click();
-    removeToolTip();
-  }, timeToInvoke);
+    // Schedule the click action and tooltip removal after `timeToInvoke`.
+    setTimeout(function () {
+        // Check if playback is still active before invoking the click action. Having this check created a problem
+        // const playStatus1 = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
+        // if (playStatus1 !== "on") return;
+        node.click();
+        removeToolTip();
+    }, timeToInvoke);
 
-  // Double the `timeToInvoke` for the next `UDAPlayNext` trigger.
-  timeToInvoke += timeToInvoke;
+    // Double the `timeToInvoke` for the next `UDAPlayNext` trigger.
+    timeToInvoke += timeToInvoke;
 
-  // If it's not a navigation link, log it for debugging.
-  if (!link) {
-    UDAConsoleLogger.info(node, 2);
-  }
-  
-  // Trigger the 'UDAPlayNext' event after an additional delay.
-  setTimeout(function () {
-    const playStatus2 = StorageUtil.getFromStore(CONFIG.RECORDING_IS_PLAYING, true);
-    if (playStatus2 !== "on") return;
-    trigger("UDAPlayNext", {"playNext": true});
-  }, timeToInvoke);
-}
+    // If it's not a navigation link, log it for debugging.
+    if (!link) {
+        UDAConsoleLogger.info(node, 2);
+    }
+
+    // Trigger the 'UDAPlayNext' event after an additional delay.
+    setTimeout(function () {
+        const playStatus2 = StorageUtil.getFromStore(
+            CONFIG.RECORDING_IS_PLAYING,
+            true,
+        );
+        if (playStatus2 !== 'on') return;
+        trigger('UDAPlayNext', { playNext: true });
+    }, timeToInvoke);
+};

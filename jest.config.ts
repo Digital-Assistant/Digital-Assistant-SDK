@@ -10,7 +10,7 @@ import type { Config } from 'jest';
 const config: Config = {
     // --- Test Environment ---
     // Use jsdom to simulate a browser environment (DOM APIs available)
-    testEnvironment: 'jsdom',
+    testEnvironment: '<rootDir>/test/jsdom-environment.js',
 
     // --- File Extensions ---
     // Supported file extensions for modules

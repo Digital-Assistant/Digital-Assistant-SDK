@@ -4,8 +4,8 @@
  */
 
 export interface ValidationResult {
-  isValid: boolean;
-  error?: string;
+    isValid: boolean;
+    error?: string;
 }
 
 /**
@@ -18,21 +18,21 @@ export interface ValidationResult {
  * @returns ValidationResult object with isValid flag and optional error message
  */
 export const validateStepName = (value: string): ValidationResult => {
-  if (!value || !value.trim()) {
-    return {
-      isValid: false,
-      error: 'Step name cannot be empty',
-    };
-  }
+    if (!value || !value.trim()) {
+        return {
+            isValid: false,
+            error: 'Step name cannot be empty',
+        };
+    }
 
-  if (value.length > 100) {
-    return {
-      isValid: false,
-      error: 'Step name cannot exceed 100 characters',
-    };
-  }
+    if (value.length > 100) {
+        return {
+            isValid: false,
+            error: 'Step name cannot exceed 100 characters',
+        };
+    }
 
-  return { isValid: true };
+    return { isValid: true };
 };
 
 /**
@@ -45,21 +45,21 @@ export const validateStepName = (value: string): ValidationResult => {
  * @returns ValidationResult object with isValid flag and optional error message
  */
 export const validateTooltip = (value: string): ValidationResult => {
-  if (!value || !value.trim()) {
-    return {
-      isValid: false,
-      error: 'Tooltip cannot be empty',
-    };
-  }
+    if (!value || !value.trim()) {
+        return {
+            isValid: false,
+            error: 'Tooltip cannot be empty',
+        };
+    }
 
-  if (value.length > 100) {
-    return {
-      isValid: false,
-      error: 'Tooltip cannot exceed 100 characters',
-    };
-  }
+    if (value.length > 100) {
+        return {
+            isValid: false,
+            error: 'Tooltip cannot exceed 100 characters',
+        };
+    }
 
-  return { isValid: true };
+    return { isValid: true };
 };
 
 /**
@@ -73,30 +73,30 @@ export const validateTooltip = (value: string): ValidationResult => {
  * @returns ValidationResult object with isValid flag and optional error message
  */
 export const validateDelayTime = (value: number | string): ValidationResult => {
-  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+    const numValue = typeof value === 'string' ? parseFloat(value) : value;
 
-  if (isNaN(numValue)) {
-    return {
-      isValid: false,
-      error: 'Delay time must be a valid number',
-    };
-  }
+    if (isNaN(numValue)) {
+        return {
+            isValid: false,
+            error: 'Delay time must be a valid number',
+        };
+    }
 
-  if (numValue < 0) {
-    return {
-      isValid: false,
-      error: 'Delay time cannot be negative',
-    };
-  }
+    if (numValue < 0) {
+        return {
+            isValid: false,
+            error: 'Delay time cannot be negative',
+        };
+    }
 
-  if (numValue > 10000) {
-    return {
-      isValid: false,
-      error: 'Delay time cannot exceed 10000 milliseconds',
-    };
-  }
+    if (numValue > 10000) {
+        return {
+            isValid: false,
+            error: 'Delay time cannot exceed 10000 milliseconds',
+        };
+    }
 
-  return { isValid: true };
+    return { isValid: true };
 };
 
 /**
@@ -109,12 +109,12 @@ export const validateDelayTime = (value: number | string): ValidationResult => {
  * @returns boolean indicating if input is valid
  */
 export const validateInput = (value: string): boolean => {
-  if (!value || value.length > 100) {
-    return false;
-  }
+    if (!value || value.length > 100) {
+        return false;
+    }
 
-  const validateCondition = new RegExp('^[0-9A-Za-z _.-]+$');
-  return validateCondition.test(value);
+    const validateCondition = new RegExp('^[0-9A-Za-z _.-]+$');
+    return validateCondition.test(value);
 };
 
 /**
@@ -127,19 +127,19 @@ export const validateInput = (value: string): boolean => {
  * @returns ValidationResult object with isValid flag and optional error message
  */
 export const validateCustomMetadata = (value: string): ValidationResult => {
-  if (!value || !value.trim()) {
-    return {
-      isValid: false,
-      error: 'Metadata cannot be empty',
-    };
-  }
+    if (!value || !value.trim()) {
+        return {
+            isValid: false,
+            error: 'Metadata cannot be empty',
+        };
+    }
 
-  if (value.length > 200) {
-    return {
-      isValid: false,
-      error: 'Metadata cannot exceed 200 characters',
-    };
-  }
+    if (value.length > 200) {
+        return {
+            isValid: false,
+            error: 'Metadata cannot exceed 200 characters',
+        };
+    }
 
-  return { isValid: true };
+    return { isValid: true };
 };

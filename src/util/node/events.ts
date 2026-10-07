@@ -7,8 +7,8 @@
  * @param listener The function to be called when the event is triggered.
  */
 export const on = (eventType: any, listener: any) => {
-  document.addEventListener(eventType, listener);
-}
+    document.addEventListener(eventType, listener);
+};
 
 /**
  * Removes an event listener from the document.
@@ -16,8 +16,8 @@ export const on = (eventType: any, listener: any) => {
  * @param listener The listener function to be removed.
  */
 export const off = (eventType: any, listener: any) => {
-  document.removeEventListener(eventType, listener);
-}
+    document.removeEventListener(eventType, listener);
+};
 
 /**
  * Attaches an event listener that will be executed only once.
@@ -26,16 +26,16 @@ export const off = (eventType: any, listener: any) => {
  * @param listener The function to be called once when the event is triggered.
  */
 export const once = (eventType: any, listener: any) => {
-  // Define a handler that will be removed after execution.
-  const handleEventOnce = (event: any) => {
-    // Call the original listener.
-    listener(event);
-    // Remove the event listener so it doesn't fire again.
-    off(eventType, handleEventOnce);
-  }
-  // Attach the single-use event handler.
-  on(eventType, handleEventOnce);
-}
+    // Define a handler that will be removed after execution.
+    const handleEventOnce = (event: any) => {
+        // Call the original listener.
+        listener(event);
+        // Remove the event listener so it doesn't fire again.
+        off(eventType, handleEventOnce);
+    };
+    // Attach the single-use event handler.
+    on(eventType, handleEventOnce);
+};
 
 /**
  * Triggers a custom event on the document.
@@ -43,8 +43,8 @@ export const once = (eventType: any, listener: any) => {
  * @param data The data to be passed with the event.
  */
 export const trigger = (eventType: any, data: any) => {
-  // Create a new CustomEvent with the specified type and data.
-  const event = new CustomEvent(eventType, data);
-  // Dispatch the event on the document.
-  document.dispatchEvent(event);
-}
+    // Create a new CustomEvent with the specified type and data.
+    const event = new CustomEvent(eventType, data);
+    // Dispatch the event on the document.
+    document.dispatchEvent(event);
+};

@@ -8,16 +8,20 @@
  *          if an error occurred or the property was not found.
  */
 export const isHighlightNode = (nodeData: any) => {
-  try {
-    // Safely access the `systemTag` from the nested properties of the node data.
-    const sel = nodeData?.meta?.selectedElement;
-    // Check if the `systemTag` is a string and if its trimmed value is 'highlight'.
-    if (sel && typeof sel.systemTag === 'string' && sel.systemTag.trim() === 'highlight') {
-      return true;
+    try {
+        // Safely access the `systemTag` from the nested properties of the node data.
+        const sel = nodeData?.meta?.selectedElement;
+        // Check if the `systemTag` is a string and if its trimmed value is 'highlight'.
+        if (
+            sel &&
+            typeof sel.systemTag === 'string' &&
+            sel.systemTag.trim() === 'highlight'
+        ) {
+            return true;
+        }
+    } catch (_) {
+        // If any error occurs during property access, ignore it and proceed to the default return.
     }
-  } catch (_) {
-    // If any error occurs during property access, ignore it and proceed to the default return.
-  }
-  // Return `undefined` if the node is not a highlight node or if an error occurred.
-  return undefined;
-}
+    // Return `undefined` if the node is not a highlight node or if an error occurred.
+    return undefined;
+};

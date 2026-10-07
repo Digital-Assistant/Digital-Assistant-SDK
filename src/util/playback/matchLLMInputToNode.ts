@@ -1,11 +1,14 @@
-import { getSelectedRecordFromStore } from "./invokeNode";
-import {checkNodeValues, getAbsoluteOffsets, processDistanceOfNodes} from "../node";
-import { addToolTip } from "../notification";
-import {setInputValue} from "./setInputValue";
-import {invokeNextNode} from "./invokeNextNode";
-import {UDAConsoleLogger} from "../error";
-import {translate} from "../translate";
-
+import { getSelectedRecordFromStore } from './invokeNode';
+import {
+    checkNodeValues,
+    getAbsoluteOffsets,
+    processDistanceOfNodes,
+} from '../node';
+import { addToolTip } from '../notification';
+import { setInputValue } from './setInputValue';
+import { invokeNextNode } from './invokeNextNode';
+import { UDAConsoleLogger } from '../error';
+import { translate } from '../translate';
 
 /**
  * Matches LLM input to a DOM node and performs the appropriate action.
@@ -16,7 +19,12 @@ import {translate} from "../translate";
  * @param timeToInvoke - Time delay before invoking the next node action.
  * @returns A boolean indicating if an action was performed.
  */
-export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecordingDetails: any, timeToInvoke: number): boolean => {
+export const matchLLMInputToNode = (
+    node: any,
+    selectedNode: any,
+    selectedRecordingDetails: any,
+    timeToInvoke: number,
+): boolean => {
     try {
         // Parse the recorded node data from the selected node
         const recordedNodeData = JSON.parse(selectedNode.objectdata);
@@ -27,9 +35,23 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
         const navigationData = getSelectedRecordFromStore();
 
         // Check if the recorded node has a specific input type and find matching LLM input
-        if (recordedNodeData.meta && recordedNodeData.meta?.inputType && recordedNodeData.meta?.inputType !== '') {
-            if (selectedRecordingDetails?.matchedRecording?.inputValues && selectedRecordingDetails?.matchedRecording?.inputValues?.length > 0) {
-                llmInput = Array.from(selectedRecordingDetails.matchedRecording.inputValues).find((inputValue: any) => inputValue.Input.trim() === recordedNodeData.meta?.inputType.trim());
+        if (
+            recordedNodeData.meta &&
+            recordedNodeData.meta?.inputType &&
+            recordedNodeData.meta?.inputType !== ''
+        ) {
+            if (
+                selectedRecordingDetails?.matchedRecording?.inputValues &&
+                selectedRecordingDetails?.matchedRecording?.inputValues
+                    ?.length > 0
+            ) {
+                llmInput = Array.from(
+                    selectedRecordingDetails.matchedRecording.inputValues,
+                ).find(
+                    (inputValue: any) =>
+                        inputValue.Input.trim() ===
+                        recordedNodeData.meta?.inputType.trim(),
+                );
             }
         }
 
@@ -64,27 +86,56 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
 
         // Helper function to handle input elements based on their type
         const handleInputType = (type: string, action: () => void) => {
-            if (node.hasAttribute('type') && node.getAttribute('type').toLowerCase() === type) {
+            if (
+                node.hasAttribute('type') &&
+                node.getAttribute('type').toLowerCase() === type
+            ) {
                 action();
             }
         };
 
         // Process the node based on its type and perform actions
         switch (node.nodeName.toLowerCase()) {
-            case "input":
+            case 'input':
                 handleInputType('text', () => {
-                    addToolTip(node, node, selectedNode, navigationData, false, true, true);
+                    addToolTip(
+                        node,
+                        node,
+                        selectedNode,
+                        navigationData,
+                        false,
+                        true,
+                        true,
+                    );
                     setInputValue(node, llmInput.InputValue);
                     performedAction = true;
                 });
                 handleInputType('date', () => {
-                    addToolTip(node, node, selectedNode, navigationData, false, false, false);
+                    addToolTip(
+                        node,
+                        node,
+                        selectedNode,
+                        navigationData,
+                        false,
+                        false,
+                        false,
+                    );
                     setInputValue(node, llmInput.InputValue);
                     performedAction = true;
                 });
                 handleInputType('checkbox', () => {
-                    addToolTip(node, node.parentNode, selectedNode, navigationData, false, false, true);
-                    const checkboxes: any = document.querySelectorAll(`input[type="checkbox"][name="${node.name}"]`);
+                    addToolTip(
+                        node,
+                        node.parentNode,
+                        selectedNode,
+                        navigationData,
+                        false,
+                        false,
+                        true,
+                    );
+                    const checkboxes: any = document.querySelectorAll(
+                        `input[type="checkbox"][name="${node.name}"]`,
+                    );
                     checkboxes.forEach((checkbox: HTMLInputElement) => {
                         if (checkbox.value === llmInput.InputValue) {
                             checkbox.checked = true;
@@ -93,8 +144,18 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
                     });
                 });
                 handleInputType('radio', () => {
-                    addToolTip(node, node.parentNode, selectedNode, navigationData, false, false, true);
-                    const radioBoxes: any = document.querySelectorAll(`input[type="radio"][name="${node.name}"]`);
+                    addToolTip(
+                        node,
+                        node.parentNode,
+                        selectedNode,
+                        navigationData,
+                        false,
+                        false,
+                        true,
+                    );
+                    const radioBoxes: any = document.querySelectorAll(
+                        `input[type="radio"][name="${node.name}"]`,
+                    );
                     radioBoxes.forEach((radioBox: HTMLInputElement) => {
                         if (radioBox.value === llmInput.InputValue) {
                             radioBox.checked = true;
@@ -103,9 +164,20 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
                     });
                 });
                 break;
-            case "select":
+            case 'select':
                 // addToolTip(node, node, selectedNode, navigationData, false, false, true);
-                addToolTip(node, node, selectedNode, navigationData, false, false, false, translate('highLightText'), false, true);
+                addToolTip(
+                    node,
+                    node,
+                    selectedNode,
+                    navigationData,
+                    false,
+                    false,
+                    false,
+                    translate('highLightText'),
+                    false,
+                    true,
+                );
                 for (let i = 0; i < node.options.length; i++) {
                     if (node.options[i].value === llmInput.InputValue) {
                         node.options[i].selected = true;
@@ -117,8 +189,16 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
                     }
                 }
                 break;
-            case "textarea":
-                addToolTip(node, node.parentNode, selectedNode, navigationData, false, false, true);
+            case 'textarea':
+                addToolTip(
+                    node,
+                    node.parentNode,
+                    selectedNode,
+                    navigationData,
+                    false,
+                    false,
+                    true,
+                );
                 setInputValue(node, llmInput.InputValue);
                 performedAction = true;
                 break;
@@ -134,25 +214,38 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
         }
 
         // Variables for node matching logic
-        let compareElements: any[] = [];
-        let matchedElements: any[] = [];
+        const compareElements: any[] = [];
+        const matchedElements: any[] = [];
         let finalMatchElement: HTMLElement | null = null;
         const originalElement = recordedNodeData?.node;
 
         // Select all nodes with the same name as the recorded node
-        const nodes = document.querySelectorAll(originalElement.nodeName.trim());
+        const nodes = document.querySelectorAll(
+            originalElement.nodeName.trim(),
+        );
 
         // Iterate through nodes to find a match based on LLM input
         nodes.forEach((compareElement: HTMLElement) => {
-            if (compareElement.nodeName.toLowerCase() === originalElement.nodeName.toLowerCase() && (compareElement.textContent?.trim().toLowerCase() === llmInput.InputValue.trim().toLowerCase())) {
+            if (
+                compareElement.nodeName.toLowerCase() ===
+                    originalElement.nodeName.toLowerCase() &&
+                compareElement.textContent?.trim().toLowerCase() ===
+                    llmInput.InputValue.trim().toLowerCase()
+            ) {
                 if (originalElement.offset) {
                     const _offsets = getAbsoluteOffsets(compareElement);
-                    if (_offsets.x === originalElement.offset.x && _offsets.y === originalElement.offset.y) {
+                    if (
+                        _offsets.x === originalElement.offset.x &&
+                        _offsets.y === originalElement.offset.y
+                    ) {
                         finalMatchElement = compareElement;
                         return;
                     }
                 }
-                compareElements.push({ nodeName: compareElement.nodeName, node: compareElement });
+                compareElements.push({
+                    nodeName: compareElement.nodeName,
+                    node: compareElement,
+                });
                 matchedElements.push(compareElement);
             }
         });
@@ -162,12 +255,26 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
             if (matchedElements.length === 1) {
                 finalMatchElement = matchedElements[0];
             } else if (matchedElements.length > 1) {
-                finalMatchElement = processDistanceOfNodes(matchedElements, originalElement);
+                finalMatchElement = processDistanceOfNodes(
+                    matchedElements,
+                    originalElement,
+                );
             }
 
             // If a final match is found, add a tooltip and invoke the next node
             if (finalMatchElement) {
-                addToolTip(finalMatchElement, finalMatchElement, selectedNode, navigationData, false, false, false, translate('highLightText'), false, true);
+                addToolTip(
+                    finalMatchElement,
+                    finalMatchElement,
+                    selectedNode,
+                    navigationData,
+                    false,
+                    false,
+                    false,
+                    translate('highLightText'),
+                    false,
+                    true,
+                );
                 invokeNextNode(finalMatchElement, timeToInvoke);
                 performedAction = true;
             }
@@ -178,4 +285,4 @@ export const matchLLMInputToNode = (node: any, selectedNode: any, selectedRecord
         // UDAErrorLogger.error('Error in matchLLMInputToNode:', error);
         return false;
     }
-}
+};

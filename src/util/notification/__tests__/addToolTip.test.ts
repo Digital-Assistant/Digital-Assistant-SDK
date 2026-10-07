@@ -1,4 +1,8 @@
-import { addToolTip, updateTooltipPosition, removeToolTip } from '../addToolTip';
+import {
+    addToolTip,
+    updateTooltipPosition,
+    removeToolTip,
+} from '../addToolTip';
 import { createPopperLite } from '@popperjs/core';
 import { translate } from '../../translate/translation';
 import { getToolTipElement } from '../../node/getToolTipElement';
@@ -35,6 +39,14 @@ jest.mock('../../node/getTooltipPositionClass', () => ({
 jest.mock('../../node/events', () => ({
     trigger: jest.fn(),
     on: jest.fn(),
+}));
+
+// Playback interactions are gated on the recording being active.
+jest.mock('../../storage', () => ({
+    StorageUtil: {
+        getFromStore: jest.fn(() => 'on'),
+        setToStore: jest.fn(),
+    },
 }));
 
 describe('Tooltip Functions', () => {
@@ -91,28 +103,56 @@ describe('Tooltip Functions', () => {
 
         it('should create a Popper instance with correct parameters', () => {
             addToolTip(invokingNode, tooltipNode, null, null);
-            expect(createPopperLite).toHaveBeenCalledWith(tooltipNode, expect.any(HTMLElement), expect.any(Object));
+            expect(createPopperLite).toHaveBeenCalledWith(
+                tooltipNode,
+                expect.any(HTMLElement),
+                expect.any(Object),
+            );
         });
 
         it('should use a message from recordedData if available', () => {
             const recordedData = {
-                objectdata: JSON.stringify({ meta: { tooltipInfo: 'Custom Message' } }),
+                objectdata: JSON.stringify({
+                    meta: { tooltipInfo: 'Custom Message' },
+                }),
             };
             addToolTip(invokingNode, tooltipNode, recordedData, null);
-            expect(getToolTipElement).toHaveBeenCalledWith('Custom Message', true);
+            expect(getToolTipElement).toHaveBeenCalledWith(
+                'Custom Message',
+                true,
+                expect.any(Function),
+                'top',
+            );
         });
 
         it('should attach click listeners to continue and exit buttons', () => {
-            addToolTip(invokingNode, tooltipNode, null, null, false, false, false, 'message', true);
-            
-            const continueButton = shadowRoot.getElementById('uda-autoplay-continue');
-            const exitButton = shadowRoot.getElementById('uda-autoplay-exit');
+            addToolTip(
+                invokingNode,
+                tooltipNode,
+                null,
+                null,
+                false,
+                false,
+                false,
+                'message',
+                true,
+            );
+
+            const continueButton = shadowRoot.getElementById(
+                'uda-autoplay-continue',
+            );
 
             continueButton?.click();
-            expect(trigger).toHaveBeenCalledWith('ContinuePlay', { action: 'ContinuePlay' });
+            expect(trigger).toHaveBeenCalledWith('ContinuePlay', {
+                action: 'ContinuePlay',
+            });
 
-            exitButton?.click();
-            expect(trigger).toHaveBeenCalledWith('PausePlay', { action: 'PausePlay' });
+            // Exit handling is delegated to the onExit callback passed to getToolTipElement.
+            const onExit = (getToolTipElement as jest.Mock).mock.calls[0][2];
+            onExit();
+            expect(trigger).toHaveBeenCalledWith('PausePlay', {
+                action: 'PausePlay',
+            });
         });
 
         it('should focus and click the invoking node when enabled', () => {
@@ -128,13 +168,20 @@ describe('Tooltip Functions', () => {
     describe('updateTooltipPosition', () => {
         it('should update Popper.js instance options with the new position', () => {
             addToolTip(invokingNode, tooltipNode, null, null);
-            
+
             // Get the mock popper instance that was created inside addToolTip
-            const popperInstance = (createPopperLite as jest.Mock).mock.results[0].value;
+            const popperInstance = (createPopperLite as jest.Mock).mock
+                .results[0].value;
 
             updateTooltipPosition('bottom');
 
-            expect(getTooltipPositionClass).toHaveBeenCalledWith(expect.any(HTMLElement), expect.any(HTMLElement), 'bottom', 'top', expect.any(Array));
+            expect(getTooltipPositionClass).toHaveBeenCalledWith(
+                expect.any(HTMLElement),
+                expect.any(HTMLElement),
+                'bottom',
+                'top',
+                expect.any(Array),
+            );
             expect(popperInstance.setOptions).toHaveBeenCalled();
         });
     });
@@ -143,15 +190,15 @@ describe('Tooltip Functions', () => {
         it('should remove the tooltip element from the shadow DOM', () => {
             // First, add the tooltip, which also creates the element to be removed.
             addToolTip(invokingNode, tooltipNode, null, null);
-            
+
             // Manually add the tooltip element to the shadow root for the test
             const tooltipElement = getToolTipElement('', false);
             shadowRoot.appendChild(tooltipElement);
-            
+
             expect(shadowRoot.getElementById('uda-tooltip')).not.toBeNull();
 
             removeToolTip();
-            
+
             expect(shadowRoot.getElementById('uda-tooltip')).toBeNull();
         });
     });

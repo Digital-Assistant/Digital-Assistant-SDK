@@ -5,15 +5,15 @@
  */
 
 export interface AuthConfigPropTypes {
-  id: string;
-  email?: string;
-  token?: string;
-  [key: string]: any;
+    id: string;
+    email?: string;
+    token?: string;
+    [key: string]: any;
 }
 
 // assigning default values to the default configuration
 export const AuthConfig: AuthConfigPropTypes = {
-  id: '',
-  email: '',
-  token: ''
+    id: '',
+    email: '',
+    token: '',
 };

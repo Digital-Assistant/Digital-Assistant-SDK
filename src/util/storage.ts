@@ -25,15 +25,15 @@ declare const browser: any; // Firefox, Safari use 'browser' namespace
  * Priority: browser API (Firefox/Safari) > chrome API (Chrome/Edge/Opera/Brave)
  */
 function getBrowserAPI(): any {
-  // Firefox, Safari use 'browser' namespace
-  if (typeof browser !== 'undefined' && browser.storage) {
-    return browser;
-  }
-  // Chrome, Edge, Opera, Brave use 'chrome' namespace
-  if (typeof chrome !== 'undefined' && chrome.storage) {
-    return chrome;
-  }
-  return null;
+    // Firefox, Safari use 'browser' namespace
+    if (typeof browser !== 'undefined' && browser.storage) {
+        return browser;
+    }
+    // Chrome, Edge, Opera, Brave use 'chrome' namespace
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+        return chrome;
+    }
+    return null;
 }
 
 // Detect the current browser environment.
@@ -45,30 +45,30 @@ let isServiceWorker = false; // Flag to indicate if running in a service worker 
 
 // Check if we're in a service worker context (no window object)
 if (typeof window === 'undefined' && typeof self !== 'undefined') {
-  isServiceWorker = true;
+    isServiceWorker = true;
 }
 
 // Detect browser extension environment for all Chromium-based and Firefox browsers
 if (detectedBrowser) {
-  const browserName = detectedBrowser.name.toLowerCase();
-  const extensionBrowsers = [
-    'chrome',
-    'edge',
-    'edge-chromium',
-    'edge-ios',
-    'firefox',
-    'safari',
-    'opera',
-    'brave',
-    'chromium-webview'
-  ];
+    const browserName = detectedBrowser.name.toLowerCase();
+    const extensionBrowsers = [
+        'chrome',
+        'edge',
+        'edge-chromium',
+        'edge-ios',
+        'firefox',
+        'safari',
+        'opera',
+        'brave',
+        'chromium-webview',
+    ];
 
-  if (extensionBrowsers.some(name => browserName.includes(name))) {
-    enablePlugin = true;
-    browserVar = browserAPI || detectedBrowser;
-  } else {
-    browserVar = detectedBrowser;
-  }
+    if (extensionBrowsers.some((name) => browserName.includes(name))) {
+        enablePlugin = true;
+        browserVar = browserAPI || detectedBrowser;
+    } else {
+        browserVar = detectedBrowser;
+    }
 }
 
 /**
@@ -77,117 +77,124 @@ if (detectedBrowser) {
  * with either the browser's `localStorage` or a browser extension's `chrome.storage.local`.
  */
 export class StorageUtil {
-  /**
-   * A static flag indicating whether the UDA browser plugin is enabled.
-   * This flag can be set externally to control the storage behavior.
-   */
-  public static UDABrowserPlugin = false;
+    /**
+     * A static flag indicating whether the UDA browser plugin is enabled.
+     * This flag can be set externally to control the storage behavior.
+     */
+    public static UDABrowserPlugin = false;
 
-  /**
-   * Adds data to the appropriate storage mechanism (extension storage or local storage).
-   *
-   * @param data The data to be added.
-   * @param key The key under which to store the data.
-   * @param convertToString If `true`, the data will be JSON.stringified before storing. Defaults to `true`.
-   * @returns A Promise that resolves when the data is successfully added to the storage.
-   */
-  public static async add(data: any, key: string, convertToString: boolean = true): Promise<void> {
-    const extensionAPI = getBrowserAPI();
+    /**
+     * Adds data to the appropriate storage mechanism (extension storage or local storage).
+     *
+     * @param data The data to be added.
+     * @param key The key under which to store the data.
+     * @param convertToString If `true`, the data will be JSON.stringified before storing. Defaults to `true`.
+     * @returns A Promise that resolves when the data is successfully added to the storage.
+     */
+    public static async add(
+        data: any,
+        key: string,
+        convertToString: boolean = true,
+    ): Promise<void> {
+        const extensionAPI = getBrowserAPI();
 
-    // Try browser extension storage first (works in all browsers)
-    if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
-      const storageData: { [key: string]: any } = {};
-      storageData[key] = (convertToString)?JSON.stringify(data):data;
-      return browserVar.storage.local.set(storageData);
-    } else if (isServiceWorker && extensionAPI?.storage) {
-      // Service worker context - use extension API (cross-browser)
-      const storageData: { [key: string]: any } = {};
-      storageData[key] = (convertToString)?JSON.stringify(data):data;
-      return extensionAPI.storage.local.set(storageData);
-    } else if (typeof window !== 'undefined' && window.localStorage) {
-      // Web context - use localStorage
-      const storageData = (convertToString)?JSON.stringify(data):data;
-      return window.localStorage.setItem(key, storageData);
+        // Try browser extension storage first (works in all browsers)
+        if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
+            const storageData: { [key: string]: any } = {};
+            storageData[key] = convertToString ? JSON.stringify(data) : data;
+            return browserVar.storage.local.set(storageData);
+        } else if (isServiceWorker && extensionAPI?.storage) {
+            // Service worker context - use extension API (cross-browser)
+            const storageData: { [key: string]: any } = {};
+            storageData[key] = convertToString ? JSON.stringify(data) : data;
+            return extensionAPI.storage.local.set(storageData);
+        } else if (typeof window !== 'undefined' && window.localStorage) {
+            // Web context - use localStorage
+            const storageData = convertToString ? JSON.stringify(data) : data;
+            return window.localStorage.setItem(key, storageData);
+        }
     }
-  }
 
-  /**
-   * Retrieves data from the appropriate storage mechanism.
-   *
-   * @param key The key associated with the data to be retrieved.
-   * @param parseAsJson If `true`, the retrieved data will be JSON.parsed. Defaults to `true`.
-   * @returns A Promise that resolves with the retrieved data, or `null` if the key is not found.
-   */
-  public static async get(key: string, parseAsJson: boolean = true): Promise<any> {
-    const extensionAPI = getBrowserAPI();
+    /**
+     * Retrieves data from the appropriate storage mechanism.
+     *
+     * @param key The key associated with the data to be retrieved.
+     * @param parseAsJson If `true`, the retrieved data will be JSON.parsed. Defaults to `true`.
+     * @returns A Promise that resolves with the retrieved data, or `null` if the key is not found.
+     */
+    public static async get(
+        key: string,
+        parseAsJson: boolean = true,
+    ): Promise<any> {
+        const extensionAPI = getBrowserAPI();
 
-    // Try browser extension storage first (works in all browsers)
-    if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
-      const result = await browserVar.storage.local.get([key]);
-      if(result[key]){
-          return (parseAsJson)?JSON.parse(result[key]):result[key];
-      } else {
-          return null;
-      }
-    } else if (isServiceWorker && extensionAPI?.storage) {
-      // Service worker context - use extension API (cross-browser)
-      const result = await extensionAPI.storage.local.get([key]);
-      if(result[key]){
-          return (parseAsJson)?JSON.parse(result[key]):result[key];
-      } else {
-          return null;
-      }
-    } else if (typeof window !== 'undefined' && window.localStorage) {
-      // Web context - use localStorage
-      const item = window.localStorage.getItem(key);
-      if(item){
-          return (parseAsJson)?JSON.parse(item):item;
-      } else {
-          return null;
-      }
+        // Try browser extension storage first (works in all browsers)
+        if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
+            const result = await browserVar.storage.local.get([key]);
+            if (result[key]) {
+                return parseAsJson ? JSON.parse(result[key]) : result[key];
+            } else {
+                return null;
+            }
+        } else if (isServiceWorker && extensionAPI?.storage) {
+            // Service worker context - use extension API (cross-browser)
+            const result = await extensionAPI.storage.local.get([key]);
+            if (result[key]) {
+                return parseAsJson ? JSON.parse(result[key]) : result[key];
+            } else {
+                return null;
+            }
+        } else if (typeof window !== 'undefined' && window.localStorage) {
+            // Web context - use localStorage
+            const item = window.localStorage.getItem(key);
+            if (item) {
+                return parseAsJson ? JSON.parse(item) : item;
+            } else {
+                return null;
+            }
+        }
+        return null;
     }
-    return null;
-  }
 
-  /**
-   * Removes data from the appropriate storage mechanism.
-   *
-   * @param key The key associated with the data to be removed.
-   * @returns A Promise that resolves when the data is successfully removed from the storage.
-   */
-  public static async remove(key: string): Promise<void> {
-    const extensionAPI = getBrowserAPI();
+    /**
+     * Removes data from the appropriate storage mechanism.
+     *
+     * @param key The key associated with the data to be removed.
+     * @returns A Promise that resolves when the data is successfully removed from the storage.
+     */
+    public static async remove(key: string): Promise<void> {
+        const extensionAPI = getBrowserAPI();
 
-    // Try browser extension storage first (works in all browsers)
-    if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
-      return browserVar.storage.local.remove([key]);
-    } else if (isServiceWorker && extensionAPI?.storage) {
-      // Service worker context - use extension API (cross-browser)
-      return extensionAPI.storage.local.remove([key]);
-    } else if (typeof window !== 'undefined' && window.localStorage) {
-      return window.localStorage.removeItem(key);
+        // Try browser extension storage first (works in all browsers)
+        if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
+            return browserVar.storage.local.remove([key]);
+        } else if (isServiceWorker && extensionAPI?.storage) {
+            // Service worker context - use extension API (cross-browser)
+            return extensionAPI.storage.local.remove([key]);
+        } else if (typeof window !== 'undefined' && window.localStorage) {
+            return window.localStorage.removeItem(key);
+        }
     }
-  }
 
-  /**
-   * Clears all data from the appropriate storage mechanism.
-   *
-   * @returns A Promise that resolves when the storage is successfully cleared.
-   */
-  public static async clear(): Promise<void> {
-    const extensionAPI = getBrowserAPI();
+    /**
+     * Clears all data from the appropriate storage mechanism.
+     *
+     * @returns A Promise that resolves when the storage is successfully cleared.
+     */
+    public static async clear(): Promise<void> {
+        const extensionAPI = getBrowserAPI();
 
-    // Try browser extension storage first (works in all browsers)
-    if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
-      return browserVar.storage.local.clear();
-    } else if (isServiceWorker && extensionAPI?.storage) {
-      // Service worker context - use extension API (cross-browser)
-      return extensionAPI.storage.local.clear();
-    } else if (typeof window !== 'undefined' && window.localStorage) {
-      // Web context - use localStorage
-      return window.localStorage.clear();
+        // Try browser extension storage first (works in all browsers)
+        if (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) {
+            return browserVar.storage.local.clear();
+        } else if (isServiceWorker && extensionAPI?.storage) {
+            // Service worker context - use extension API (cross-browser)
+            return extensionAPI.storage.local.clear();
+        } else if (typeof window !== 'undefined' && window.localStorage) {
+            // Web context - use localStorage
+            return window.localStorage.clear();
+        }
     }
-  }
 
     /**
      * Sets data to storage. Checks for browser extension context first, then falls back to localStorage.
@@ -236,9 +243,13 @@ export class StorageUtil {
         const extensionAPI = getBrowserAPI();
 
         // Check if we're in a browser extension or service worker context
-        if ((this.UDABrowserPlugin && enablePlugin && browserVar?.storage) ||
-            (isServiceWorker && extensionAPI?.storage)) {
-            console.warn(`getFromStore() is synchronous and cannot access extension storage. Use async get() method instead for key: ${key}`);
+        if (
+            (this.UDABrowserPlugin && enablePlugin && browserVar?.storage) ||
+            (isServiceWorker && extensionAPI?.storage)
+        ) {
+            console.warn(
+                `getFromStore() is synchronous and cannot access extension storage. Use async get() method instead for key: ${key}`,
+            );
             return undefined;
         }
 
@@ -247,7 +258,9 @@ export class StorageUtil {
             const data = window.localStorage.getItem(key);
             if (data) return !isRaw ? JSON.parse(data) : data;
         } else {
-            console.warn('Storage not available. Use async get() method instead.');
+            console.warn(
+                'Storage not available. Use async get() method instead.',
+            );
             return undefined;
         }
     };
@@ -303,5 +316,5 @@ export const UDAStorageService = {
      */
     clear: async (): Promise<void> => {
         return StorageUtil.clear();
-    }
+    },
 };

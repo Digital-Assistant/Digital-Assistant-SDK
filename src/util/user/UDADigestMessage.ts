@@ -10,10 +10,12 @@
  *
  */
 export const UDADigestMessage = async (textMessage: any, algorithm: any) => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(textMessage);
-  const hash = await crypto.subtle.digest(algorithm, data);
-  const hashArray = Array.from(new Uint8Array(hash));                     // convert buffer to byte array
-  const hashHex: any = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); // convert bytes to hex string
-  return hashHex;
-}
+    const encoder = new TextEncoder();
+    const data = encoder.encode(textMessage);
+    const hash = await crypto.subtle.digest(algorithm, data);
+    const hashArray = Array.from(new Uint8Array(hash)); // convert buffer to byte array
+    const hashHex: any = hashArray
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join(''); // convert bytes to hex string
+    return hashHex;
+};

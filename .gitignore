@@ -2,10 +2,13 @@
 node_modules/
 
 # Build outputs
+dist/
 build/
 
-# Environment files
-environments/
+# Environment files (secrets — never commit)
+.env
+environments/*
+!environments/local.env.example
 
 # Test
 coverage/
@@ -17,5 +20,4 @@ coverage/
 .idea/
 
 # Misc
-package-lock.json
 .venv/

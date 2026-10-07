@@ -22,7 +22,8 @@ describe('storageMiddleware', () => {
     it('should save recording state when a recording/ action is dispatched', () => {
         store.dispatch(setIsRecording(true));
         expect(StorageUtil.setToStore).toHaveBeenCalled();
-        const [savedState, key] = (StorageUtil.setToStore as jest.Mock).mock.calls[0];
+        const [savedState, key] = (StorageUtil.setToStore as jest.Mock).mock
+            .calls[0];
         expect(key).toBe('UDAActiveRecordingDataRedux');
         expect(savedState).toMatchObject({ isRecording: true });
     });
@@ -38,8 +39,12 @@ describe('storageMiddleware', () => {
     });
 
     it('should log error and not throw if StorageUtil.setToStore throws', () => {
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-        (StorageUtil.setToStore as jest.Mock).mockImplementationOnce(() => { throw new Error('storage fail'); });
+        const consoleSpy = jest
+            .spyOn(console, 'error')
+            .mockImplementation(() => {});
+        (StorageUtil.setToStore as jest.Mock).mockImplementationOnce(() => {
+            throw new Error('storage fail');
+        });
         expect(() => store.dispatch(setIsRecording(false))).not.toThrow();
         expect(consoleSpy).toHaveBeenCalled();
         consoleSpy.mockRestore();

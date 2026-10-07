@@ -1,4 +1,4 @@
-import { parseDomain, ParseResultType } from "parse-domain";
+import { parseDomain, ParseResultType } from 'parse-domain';
 
 /**
  * Fetches the top-level domain of the current window's host.
@@ -20,14 +20,14 @@ export const fetchDomain = (): string | null => {
 
     // If the global configuration enables processing for all domains, parse the top-level domain.
     // @ts-ignore - UDAGlobalConfig is added at runtime
-    if(window.UDAGlobalConfig && window.UDAGlobalConfig.enableForAllDomains){
+    if (window.UDAGlobalConfig && window.UDAGlobalConfig.enableForAllDomains) {
         const parseResult = parseDomain(finalDomain); // Parse the domain using `parse-domain` library.
 
         switch (parseResult.type) {
             case ParseResultType.Listed: {
                 // If the domain is listed, reconstruct the top-level domain.
                 const { domain, topLevelDomains } = parseResult;
-                finalDomain = domain+'.'+topLevelDomains.join('.');
+                finalDomain = domain + '.' + topLevelDomains.join('.');
                 break;
             }
             case ParseResultType.Reserved:
@@ -42,8 +42,8 @@ export const fetchDomain = (): string | null => {
                 // For any other parse result type, log the hostname.
                 const { hostname } = parseResult;
                 console.log(hostname);
-                // `finalDomain` remains `window.location.host` in this case.
+            // `finalDomain` remains `window.location.host` in this case.
         }
     }
     return finalDomain;
-}
+};

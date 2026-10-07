@@ -1,10 +1,10 @@
-import {inArray} from "../inArray";
-import {processNodeForClickData} from "../node/processNodeForClickData"
-import {CONFIG} from "../../config";
-import {getNodeInfo, nodeConfig} from "../node";
-import { getAbsoluteOffsets } from "../node/getAbsoluteOffsets";
-import mapClickedElementToHtmlFormElement from "./mapClickedElementToHtmlFormElement";
-import {UDAConsoleLogger, UDAErrorLogger} from "../error/error-log";
+import { inArray } from '../inArray';
+import { processNodeForClickData } from '../node/processNodeForClickData';
+import { CONFIG } from '../../config';
+import { getNodeInfo, nodeConfig } from '../node';
+import { getAbsoluteOffsets } from '../node/getAbsoluteOffsets';
+import mapClickedElementToHtmlFormElement from './mapClickedElementToHtmlFormElement';
+import { UDAConsoleLogger, UDAErrorLogger } from '../error/error-log';
 
 /**
  * Saves click data for a given node to be sent to a REST service.
@@ -20,11 +20,11 @@ import {UDAConsoleLogger, UDAErrorLogger} from "../error/error-log";
 export const saveClickData = async (node: any, text: string, meta: any) => {
     try {
         if (!node || !text || !meta) {
-            throw new Error("Required parameters are missing");
+            throw new Error('Required parameters are missing');
         }
 
         // Process the node to get its JSON representation.
-        let objectData: any = await processNodeForClickData(node);
+        const objectData: any = await processNodeForClickData(node);
 
         // Assign the provided meta object to the processed node data.
         objectData.meta = meta;
@@ -37,11 +37,19 @@ export const saveClickData = async (node: any, text: string, meta: any) => {
 
         // Handle special nodes by assigning a custom display text if configured.
         if (
-            inArray(node.nodeName.toLowerCase(), nodeConfig.ignoreNodesFromIndexing) &&
-            nodeConfig.customNameForSpecialNodes.hasOwnProperty(node.nodeName.toLowerCase())
+            inArray(
+                node.nodeName.toLowerCase(),
+                nodeConfig.ignoreNodesFromIndexing,
+            ) &&
+            nodeConfig.customNameForSpecialNodes.hasOwnProperty(
+                node.nodeName.toLowerCase(),
+            )
         ) {
             // @ts-ignore
-            objectData.meta.displayText = nodeConfig.customNameForSpecialNodes[node.nodeName.toLowerCase()];
+            objectData.meta.displayText =
+                nodeConfig.customNameForSpecialNodes[
+                    node.nodeName.toLowerCase()
+                ];
         }
 
         // Set additional properties like outerHTML if not already present.
@@ -65,10 +73,12 @@ export const saveClickData = async (node: any, text: string, meta: any) => {
         // If node type detection is enabled, map the clicked element to an HTML form element type.
         const { enableNodeTypeChangeSelection } = CONFIG;
         if (enableNodeTypeChangeSelection) {
-            objectData.meta.systemDetected = mapClickedElementToHtmlFormElement(node);
+            objectData.meta.systemDetected =
+                mapClickedElementToHtmlFormElement(node);
             // If a specific input element type is detected (not 'others'), set it as the selected element.
-            if (objectData.meta.systemDetected.inputElement !== "others") {
-                objectData.meta.selectedElement = objectData.meta.systemDetected;
+            if (objectData.meta.systemDetected.inputElement !== 'others') {
+                objectData.meta.selectedElement =
+                    objectData.meta.systemDetected;
             }
         }
 
@@ -84,7 +94,7 @@ export const saveClickData = async (node: any, text: string, meta: any) => {
             urlpath: window.location.pathname,
             clickednodename: text,
             html5: 0, // Legacy field, typically 0.
-            clickedpath: "", // Legacy field, typically empty.
+            clickedpath: '', // Legacy field, typically empty.
             objectdata: jsonString,
         };
     } catch (error: any) {

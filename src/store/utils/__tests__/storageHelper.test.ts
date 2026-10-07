@@ -1,12 +1,22 @@
-import { loadFromStorage, saveToStorage, removeFromStorage } from '../storageHelper';
+import {
+    loadFromStorage,
+    saveToStorage,
+    removeFromStorage,
+} from '../storageHelper';
 
 const localStorageMock = (() => {
     let store: Record<string, string> = {};
     return {
         getItem: jest.fn((key: string) => store[key] ?? null),
-        setItem: jest.fn((key: string, value: string) => { store[key] = value; }),
-        removeItem: jest.fn((key: string) => { delete store[key]; }),
-        clear: jest.fn(() => { store = {}; }),
+        setItem: jest.fn((key: string, value: string) => {
+            store[key] = value;
+        }),
+        removeItem: jest.fn((key: string) => {
+            delete store[key];
+        }),
+        clear: jest.fn(() => {
+            store = {};
+        }),
     };
 })();
 
@@ -31,7 +41,9 @@ describe('storageHelper', () => {
         });
 
         it('should return defaultValue and log error on JSON parse failure', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+            const consoleSpy = jest
+                .spyOn(console, 'error')
+                .mockImplementation(() => {});
             localStorageMock.getItem.mockReturnValueOnce('invalid-json{{{');
             const result = loadFromStorage('badKey', 'default');
             expect(result).toBe('default');
@@ -40,8 +52,12 @@ describe('storageHelper', () => {
         });
 
         it('should return defaultValue and log error when localStorage throws', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-            localStorageMock.getItem.mockImplementationOnce(() => { throw new Error('storage error'); });
+            const consoleSpy = jest
+                .spyOn(console, 'error')
+                .mockImplementation(() => {});
+            localStorageMock.getItem.mockImplementationOnce(() => {
+                throw new Error('storage error');
+            });
             const result = loadFromStorage('errorKey', 99);
             expect(result).toBe(99);
             expect(consoleSpy).toHaveBeenCalled();
@@ -52,12 +68,19 @@ describe('storageHelper', () => {
     describe('saveToStorage', () => {
         it('should save serialized value to localStorage', () => {
             saveToStorage('testKey', { value: 'hello' });
-            expect(localStorageMock.setItem).toHaveBeenCalledWith('testKey', JSON.stringify({ value: 'hello' }));
+            expect(localStorageMock.setItem).toHaveBeenCalledWith(
+                'testKey',
+                JSON.stringify({ value: 'hello' }),
+            );
         });
 
         it('should log error when localStorage.setItem throws', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-            localStorageMock.setItem.mockImplementationOnce(() => { throw new Error('write error'); });
+            const consoleSpy = jest
+                .spyOn(console, 'error')
+                .mockImplementation(() => {});
+            localStorageMock.setItem.mockImplementationOnce(() => {
+                throw new Error('write error');
+            });
             saveToStorage('failKey', { x: 1 });
             expect(consoleSpy).toHaveBeenCalled();
             consoleSpy.mockRestore();
@@ -68,12 +91,18 @@ describe('storageHelper', () => {
         it('should remove key from localStorage', () => {
             localStorageMock.setItem('removeMe', 'value');
             removeFromStorage('removeMe');
-            expect(localStorageMock.removeItem).toHaveBeenCalledWith('removeMe');
+            expect(localStorageMock.removeItem).toHaveBeenCalledWith(
+                'removeMe',
+            );
         });
 
         it('should log error when localStorage.removeItem throws', () => {
-            const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-            localStorageMock.removeItem.mockImplementationOnce(() => { throw new Error('remove error'); });
+            const consoleSpy = jest
+                .spyOn(console, 'error')
+                .mockImplementation(() => {});
+            localStorageMock.removeItem.mockImplementationOnce(() => {
+                throw new Error('remove error');
+            });
             removeFromStorage('failKey');
             expect(consoleSpy).toHaveBeenCalled();
             consoleSpy.mockRestore();

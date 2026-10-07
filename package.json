@@ -2,6 +2,17 @@
   "name": "@digital-assistant/core",
   "version": "1.0.0",
   "description": "Core SDK for Digital Assistant",
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Digital-Assistant/Digital-Assistant-SDK.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Digital-Assistant/Digital-Assistant-SDK/issues"
+  },
+  "homepage": "https://github.com/Digital-Assistant/Digital-Assistant-SDK#readme",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
@@ -29,11 +40,21 @@
     "build:prod": "webpack --env build=production --mode=production",
     "build:dev": "webpack --env build=development --mode=development",
     "build:qa": "webpack --env build=qa --mode=production",
+    "build:full": "npm run clean && npm run build",
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "env:generate": "node scripts/generate-env.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run format:check && npm run typecheck && npm test",
+    "security": "npm audit --omit=dev --audit-level=high && npm audit --audit-level=critical",
+    "git:clean:dry": "node scripts/git-branch-janitor.mjs",
+    "git:clean": "node scripts/git-branch-janitor.mjs --apply",
+    "prepublishOnly": "npm run check && npm run build",
     "postinstall": "node ./scripts/postinstall.js"
   },
   "author": "Yureswar Ravuri <yureshwar@gmail.com>",

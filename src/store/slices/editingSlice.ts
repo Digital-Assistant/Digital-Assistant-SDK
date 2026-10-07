@@ -36,7 +36,14 @@ export const editingSlice = createSlice({
     name: 'editing',
     initialState,
     reducers: {
-        startEditingStep: (state, action: PayloadAction<{recordingId: number, editingStepId: number, editingStepData: any}>) => {
+        startEditingStep: (
+            state,
+            action: PayloadAction<{
+                recordingId: number;
+                editingStepId: number;
+                editingStepData: any;
+            }>,
+        ) => {
             state.recordingId = action.payload.recordingId;
             state.editingStepId = action.payload.editingStepId;
             state.editingStepOriginalData = action.payload.editingStepData;
@@ -47,7 +54,7 @@ export const editingSlice = createSlice({
                 editingStepId: action.payload.editingStepId,
                 editingStepOriginalData: action.payload.editingStepData,
                 validationRequired: false,
-                validationCompleted: false
+                validationCompleted: false,
             });
         },
         cancelEditingStep: (state: EditingStepState) => {
@@ -63,7 +70,7 @@ export const editingSlice = createSlice({
                 editingStepId: null,
                 validationRequired: false,
                 validationCompleted: false,
-                editingStepOriginalData: null
+                editingStepOriginalData: null,
             });
         },
         startValidation: (state) => {
@@ -73,7 +80,7 @@ export const editingSlice = createSlice({
             saveStateToStorage({
                 ...state,
                 validationRequired: true,
-                validationCompleted: false
+                validationCompleted: false,
             });
         },
         markValidationCompleted: (state) => {
@@ -81,7 +88,7 @@ export const editingSlice = createSlice({
             // Save to localStorage after state update
             saveStateToStorage({
                 ...state,
-                validationCompleted: true
+                validationCompleted: true,
             });
         },
         resetValidationState: (state) => {
@@ -100,5 +107,11 @@ export const editingSlice = createSlice({
     },
 });
 
-export const { startValidation, markValidationCompleted, resetValidationState, startEditingStep, cancelEditingStep } = editingSlice.actions;
+export const {
+    startValidation,
+    markValidationCompleted,
+    resetValidationState,
+    startEditingStep,
+    cancelEditingStep,
+} = editingSlice.actions;
 export default editingSlice.reducer;
