@@ -73,6 +73,7 @@ module.exports = (env, argv) => {
                                 // Type checking is handled by ForkTsCheckerWebpackPlugin
                                 // DISABLED for debugging: transpileOnly can interfere with source maps
                                 transpileOnly: false,
+                                configFile: 'tsconfig.build.json',
                                 compilerOptions: {
                                     sourceMap: true,
                                 }
@@ -106,7 +107,7 @@ module.exports = (env, argv) => {
                 process: 'process/browser',
             }),
             // Run type checking in a separate process for faster builds
-            new ForkTsCheckerWebpackPlugin(),
+            new ForkTsCheckerWebpackPlugin({ typescript: { configFile: 'tsconfig.build.json' } }),
             // Load environment variables from .env files
             new Dotenv({
                 path: `${envFile}`,
