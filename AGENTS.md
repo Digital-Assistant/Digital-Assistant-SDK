@@ -66,7 +66,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 
 - Webpack config: `webpack.config.js` (single config, `--env build=<local|development|production|qa>`). Output goes to `dist/` (`index.cjs.js`, `index.esm.js`, `index.d.ts`).
 - Environment variables are loaded per env via dotenv-webpack from `environments/<env>.env` (gitignored). `environments/local.env.example` is the committed schema; it activates dotenv-webpack `safe` mode, so every key it declares must be present in `<env>.env` (empty values are allowed). Local dev copies the example to `local.env`; CI generates `local.env` via `npm run env:generate` from environment variables.
-- `scripts/postinstall.js` patches `node_modules/domjson/dist/domJSON.js` (adds optional chaining for `window.location`, swaps `setImmediate` → `setTimeout`). This runs on install; if domjson behaviors break, reinstall and re-patch.
+- `scripts/postinstall.js` patches `node_modules/domjson/dist/domJSON.js` (adds optional chaining for `window.location`, swaps `setImmediate` → `setTimeout`). It runs via the `prepare` script (local `npm install`/`npm ci` and before `npm pack`/`npm publish`), never in consumer installs; if domjson behaviors break, reinstall and re-patch.
 - `axios` is a peer dependency (`^1.0.0`) — host app must provide it.
 - Browser polyfills (assert, browserify-zlib, os, path, stream, url, process) are wired through webpack for browser builds.
 
@@ -87,7 +87,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 - **Circular references**: `util/node/removeCircularReference` strips circular structures before serialization; payloads that fail `JSON.stringify` usually bypassed this.
 - **Click-node matching**: `checkNode`/`isClickableNode`/`processDistanceOfNodes` implement the core "did the user click the right element" logic. Small changes ripple into recording validation and playback — test `searchNodes`/`recordSequence` thoroughly.
 - **Redux singleton**: `src/store` is a single global store instance; consumers interact via `DigitalAssistantCore.dispatch/getState/getSliceState`, not by creating new stores.
-- **domjson patch**: after `npm install`, `postinstall` rewrites `node_modules/domjson` in place. Re-running install without the patch breaks DOM snapshotting.
+- **domjson patch**: after `npm install`, the `prepare` script rewrites `node_modules/domjson` in place. Re-running install without the patch breaks DOM snapshotting.
 - **ESM-only deps**: `parse-domain` and `winston` are mocked in `test/setup.ts` because they break Jest's CommonJS runtime — keep those mocks intact when touching tests.
 - **`dist/` is untracked**: build output is gitignored and generated in CI (`npm run build`); never commit it. Rebuild locally to verify the bundle compiles.
 
