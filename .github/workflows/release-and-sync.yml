@@ -9,16 +9,30 @@ permissions:
   contents: write
   pull-requests: write
 
+# PRs opened with GITHUB_TOKEN do not trigger workflows, so required checks never
+# report on them. Release PRs and back-merge PRs are therefore opened with a
+# GitHub App installation token (repo variable RELEASE_APP_ID, secret
+# RELEASE_APP_PRIVATE_KEY). See RELEASE_PROCESS.md.
+
 jobs:
   release-please:
     name: Release Please
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - id: release
         uses: googleapis/release-please-action@v4
         with:
+          token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
           target-branch: main
@@ -29,14 +43,21 @@ jobs:
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Generate App Token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Create Back-Merge PR
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           gh pr create \
             --base dev \
@@ -46,31 +67,41 @@ jobs:
             || echo "Back-merge PR not created (already exists or nothing to sync)."
 
   # ---------------------------------------------------------------------------
-  # npm publishing is intentionally DISABLED for now (Phase 2 decision).
+  # npm publishing is intentionally DISABLED for now.
   #
-  # To enable it later:
-  #   1. Configure npm Trusted Publishing for owner 'Digital-Assistant',
+  # Done: package renamed to @udan/digital-assistant-core, consumer-safe install
+  # (domjson patch runs from `prepare`), production build in prepublishOnly,
+  # tests excluded from the packed declarations.
+  #
+  # To enable it:
+  #   1. Make sure the package exists on npm (one-time manual first publish).
+  #   2. Configure npm Trusted Publishing for owner 'Digital-Assistant',
   #      repository 'Digital-Assistant-SDK', workflow 'release-and-sync.yml'
   #      (npmjs.com -> package -> Settings -> Trusted Publishing). No NPM_TOKEN
   #      is required; the job authenticates via GitHub OIDC (id-token: write).
-  #   2. Ensure the publish build has a working production env (see
-  #      environments/local.env.example and scripts/generate-env.mjs).
-  #   3. Uncomment the job below.
+  #   3. Create a GitHub Environment named 'production' with the build-time
+  #      variables/secrets (see environments/local.env.example). Every value is
+  #      inlined into the public bundle; keep secrets out until build-time config
+  #      moves to runtime host-provided config.
+  #   4. Uncomment the job below.
   #
   # publish:
   #   name: Publish to npm
   #   needs: release-please
   #   if: ${{ needs.release-please.outputs.release_created == 'true' }}
   #   runs-on: ubuntu-latest
+  #   environment: production
   #   permissions:
   #     id-token: write
   #     contents: read
   #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
+  #     - name: Checkout Release Tag
+  #       uses: actions/checkout@v5
+  #       with:
+  #         ref: ${{ needs.release-please.outputs.tag_name }}
   #
   #     - name: Setup Node.js 24
-  #       uses: actions/setup-node@v4
+  #       uses: actions/setup-node@v5
   #       with:
   #         node-version: 24
   #         registry-url: https://registry.npmjs.org/
@@ -79,6 +110,14 @@ jobs:
   #     - name: Install Dependencies
   #       run: npm ci
   #
+  #     - name: Generate production environment
+  #       env:
+  #         BUILD_ENV: production
+  #         baseURL: ${{ vars.BASE_URL }}
+  #         # ... remaining keys from environments/local.env.example
+  #       run: npm run env:generate
+  #
+  #     # prepublishOnly runs check, clean and build:prod.
   #     - name: Publish to npm
   #       run: npm publish --provenance --access public
   # ---------------------------------------------------------------------------
