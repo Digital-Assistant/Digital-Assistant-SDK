@@ -1,6 +1,7 @@
 import { addBodyEvents } from './addBodyEvents';
 import { CONFIG } from '../../config';
 import { StorageUtil } from '../storage';
+import { UDAConsoleLogger } from '../error';
 
 // Timer variable to debounce DOM change events.
 export let timer: any = null;
@@ -39,7 +40,7 @@ function getObserver(): MutationObserver {
                         ) == 'true';
 
                     if (isRecording) {
-                        console.log('Adding body events.');
+                        UDAConsoleLogger.info('Adding body events.', 3);
                         // Re-attach event listeners to the body and its children.
                         await addBodyEvents();
                     }
@@ -75,7 +76,7 @@ export const observer = {
  * child list modifications, and subtree changes on the `document.body`.
  */
 export function initializeDomChanges() {
-    console.log('Initialized dom changes.');
+    UDAConsoleLogger.info('Initialized dom changes.', 3);
     getObserver().observe(document.body, {
         attributes: true,
         childList: true,

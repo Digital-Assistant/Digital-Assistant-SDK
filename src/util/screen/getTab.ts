@@ -1,4 +1,5 @@
 import { getActiveTabId, getBrowserVar, getUDABrowserPlugin } from '../browser';
+import { UDAConsoleLogger } from '../error';
 
 /**
  * Retrieves the currently active tab from the browser.
@@ -33,12 +34,12 @@ export const getTab = async () => {
             if (tab) {
                 return tab;
             } else {
-                console.log('No active tab identified.');
+                UDAConsoleLogger.info('No active tab identified.', 2);
                 return false;
             }
         } catch (error) {
             console.error('Error getting tab by ID:', error);
-            console.log('No active tab identified.'); // Log again as per original logic
+            UDAConsoleLogger.info('No active tab identified.', 2);
             return false;
         }
     }
