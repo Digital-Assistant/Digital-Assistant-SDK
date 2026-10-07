@@ -163,5 +163,7 @@ therefore enforces production dependencies at `high` severity plus `critical` an
 
 **Release lifecycle:** version bumps, changelog generation, GitHub Releases, and the
 `main` → `dev` back-merge are automated via `.github/workflows/release-and-sync.yml`
-(npm publishing is currently disabled). **See `RELEASE_PROCESS.md` for the full step-by-step
+(npm publishing is currently disabled; the package is `@udan/digital-assistant-core`).
+Release Please and the back-merge job open PRs with a GitHub App token
+(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**

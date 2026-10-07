@@ -81,6 +81,22 @@ gh api -X PATCH repos/Digital-Assistant/Digital-Assistant-SDK \
   -f delete_branch_on_merge=true
 ```
 
+### Release App (CI on bot-opened PRs)
+
+PRs opened with the default `GITHUB_TOKEN` don't trigger workflows, so required checks
+never report on them. `release-and-sync.yml` therefore opens the Release PR and the
+back-merge PR with a GitHub App installation token
+(`actions/create-github-app-token`). One-time setup:
+
+1. Create a GitHub App in the `Digital-Assistant` org (webhook disabled) with repository
+   permissions **Contents: Read and write**, **Pull requests: Read and write**, and
+   **Issues: Read and write** (Release Please manages the `autorelease` labels).
+2. Install it on `Digital-Assistant-SDK` only.
+3. Store the App ID as repository variable `RELEASE_APP_ID` and a generated private key
+   as repository secret `RELEASE_APP_PRIVATE_KEY`.
+
+Without these, the release workflow fails on `main`.
+
 ## Branch Protection (Repository Rulesets)
 
 `main`, `dev`, and `qa` are protected by **repository rulesets** (the modern successor to
@@ -182,7 +198,31 @@ git branch <branch-name> <recovered-sha>
 
 ## npm Publishing (Disabled, Future)
 
-The `publish` job in `release-and-sync.yml` is intentionally commented out. To enable it:
+The package is published to npm as **`@udan/digital-assistant-core`** (npm org `udan`,
+`--access public`). The `publish` job in `release-and-sync.yml` is still commented out.
+
+**Prerequisites already in place:**
+
+- The domjson patch runs from the `prepare` script, so consumer installs don't run it
+  (`scripts/` is not published).
+- `prepublishOnly` runs `check`, `clean`, and `build:prod` (production mode, minified). It
+  needs `environments/production.env`.
+- The webpack build uses `tsconfig.build.json`, which keeps test files out of the emitted
+  declarations. `npm pack --dry-run` should list only `dist/`, `package.json`, and
+  `README.md`.
+
+**One-time manual first publish** (Trusted Publishing is configured per package, so the
+package must exist first):
+
+1. Check out the release tag and run `npm ci`.
+2. Generate `environments/production.env` with the non-secret values only (URLs, realm,
+   client ID, analytics ID) and leave `keycloakClientSecret`, `profanityKey`,
+   `googleTranslateApiKey`, and `googleAnalyticsSecretKey` empty:
+   `BUILD_ENV=production npm run env:generate` with only the non-secret variables exported.
+3. `npm login` as a member of the `udan` org, run `npm pack --dry-run`, grep the packed
+   bundles for each real secret value (expect no hits), then `npm publish --access public`.
+
+**To enable automated publishing:**
 
 1. **Configure npm Trusted Publishing** (GitHub OIDC — no stored token). On
    <https://npmjs.com> open the `@udan/digital-assistant-core` package →
@@ -191,11 +231,10 @@ The `publish` job in `release-and-sync.yml` is intentionally commented out. To e
    workflow **`release-and-sync.yml`**.
    The job signs with `--provenance` and authenticates via `id-token: write`; no
    `NPM_TOKEN` secret is required.
-2. Ensure a publish-grade build environment exists. `build:prod` requires
-   `environments/production.env`, generated from Secrets/Variables via
-   `npm run env:generate`.
-3. Uncomment the `publish` job in `.github/workflows/release-and-sync.yml` and adjust the
-   build/`files` config so `dist/` is produced and packed.
+2. Create a GitHub **Environment** named `production` holding the build-time variables
+   (see `environments/local.env.example`); the job generates `environments/production.env`
+   from it with `npm run env:generate`.
+3. Uncomment the `publish` job in `.github/workflows/release-and-sync.yml`.
 
 ## Security Note
 
