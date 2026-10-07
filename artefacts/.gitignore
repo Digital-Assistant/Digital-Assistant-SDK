@@ -1,5 +1,0 @@
-# Track the artefacts directory itself but not its contents.
-# This file is committed so the directory exists in git; everything
-# else inside artefacts/ is ignored.
-*
-!.gitignore
