@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-`@digital-assistant/core` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
+`@udan/digital-assistant-core` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
 
 Stack: TypeScript 4.9 (strict, `allowJs`), Redux Toolkit + redux-thunk, webpack 5 multi-env builds, Jest 30 (jsdom) + ts-jest, ESLint 8 + Prettier, i18next, Keycloak, winston (remote logging).
 
@@ -66,7 +66,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 
 - Webpack config: `webpack.config.js` (single config, `--env build=<local|development|production|qa>`). Output goes to `dist/` (`index.cjs.js`, `index.esm.js`, `index.d.ts`).
 - Environment variables are loaded per env via dotenv-webpack from `environments/<env>.env` (gitignored). `environments/local.env.example` is the committed schema; it activates dotenv-webpack `safe` mode, so every key it declares must be present in `<env>.env` (empty values are allowed). Local dev copies the example to `local.env`; CI generates `local.env` via `npm run env:generate` from environment variables.
-- `scripts/postinstall.js` patches `node_modules/domjson/dist/domJSON.js` (adds optional chaining for `window.location`, swaps `setImmediate` → `setTimeout`). This runs on install; if domjson behaviors break, reinstall and re-patch.
+- `scripts/postinstall.js` patches `node_modules/domjson/dist/domJSON.js` (adds optional chaining for `window.location`, swaps `setImmediate` → `setTimeout`). It runs via the `prepare` script (local `npm install`/`npm ci` and before `npm pack`/`npm publish`), never in consumer installs; if domjson behaviors break, reinstall and re-patch.
 - `axios` is a peer dependency (`^1.0.0`) — host app must provide it.
 - Browser polyfills (assert, browserify-zlib, os, path, stream, url, process) are wired through webpack for browser builds.
 
@@ -87,7 +87,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 - **Circular references**: `util/node/removeCircularReference` strips circular structures before serialization; payloads that fail `JSON.stringify` usually bypassed this.
 - **Click-node matching**: `checkNode`/`isClickableNode`/`processDistanceOfNodes` implement the core "did the user click the right element" logic. Small changes ripple into recording validation and playback — test `searchNodes`/`recordSequence` thoroughly.
 - **Redux singleton**: `src/store` is a single global store instance; consumers interact via `DigitalAssistantCore.dispatch/getState/getSliceState`, not by creating new stores.
-- **domjson patch**: after `npm install`, `postinstall` rewrites `node_modules/domjson` in place. Re-running install without the patch breaks DOM snapshotting.
+- **domjson patch**: after `npm install`, the `prepare` script rewrites `node_modules/domjson` in place. Re-running install without the patch breaks DOM snapshotting.
 - **ESM-only deps**: `parse-domain` and `winston` are mocked in `test/setup.ts` because they break Jest's CommonJS runtime — keep those mocks intact when touching tests.
 - **`dist/` is untracked**: build output is gitignored and generated in CI (`npm run build`); never commit it. Rebuild locally to verify the bundle compiles.
 
@@ -163,5 +163,7 @@ therefore enforces production dependencies at `high` severity plus `critical` an
 
 **Release lifecycle:** version bumps, changelog generation, GitHub Releases, and the
 `main` → `dev` back-merge are automated via `.github/workflows/release-and-sync.yml`
-(npm publishing is currently disabled). **See `RELEASE_PROCESS.md` for the full step-by-step
+(npm publishing is currently disabled; the package is `@udan/digital-assistant-core`).
+Release Please and the back-merge job open PRs with a GitHub App token
+(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**

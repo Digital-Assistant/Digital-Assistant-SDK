@@ -1,6 +1,6 @@
 // webpack.config.js
 /**
- * Webpack Configuration for @digital-assistant/core
+ * Webpack Configuration for @udan/digital-assistant-core
  *
  * This configuration handles building the library for both ESM (ECMAScript Modules)
  * and CJS (CommonJS) targets. It includes optimizations for build speed and
@@ -73,6 +73,7 @@ module.exports = (env, argv) => {
                                 // Type checking is handled by ForkTsCheckerWebpackPlugin
                                 // DISABLED for debugging: transpileOnly can interfere with source maps
                                 transpileOnly: false,
+                                configFile: 'tsconfig.build.json',
                                 compilerOptions: {
                                     sourceMap: true,
                                 }
@@ -106,7 +107,7 @@ module.exports = (env, argv) => {
                 process: 'process/browser',
             }),
             // Run type checking in a separate process for faster builds
-            new ForkTsCheckerWebpackPlugin(),
+            new ForkTsCheckerWebpackPlugin({ typescript: { configFile: 'tsconfig.build.json' } }),
             // Load environment variables from .env files
             new Dotenv({
                 path: `${envFile}`,
@@ -160,9 +161,9 @@ module.exports = (env, argv) => {
             library: { type: 'module' },
             // clean: false to prevent deleting CJS build if running in parallel/sequence
             clean: false,
-            // Ensure unique file paths in debugger (e.g. webpack://@digital-assistant/core/src/index.ts)
+            // Ensure unique file paths in debugger (e.g. webpack://@udan/digital-assistant-core/src/index.ts)
             devtoolModuleFilenameTemplate: info => {
-                return `webpack://@digital-assistant/core/${info.resourcePath.replace(/^\.\//, '')}`;
+                return `webpack://@udan/digital-assistant-core/${info.resourcePath.replace(/^\.\//, '')}`;
             },
         },
         experiments: { outputModule: true },
@@ -182,7 +183,7 @@ module.exports = (env, argv) => {
             library: { type: 'commonjs' },
             clean: false,
             devtoolModuleFilenameTemplate: info => {
-                return `webpack://@digital-assistant/core/${info.resourcePath.replace(/^\.\//, '')}`;
+                return `webpack://@udan/digital-assistant-core/${info.resourcePath.replace(/^\.\//, '')}`;
             },
         },
     };
