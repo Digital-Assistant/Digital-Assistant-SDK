@@ -3,7 +3,7 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "@digital-assistant/core",
+      "package-name": "@udan/digital-assistant-core",
       "include-component-in-tag": false
     }
   }

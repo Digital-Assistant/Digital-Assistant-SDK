@@ -5,7 +5,7 @@ This SDK provides a framework-agnostic interface to the Digital Assistant functi
 ## Installation
 
 ```bash
-npm install @digital-assistant/core
+npm install @udan/digital-assistant-core
 ```
 
 ## Framework-Agnostic Usage
@@ -13,7 +13,7 @@ npm install @digital-assistant/core
 ### Basic Usage
 
 ```typescript
-import DigitalAssistantCore, { setIsRecording, setUserData } from '@digital-assistant/core';
+import DigitalAssistantCore, { setIsRecording, setUserData } from '@udan/digital-assistant-core';
 
 // Get current state
 const currentState = DigitalAssistantCore.getState();
@@ -48,7 +48,7 @@ Wrap your app with the DigitalAssistantProvider:
 
 ```typescript
 import React from 'react';
-import { DigitalAssistantProvider } from '@digital-assistant/core/react';
+import { DigitalAssistantProvider } from '@udan/digital-assistant-core/react';
 import YourApp from './YourApp';
 
 function App() {
@@ -72,7 +72,7 @@ import {
     setIsRecording,
     setSearchKeyword,
     setUserData 
-} from '@digital-assistant/core/react';
+} from '@udan/digital-assistant-core/react';
 
 function MyComponent() {
     const dispatch = useAppDispatch();
@@ -108,7 +108,7 @@ function MyComponent() {
 
 ```javascript
 import { createApp } from 'vue';
-import DigitalAssistantCore, { setIsRecording } from '@digital-assistant/core';
+import DigitalAssistantCore, { setIsRecording } from '@udan/digital-assistant-core';
 
 const app = createApp({
     data() {
@@ -139,7 +139,7 @@ const app = createApp({
 
 ```typescript
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import DigitalAssistantCore, { setIsRecording, RootState } from '@digital-assistant/core';
+import DigitalAssistantCore, { setIsRecording, RootState } from '@udan/digital-assistant-core';
 
 @Component({
     selector: 'app-recording',
@@ -225,13 +225,13 @@ The SDK includes a central API client with automatic JWT authentication for maki
 ### Basic API Client Usage
 
 ```typescript
-import DigitalAssistantCore, { apiClient } from '@digital-assistant/core';
+import DigitalAssistantCore, { apiClient } from '@udan/digital-assistant-core';
 
 // Option 1: Using the SDK instance
 const client = DigitalAssistantCore.getApiClient();
 
 // Option 2: Direct import
-import { apiClient } from '@digital-assistant/core';
+import { apiClient } from '@udan/digital-assistant-core';
 
 // Make authenticated requests
 try {
@@ -271,7 +271,7 @@ const deleteResponse = await apiClient.delete('/api/users/123');
 ### Custom API Client Configuration
 
 ```typescript
-import { ApiClient } from '@digital-assistant/core';
+import { ApiClient } from '@udan/digital-assistant-core';
 
 // Create custom client with configuration
 const customClient = new ApiClient({
@@ -299,7 +299,7 @@ The API client automatically:
   3. `userData.token`
 
 ```typescript
-import { setKeycloakSessionData } from '@digital-assistant/core';
+import { setKeycloakSessionData } from '@udan/digital-assistant-core';
 
 // Set authentication data - API client will automatically use it
 DigitalAssistantCore.dispatch(setKeycloakSessionData({
@@ -315,7 +315,7 @@ const userProfile = await apiClient.get('/api/user/profile');
 ### Error Handling
 
 ```typescript
-import { ApiError } from '@digital-assistant/core';
+import { ApiError } from '@udan/digital-assistant-core';
 
 try {
     const response = await apiClient.get('/api/protected-resource');
@@ -355,7 +355,7 @@ window.addEventListener('digital-assistant:unauthorized', (event) => {
 ### Advanced Usage
 
 ```typescript
-import { apiClient } from '@digital-assistant/core';
+import { apiClient } from '@udan/digital-assistant-core';
 
 // Access underlying Axios instance for advanced usage
 const axiosInstance = apiClient.getAxiosInstance();
@@ -378,7 +378,7 @@ console.log('Current timeout:', config.timeout);
 
 ```typescript
 import { useState, useEffect } from 'react';
-import { apiClient, ApiError } from '@digital-assistant/core';
+import { apiClient, ApiError } from '@udan/digital-assistant-core';
 
 function useApiData<T>(url: string) {
     const [data, setData] = useState<T | null>(null);
@@ -419,7 +419,7 @@ function UserProfile({ userId }: { userId: string }) {
 
 ```typescript
 import { ref, onMounted } from 'vue';
-import { apiClient } from '@digital-assistant/core';
+import { apiClient } from '@udan/digital-assistant-core';
 
 export function useApiData<T>(url: string) {
     const data = ref<T | null>(null);
@@ -454,7 +454,7 @@ import type {
     ApiResponse, 
     ApiError, 
     ApiClientConfig 
-} from '@digital-assistant/core';
+} from '@udan/digital-assistant-core';
 
 // Type-safe state access
 const state: RootState = DigitalAssistantCore.getState();
