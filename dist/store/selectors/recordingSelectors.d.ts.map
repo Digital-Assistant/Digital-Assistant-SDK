@@ -1,0 +1,1 @@
+{"version":3,"file":"recordingSelectors.d.ts","sourceRoot":"","sources":["../../../src/store/selectors/recordingSelectors.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,SAAS,EAAE,MAAM,aAAa,CAAC;AAC7C,OAAO,KAAK,EAAE,cAAc,EAAE,MAAM,0BAA0B,CAAC;AAE/D;;GAEG;AACH,eAAO,MAAM,iBAAiB,UAAW,SAAS,KAAG,cAAiC,CAAC;AAEvF;;GAEG;AACH,eAAO,MAAM,kBAAkB,UAAW,SAAS,KAAG,GAAG,EAAqC,CAAC"}
