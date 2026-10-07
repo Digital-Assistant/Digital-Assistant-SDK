@@ -54,7 +54,7 @@
     "security": "npm audit --omit=dev --audit-level=high && npm audit --audit-level=critical",
     "git:clean:dry": "node scripts/git-branch-janitor.mjs",
     "git:clean": "node scripts/git-branch-janitor.mjs --apply",
-    "prepublishOnly": "npm run check && npm run build",
+    "prepublishOnly": "npm run check && npm run clean && npm run build:prod",
     "prepare": "node ./scripts/postinstall.js"
   },
   "author": "Yureswar Ravuri <yureshwar@gmail.com>",
