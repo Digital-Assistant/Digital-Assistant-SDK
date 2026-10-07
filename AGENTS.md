@@ -58,6 +58,7 @@ Entry point `src/index.ts` bootstraps everything and exposes the public surface:
 | `src/config/` | `AppConfig`, `CustomConfig`, `constants.ts` (incl. `Environment`, `enableNodeTypeSelection`), `endpoints.ts` |
 | `src/models/` | `AuthData`, `CSPData`, `UDASessionData` |
 | `src/types/` | Global ambient type declarations (`domjson.d.ts`) |
+| `artefacts/` | Untracked scratch space for agents and developers (plans, handoff notes, reports). Gitignored in full — never commit its contents or link to it from tracked files |
 
 Known hotspots (high fan-in — treat changes here as risky): `store/slices/editableStepFormSlice.saveStateToStorage`, `store/slices/flowSlice.saveStateToStorage`, `services/userService.getUserId`, `util/node/events.trigger`, `services/apiClient.ApiClient.post`, `util/translate/translate`, `util/storage` (`StorageUtil`/`get`/`getBrowserAPI`), `util/translate/translation`.
 

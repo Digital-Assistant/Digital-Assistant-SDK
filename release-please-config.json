@@ -4,8 +4,7 @@
     ".": {
       "release-type": "node",
       "package-name": "@digital-assistant/core",
-      "include-component-in-tag": false,
-      "release-as": "0.9.0"
+      "include-component-in-tag": false
     }
   }
 }
