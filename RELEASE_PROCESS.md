@@ -18,6 +18,22 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
 - Stale branches are pruned automatically by the local janitor, `npm run git:clean`
   (see [Branch Hygiene & Automated Cleanup](#branch-hygiene--automated-cleanup)).
 
+### Branch Model at a Glance
+
+```mermaid
+flowchart LR
+    F["feature / fix branches"] -->|"PR"| D["dev<br/>integration"]
+    D -->|"PR (dev only)"| Q["qa<br/>pre-release testing"]
+    Q -->|"PR (qa only)"| M["main<br/>production"]
+    RP["release-please--* branch"] -->|"Release PR"| M
+    M -.->|"back-merge PR"| D
+
+    classDef protected fill:#fde68a,stroke:#b45309,color:#000
+    class D,Q,M protected
+```
+
+`dev`, `qa`, and `main` (highlighted) are protected by rulesets; nothing is pushed to them directly.
+
 > **One-time prerequisite:** set the repository **default branch to `main`** (it was previously
 > `dev`). See [Repository Setup](#repository-setup) below.
 
@@ -43,6 +59,50 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
    > release commit until the next `dev → qa` promotion carries it forward. This does not cause
    > conflicts because `qa` is a strict downstream of `dev`.
 
+### Release Lifecycle (End to End)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer
+    actor Mnt as Maintainer
+    participant GH as GitHub (PRs and CI)
+    participant RP as Release Please
+    participant Bot as back-merge job
+
+    Dev->>GH: PR feature branch into dev
+    GH-->>Dev: CI and source-branch checks pass
+    Dev->>GH: Merge into dev
+    Mnt->>GH: PR dev into qa
+    GH-->>Mnt: CI passes, merge
+    Note over GH: qa verification (build:qa)
+    Mnt->>GH: PR qa into main
+    GH-->>Mnt: CI passes, merge
+    GH->>RP: push to main triggers release-and-sync.yml
+    RP->>GH: Open Release PR (version bump and CHANGELOG)
+    Mnt->>GH: Review and merge Release PR
+    RP->>GH: Tag and publish GitHub Release
+    RP->>Bot: release_created = true
+    Bot->>GH: Open PR main into dev
+    Mnt->>GH: Merge back-merge PR (do not forget)
+    Note over GH: npm publish is disabled
+```
+
+### Commit Messages and Version Bumps
+
+```mermaid
+flowchart TD
+    C["Conventional Commit<br/>merged into main"] --> T{"Commit type?"}
+    T -->|"feat!: or fix!:<br/>(breaking)"| MAJ["MAJOR bump"]
+    T -->|"feat:"| MIN["MINOR bump"]
+    T -->|"fix:"| PAT["PATCH bump"]
+    T -->|"chore: docs: test: refactor:"| NO["No bump<br/>recorded in CHANGELOG"]
+    MAJ --> RPR["Release Please computes<br/>the highest bump"]
+    MIN --> RPR
+    PAT --> RPR
+    RPR --> PR["Release PR updates<br/>package.json and CHANGELOG.md"]
+```
+
 > **Note on versioning:** Release Please determines the next version from your commit
 > messages (Conventional Commits — see `AGENTS.md` § 11). To lock a version instead of
 > bumping it (e.g. keep `1.0.x` instead of `1.1.0`), edit the Release PR title and
@@ -66,6 +126,25 @@ The `lint` gate passes while reporting pre-existing `no-explicit-any`/unused-var
 gate enforces production dependencies at `high` (currently 0) plus `critical`
 anywhere (currently 0); dev-only toolchain advisories (chiefly `braces`/`micromatch`,
 which have no patched release) are reported but do not block.
+
+```mermaid
+flowchart TD
+    PR["Pull request or push<br/>to main, dev, or qa"] --> CI["ci.yml<br/>Build, Check, and Verify"]
+    PR --> SEC["security.yml<br/>Dependency Audit"]
+    PR --> SRC["enforce-dev-base.yml<br/>Check source branch<br/>(PRs into qa and main)"]
+
+    subgraph MATRIX ["CI matrix: ubuntu, macos, windows"]
+        direction LR
+        A["typecheck"] --> B["format:check"] --> L["lint"] --> TS["test"] --> E["env:generate"] --> BL["build"]
+    end
+    CI --> MATRIX
+
+    MATRIX --> OK{"All checks green?"}
+    SEC --> OK
+    SRC --> OK
+    OK -->|"yes"| MERGE["Merge allowed"]
+    OK -->|"no"| BLOCK["Merge blocked"]
+```
 
 ## Repository Setup
 
@@ -96,6 +175,51 @@ back-merge PR with a GitHub App installation token
    as repository secret `RELEASE_APP_PRIVATE_KEY`.
 
 Without these, the release workflow fails on `main`.
+
+### Release Automation Workflow
+
+How `release-and-sync.yml` reacts to a push to `main`:
+
+```mermaid
+flowchart TD
+    P["Push to main"] --> TOK["Generate GitHub App token<br/>RELEASE_APP_ID and RELEASE_APP_PRIVATE_KEY"]
+    TOK --> RPJ["Release Please job<br/>release-please-config.json<br/>.release-please-manifest.json"]
+    RPJ --> Q{"Is the pushed commit<br/>a merged Release PR?"}
+    Q -->|"no"| OPEN["Open or update the Release PR<br/>version bump and CHANGELOG"]
+    Q -->|"yes"| REL["Create tag and GitHub Release<br/>release_created = true"]
+    REL --> BM["back-merge job<br/>gh pr create --base dev --head main"]
+    BM --> BMPR["PR: sync main back to dev"]
+    REL -.->|"disabled"| PUB["publish job (npm)"]
+
+    classDef off fill:#e5e7eb,stroke:#6b7280,color:#374151,stroke-dasharray: 4 3
+    class PUB off
+```
+
+The App token matters because PRs opened with the default `GITHUB_TOKEN` do not trigger
+workflows, so required checks would never report on the Release PR or the back-merge PR.
+
+### Why the Back-Merge Matters
+
+```mermaid
+gitGraph
+    commit id: "v0.9.0"
+    branch dev
+    checkout dev
+    commit id: "feat A"
+    commit id: "fix B"
+    branch qa
+    checkout qa
+    commit id: "dev promoted"
+    checkout main
+    merge qa id: "qa promoted"
+    commit id: "release 0.10.0" tag: "v0.10.0"
+    checkout dev
+    merge main id: "back-merge"
+    commit id: "next feature"
+```
+
+Release Please commits the version bump and changelog directly on `main`. Without the
+`main → dev` back-merge, the next release hits conflicts on `package.json` and `CHANGELOG.md`.
 
 ## Branch Protection (Repository Rulesets)
 
@@ -179,6 +303,20 @@ Options: pass `--protected=main,dev,qa,release` to override the protected allowl
 > (it cannot see the merge), so the janitor force-deletes. It only targets branches whose
 > upstream is already gone; a purely local branch with no upstream is never touched.
 
+### Branch Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Local: git checkout -b
+    Local --> Pushed: git push -u origin
+    Pushed --> PROpen: gh pr create --base dev
+    PROpen --> PROpen: CI re-runs on new commits
+    PROpen --> Merged: PR merged
+    Merged --> RemoteDeleted: delete_branch_on_merge
+    RemoteDeleted --> Gone: git fetch --prune marks upstream gone
+    Gone --> [*]: npm run git:clean deletes local branch
+```
+
 ### 4. Keep `main` synced locally
 
 ```bash
@@ -194,6 +332,23 @@ If a branch was deleted by mistake, restore it from the reflog:
 ```bash
 git reflog --all | grep <branch-name>
 git branch <branch-name> <recovered-sha>
+```
+
+### Source-Branch Enforcement
+
+`enforce-dev-base.yml` emits the `Check source branch` status, which rulesets cannot express on their own:
+
+```mermaid
+flowchart TD
+    PR["PR opened or updated"] --> BASE{"Base branch?"}
+    BASE -->|"qa"| HQ{"Head is dev?"}
+    BASE -->|"main"| HM{"Head is qa or<br/>release-please--*?"}
+    BASE -->|"dev"| ANY["No source restriction<br/>(feature, fix, and back-merge PRs)"]
+    HQ -->|"yes"| PASS["Check passes"]
+    HQ -->|"no"| FAIL["Check fails<br/>merge blocked"]
+    HM -->|"yes"| PASS
+    HM -->|"no"| FAIL
+    ANY --> PASS
 ```
 
 ## npm Publishing (Disabled, Future)
@@ -235,6 +390,23 @@ package must exist first):
    (see `environments/local.env.example`); the job generates `environments/production.env`
    from it with `npm run env:generate`.
 3. Uncomment the `publish` job in `.github/workflows/release-and-sync.yml`.
+
+```mermaid
+flowchart LR
+    subgraph ONCE ["One-time setup"]
+        direction TB
+        M1["Manual first publish<br/>(package must exist)"] --> M2["Configure npm Trusted Publishing<br/>for release-and-sync.yml"]
+        M2 --> M3["Create GitHub Environment 'production'"]
+        M3 --> M4["Uncomment publish job"]
+    end
+    subgraph AUTO ["Every release afterwards"]
+        direction TB
+        R1["Release created"] --> R2["env:generate production.env"]
+        R2 --> R3["prepublishOnly:<br/>check, clean, build:prod"]
+        R3 --> R4["npm publish --provenance<br/>(OIDC id-token)"]
+    end
+    ONCE --> AUTO
+```
 
 ## Security Note
 
