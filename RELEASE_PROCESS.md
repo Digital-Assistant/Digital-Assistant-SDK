@@ -211,12 +211,16 @@ merged into `main`.
   `Digital-Assistant-SDK`, workflow `release-and-sync.yml`, environment `production`.
   Publishing access is set to require 2FA and disallow tokens.
 - The job runs in the GitHub Environment `production`, checks out the release tag, generates
-  `environments/production.env`, and runs `npm publish --provenance --access public`.
+  `environments/production.env`, and runs `npm stage publish --provenance --access public`
+  (npm >= 11.21). The trusted publisher allows staged publishes only; a plain `npm publish`
+  from CI fails with `403 OIDC permission denied for this action`.
   `prepublishOnly` runs `check`, `clean`, and `build:prod` (production mode, minified).
 - **Build-time keys are intentionally empty.** Host applications pass configuration at
   runtime, so nothing secret is inlined into the public bundle.
 - **Staged publishing:** the upload lands as a staged version. Approve it on npmjs.com
-  (package page → staged versions) with your passkey/2FA; only then does it become `latest`.
+  (package page → staged versions) with your passkey/2FA, or from a terminal with
+  `npm stage list @udan/digital-assistant-sdk` and `npm stage approve <stage-id>`. Only then
+  does it become `latest`.
 - The domjson patch runs from the `prepare` script, so consumer installs don't run it, and
   `tsconfig.build.json` keeps test files out of the emitted declarations.
 

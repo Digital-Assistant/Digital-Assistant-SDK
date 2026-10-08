@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.10.1](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.10.0...v0.10.1) (2026-10-08)
+
+
+### Bug Fixes
+
+* **package:** complete rename to @udan/digital-assistant-sdk ([48d072c](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/48d072c6ebc3585056904e8a8b716c456ba655a3))
+* remove clientSecret leak and sweep console.log calls ([68438b9](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/68438b95e257289057695df93c659ae03a78f1da))
+* remove clientSecret leak and sweep console.log calls ([12a2d5d](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/12a2d5daff041b6b8a4d4fe49e4772a441cd0f9b))
+
 ## [0.10.0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.9.0...v0.10.0) (2026-10-07)
 
 
