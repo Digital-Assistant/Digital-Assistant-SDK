@@ -1,6 +1,6 @@
 // webpack.config.js
 /**
- * Webpack Configuration for @udan/digital-assistant-core
+ * Webpack Configuration for @udan/digital-assistant-sdk
  *
  * This configuration handles building the library for both ESM (ECMAScript Modules)
  * and CJS (CommonJS) targets. It includes optimizations for build speed and
@@ -161,9 +161,9 @@ module.exports = (env, argv) => {
             library: { type: 'module' },
             // clean: false to prevent deleting CJS build if running in parallel/sequence
             clean: false,
-            // Ensure unique file paths in debugger (e.g. webpack://@udan/digital-assistant-core/src/index.ts)
+            // Ensure unique file paths in debugger (e.g. webpack://@udan/digital-assistant-sdk/src/index.ts)
             devtoolModuleFilenameTemplate: info => {
-                return `webpack://@udan/digital-assistant-core/${info.resourcePath.replace(/^\.\//, '')}`;
+                return `webpack://@udan/digital-assistant-sdk/${info.resourcePath.replace(/^\.\//, '')}`;
             },
         },
         experiments: { outputModule: true },
@@ -183,7 +183,7 @@ module.exports = (env, argv) => {
             library: { type: 'commonjs' },
             clean: false,
             devtoolModuleFilenameTemplate: info => {
-                return `webpack://@udan/digital-assistant-core/${info.resourcePath.replace(/^\.\//, '')}`;
+                return `webpack://@udan/digital-assistant-sdk/${info.resourcePath.replace(/^\.\//, '')}`;
             },
         },
     };
