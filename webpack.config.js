@@ -141,8 +141,9 @@ module.exports = (env, argv) => {
             ],
             splitChunks: false,
         },
-        // Use filesystem cache for faster rebuilds
-        cache: { type: 'filesystem' },
+        // Filesystem cache speeds up dev rebuilds. Production builds skip it: a cache hit
+        // restores the bundles but not ts-loader's emitted .d.ts files.
+        cache: isProduction ? false : { type: 'filesystem' },
         externals,
     };
 
