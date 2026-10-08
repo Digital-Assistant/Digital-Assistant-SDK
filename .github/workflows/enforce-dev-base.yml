@@ -4,7 +4,6 @@ on:
   pull_request:
     branches:
       - main
-      - qa
 
 permissions:
   contents: read
@@ -13,6 +12,7 @@ jobs:
   check-source-branch:
     name: Check source branch
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Validate source branch
         env:
@@ -26,13 +26,8 @@ jobs:
               echo "Automated Release Please PR - validation skipped."
               exit 0
             fi
-            if [[ "$HEAD_REF" != "qa" ]]; then
-              echo "::error::Direct PRs to 'main' must only originate from the 'qa' branch (or release-please--*). Merge to 'dev', promote 'dev' to 'qa', then open a PR from 'qa' to 'main'."
-              exit 1
-            fi
-          elif [[ "$BASE_REF" == "qa" ]]; then
             if [[ "$HEAD_REF" != "dev" ]]; then
-              echo "::error::Direct PRs to 'qa' must only originate from the 'dev' branch. Merge your branch to 'dev' first, then open a PR from 'dev' to 'qa'."
+              echo "::error::Direct PRs to 'main' must only originate from the 'dev' branch (or release-please--*). Merge your branch to 'dev' first, then open a PR from 'dev' to 'main'."
               exit 1
             fi
           fi

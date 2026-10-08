@@ -105,14 +105,26 @@ flowchart TD
 
 All gates are blocking in CI:
 
-| Gate | Workflow step | Status |
+| Gate | Workflow job | Status |
 |---|---|---|
-| `npm run typecheck` | CI | **Blocking** |
-| `npm run format:check` | CI | **Blocking** |
-| `npm run lint` | CI | **Blocking** (legacy debt reported as warnings) |
-| `npm test` | CI | **Blocking** |
-| `npm run build` | CI (after `env:generate`) | **Blocking** |
-| `npm run security` | Security Audit | **Blocking** (production deps at `high`; `critical` anywhere) |
+| `npm run typecheck` | CI / `verify` | **Blocking** |
+| `npm run format:check` | CI / `verify` | **Blocking** |
+| `npm run lint` | CI / `verify` | **Blocking** (legacy debt reported as warnings) |
+| `npm test` | CI / `verify` | **Blocking** |
+| `npm run build` | CI / `verify` (after `env:generate`) | **Blocking** |
+| `npm run security` | CI / `audit` (and weekly `security.yml`) | **Blocking** (production deps at `high`; `critical` anywhere) |
+
+How CI keeps runs short without dropping gates:
+
+- **Docs-only changes** (every changed file is `*.md`, `artefacts/**`, `LICENSE`, or
+  `CHANGELOG.md`) skip `verify`. Skipping happens at job level, so `CI Gate` still reports.
+- **`audit`** runs when `package.json` or `package-lock.json` change, on pushes to `main`, and
+  weekly (`security.yml`). It reads the lockfile and needs no install.
+- **Concurrency:** a newer push to a PR cancels that PR's in-flight run; pushes to `main`/`dev`
+  are never cancelled.
+- **Ubuntu only on PRs.** macOS and Windows run weekly in `cross-os.yml` (non-blocking).
+- Typecheck, format check, and lint run concurrently; webpack and Jest caches are restored
+  between runs.
 
 The `lint` gate passes while reporting pre-existing `no-explicit-any`/unused-var/
 `@ts-ignore` debt as warnings; formatting is enforced as an error. The `security`
