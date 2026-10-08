@@ -198,7 +198,7 @@ git branch <branch-name> <recovered-sha>
 
 ## npm Publishing (Disabled, Future)
 
-The package is published to npm as **`@udan/digital-assistant-core`** (npm org `udan`,
+The package is published to npm as **`@udan/digital-assistant-sdk`** (npm org `udan`,
 `--access public`). The `publish` job in `release-and-sync.yml` is still commented out.
 
 **Prerequisites already in place:**
@@ -225,7 +225,7 @@ package must exist first):
 **To enable automated publishing:**
 
 1. **Configure npm Trusted Publishing** (GitHub OIDC — no stored token). On
-   <https://npmjs.com> open the `@udan/digital-assistant-core` package →
+   <https://npmjs.com> open the `@udan/digital-assistant-sdk` package →
    **Settings → Trusted Publishing**, enable it for source **GitHub** / owner
    **Digital-Assistant** / repository **Digital-Assistant-SDK**, and restrict it to the
    workflow **`release-and-sync.yml`**.

@@ -61,15 +61,14 @@ describe('AuthDataConfig', () => {
     });
 
     it('should log error for type mismatches and not update the value', async () => {
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         AuthConfig.id = 'string-value';
 
         await AuthDataConfig({ id: 123 as any });
 
-        expect(consoleSpy).toHaveBeenCalledWith(
+        expect(UDAConsoleLogger.info).toHaveBeenCalledWith(
             'id accepts only string data type.',
+            2,
         );
-        consoleSpy.mockRestore();
     });
 
     it('should trigger UDAClearSessionData when id becomes empty', async () => {

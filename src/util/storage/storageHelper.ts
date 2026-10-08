@@ -4,34 +4,8 @@
  * Works in both service workers and regular contexts
  */
 
-import { StorageUtil } from '../../util/storage';
-
-/**
- * Check if we're in a service worker context
- */
-const isServiceWorker =
-    typeof window === 'undefined' && typeof self !== 'undefined';
-
-/**
- * Get browser extension API (cross-browser)
- */
-function getBrowserAPI(): any {
-    // Firefox, Safari
-    if (
-        typeof (self as any).browser !== 'undefined' &&
-        (self as any).browser.storage
-    ) {
-        return (self as any).browser;
-    }
-    // Chrome, Edge, Opera, Brave
-    if (
-        typeof (self as any).chrome !== 'undefined' &&
-        (self as any).chrome.storage
-    ) {
-        return (self as any).chrome;
-    }
-    return null;
-}
+import { StorageUtil } from './StorageUtil';
+import { getBrowserAPI, isServiceWorker } from './detect';
 
 /**
  * Load state from storage (sync for web, async for service workers)
@@ -41,7 +15,7 @@ function getBrowserAPI(): any {
 export function loadFromStorage<T>(key: string, defaultValue: T): T {
     try {
         // Service worker context - use extension storage (must handle async carefully)
-        if (isServiceWorker) {
+        if (isServiceWorker()) {
             const browserAPI = getBrowserAPI();
             if (browserAPI?.storage) {
                 // For initial load in service worker, we return default
@@ -93,7 +67,7 @@ export function saveToStorage<T>(key: string, state: T): void {
         const serializedState = JSON.stringify(state);
 
         // Service worker context - use extension storage
-        if (isServiceWorker) {
+        if (isServiceWorker()) {
             const browserAPI = getBrowserAPI();
             if (browserAPI?.storage) {
                 // Save asynchronously (fire and forget)
@@ -131,7 +105,7 @@ export function saveToStorage<T>(key: string, state: T): void {
 export function removeFromStorage(key: string): void {
     try {
         // Service worker context
-        if (isServiceWorker) {
+        if (isServiceWorker()) {
             const browserAPI = getBrowserAPI();
             if (browserAPI?.storage) {
                 browserAPI.storage.local.remove([key]).catch((err: Error) => {

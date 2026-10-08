@@ -24,8 +24,5 @@ export const processNodeForClickData = async (node: any) => {
     const objectData: any = domJSONModule.toJSON(processedNode, {
         serialProperties: true,
     });
-
-    console.log(objectData);
-
     return objectData;
 };

@@ -22,7 +22,6 @@ export const addEvent = (
         node.addEventListener(
             eventType,
             async function (event: any) {
-                console.log('Clicked on: ' + node.nodeName);
                 await recordUserClick(node, event);
             },
             { once: false },

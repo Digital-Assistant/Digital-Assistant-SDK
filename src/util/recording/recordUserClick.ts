@@ -10,7 +10,7 @@ import { checkNodeValues } from '../node/checkNodeValues';
 import mapClickedElementToHtmlFormElement from '../recording/mapClickedElementToHtmlFormElement';
 import { addNotification } from '../notification/addNotification';
 import { translate } from '../translate/translation';
-import { UDAErrorLogger } from '../error/';
+import { UDAConsoleLogger, UDAErrorLogger } from '../error/';
 import { StorageUtil } from '../storage';
 import { clickableElementExists, trigger } from '../node';
 import { setRecSequenceData, store } from '../../store';
@@ -131,7 +131,6 @@ export const recordUserClick = async (node: any, event: any) => {
 
     // Save the processed click data.
     const resp: any = await saveClickData(recordingNode, _text, meta);
-    console.log(resp);
 
     if (resp) {
         // Add the recorded node to a global list of selected nodes.
@@ -165,7 +164,7 @@ export const recordUserClick = async (node: any, event: any) => {
         const state: any = (store as any).getState?.();
         const curr = state?.recording?.recSequenceData || [];
         (store as any).dispatch(setRecSequenceData([...curr, resp]));
-        console.log('SDK: Triggering updateRecordedData event');
+        UDAConsoleLogger.info('SDK: Triggering updateRecordedData event', 3);
         trigger('updateRecordedData', {});
 
         // Display a success notification.

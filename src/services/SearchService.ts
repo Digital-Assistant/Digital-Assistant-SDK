@@ -94,13 +94,6 @@ export const fetchSearchResults = async (
             }
         }
 
-        // Debug: Log the final request and endpoint
-        console.log('SDK SearchService Debug:', {
-            request,
-            endpoint,
-            usersessionid: request.usersessionid,
-        });
-
         // Make API request using centralized apiClient
         const response = await apiClient.get(endpoint);
 
