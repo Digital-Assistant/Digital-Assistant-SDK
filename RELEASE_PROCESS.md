@@ -10,7 +10,8 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
 - CI (`ci.yml`) guards every push/PR to `main`, `dev`, and `qa` — typecheck, format, lint,
   tests, and build are all blocking.
 - Release automation (`release-and-sync.yml`) handles version bumps, changelog generation,
-  GitHub releases, and the back-merge to `dev`. **npm publishing is currently disabled.**
+  GitHub releases, the back-merge to `dev`, and publishing to npm
+  (`@udan/digital-assistant-sdk`, staged for maintainer approval).
 - Source branches are enforced by `enforce-dev-base.yml` (`Check source branch`): `qa` only
   accepts `dev`, and `main` only accepts `qa` (or `release-please--*`).
 - `main`, `dev`, and `qa` are protected by **repository rulesets** — every change must arrive via
@@ -32,8 +33,9 @@ This project uses a GitFlow-inspired branching strategy combined with automated 
    This PR contains the version bump (in `package.json`) and the updated `CHANGELOG.md`.
 5. **Publish GitHub Release:** The maintainer reviews and merges the Release PR. The GitHub
    Release is automatically published.
-   > npm publishing is **disabled** for now; enable it later by following
-   > [npm Publishing (Disabled, Future)](#npm-publishing-disabled-future).
+   > The `publish` job then uploads the release to npm as a **staged** version. A maintainer
+   > approves it on npmjs.com (passkey/2FA) before it goes live. See
+   > [npm Publishing](#npm-publishing).
 6. **⚠️ THE BACK-MERGE (DO NOT FORGET):** Because Release Please updated the version and
    changelog directly on `main`, `main` is now exactly one commit ahead of `dev`.
    **You MUST immediately back-merge `main` into `dev`** or merge the automated PR from
@@ -196,45 +198,32 @@ git reflog --all | grep <branch-name>
 git branch <branch-name> <recovered-sha>
 ```
 
-## npm Publishing (Disabled, Future)
+## npm Publishing
 
 The package is published to npm as **`@udan/digital-assistant-sdk`** (npm org `udan`,
-`--access public`). The `publish` job in `release-and-sync.yml` is still commented out.
+`--access public`) by the `publish` job in `release-and-sync.yml`, whenever a Release PR is
+merged into `main`.
 
-**Prerequisites already in place:**
+**How it works:**
 
-- The domjson patch runs from the `prepare` script, so consumer installs don't run it
-  (`scripts/` is not published).
-- `prepublishOnly` runs `check`, `clean`, and `build:prod` (production mode, minified). It
-  needs `environments/production.env`.
-- The webpack build uses `tsconfig.build.json`, which keeps test files out of the emitted
-  declarations. `npm pack --dry-run` should list only `dist/`, `package.json`, and
-  `README.md`.
+- **Trusted Publishing** (GitHub OIDC, no stored token): on npmjs.com the package's
+  **Settings → Trusted Publisher** allows owner `Digital-Assistant`, repository
+  `Digital-Assistant-SDK`, workflow `release-and-sync.yml`, environment `production`.
+  Publishing access is set to require 2FA and disallow tokens.
+- The job runs in the GitHub Environment `production`, checks out the release tag, generates
+  `environments/production.env`, and runs `npm publish --provenance --access public`.
+  `prepublishOnly` runs `check`, `clean`, and `build:prod` (production mode, minified).
+- **Build-time keys are intentionally empty.** Host applications pass configuration at
+  runtime, so nothing secret is inlined into the public bundle.
+- **Staged publishing:** the upload lands as a staged version. Approve it on npmjs.com
+  (package page → staged versions) with your passkey/2FA; only then does it become `latest`.
+- The domjson patch runs from the `prepare` script, so consumer installs don't run it, and
+  `tsconfig.build.json` keeps test files out of the emitted declarations.
 
-**One-time manual first publish** (Trusted Publishing is configured per package, so the
-package must exist first):
-
-1. Check out the release tag and run `npm ci`.
-2. Generate `environments/production.env` with the non-secret values only (URLs, realm,
-   client ID, analytics ID) and leave `keycloakClientSecret`, `profanityKey`,
-   `googleTranslateApiKey`, and `googleAnalyticsSecretKey` empty:
-   `BUILD_ENV=production npm run env:generate` with only the non-secret variables exported.
-3. `npm login` as a member of the `udan` org, run `npm pack --dry-run`, grep the packed
-   bundles for each real secret value (expect no hits), then `npm publish --access public`.
-
-**To enable automated publishing:**
-
-1. **Configure npm Trusted Publishing** (GitHub OIDC — no stored token). On
-   <https://npmjs.com> open the `@udan/digital-assistant-sdk` package →
-   **Settings → Trusted Publishing**, enable it for source **GitHub** / owner
-   **Digital-Assistant** / repository **Digital-Assistant-SDK**, and restrict it to the
-   workflow **`release-and-sync.yml`**.
-   The job signs with `--provenance` and authenticates via `id-token: write`; no
-   `NPM_TOKEN` secret is required.
-2. Create a GitHub **Environment** named `production` holding the build-time variables
-   (see `environments/local.env.example`); the job generates `environments/production.env`
-   from it with `npm run env:generate`.
-3. Uncomment the `publish` job in `.github/workflows/release-and-sync.yml`.
+**Package setup history:** `0.0.0-placeholder` was published by hand so that the trusted
+publisher could be configured (npm requires the package to exist first). If the trusted
+publisher configuration lapses or the repo/workflow/environment changes, update it on the
+package's settings page; all four fields must match exactly.
 
 ## Security Note
 

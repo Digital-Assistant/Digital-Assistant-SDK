@@ -66,58 +66,47 @@ jobs:
             --body "Automated PR: syncs the updated package.json and CHANGELOG.md from main back to dev after a release. Merge this immediately to prevent future merge conflicts." \
             || echo "Back-merge PR not created (already exists or nothing to sync)."
 
-  # ---------------------------------------------------------------------------
-  # npm publishing is intentionally DISABLED for now.
+  # Publishes the release to npm via Trusted Publishing (GitHub OIDC, no token).
+  # npmjs.com -> @udan/digital-assistant-sdk -> Settings -> Trusted Publisher is
+  # configured for this repo, workflow 'release-and-sync.yml', environment
+  # 'production'. Publishes are staged: a maintainer approves them on npmjs.com.
   #
-  # Done: package renamed to @udan/digital-assistant-sdk, consumer-safe install
-  # (domjson patch runs from `prepare`), production build in prepublishOnly,
-  # tests excluded from the packed declarations.
-  #
-  # To enable it:
-  #   1. Make sure the package exists on npm (one-time manual first publish).
-  #   2. Configure npm Trusted Publishing for owner 'Digital-Assistant',
-  #      repository 'Digital-Assistant-SDK', workflow 'release-and-sync.yml'
-  #      (npmjs.com -> package -> Settings -> Trusted Publishing). No NPM_TOKEN
-  #      is required; the job authenticates via GitHub OIDC (id-token: write).
-  #   3. Create a GitHub Environment named 'production' with the build-time
-  #      variables/secrets (see environments/local.env.example). Every value is
-  #      inlined into the public bundle; keep secrets out until build-time config
-  #      moves to runtime host-provided config.
-  #   4. Uncomment the job below.
-  #
-  # publish:
-  #   name: Publish to npm
-  #   needs: release-please
-  #   if: ${{ needs.release-please.outputs.release_created == 'true' }}
-  #   runs-on: ubuntu-latest
-  #   environment: production
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #     - name: Checkout Release Tag
-  #       uses: actions/checkout@v5
-  #       with:
-  #         ref: ${{ needs.release-please.outputs.tag_name }}
-  #
-  #     - name: Setup Node.js 24
-  #       uses: actions/setup-node@v5
-  #       with:
-  #         node-version: 24
-  #         registry-url: https://registry.npmjs.org/
-  #         cache: npm
-  #
-  #     - name: Install Dependencies
-  #       run: npm ci
-  #
-  #     - name: Generate production environment
-  #       env:
-  #         BUILD_ENV: production
-  #         baseURL: ${{ vars.BASE_URL }}
-  #         # ... remaining keys from environments/local.env.example
-  #       run: npm run env:generate
-  #
-  #     # prepublishOnly runs check, clean and build:prod.
-  #     - name: Publish to npm
-  #       run: npm publish --provenance --access public
-  # ---------------------------------------------------------------------------
+  # Build-time keys are intentionally empty: host applications pass runtime
+  # configuration, and nothing secret is inlined into the public bundle.
+  publish:
+    name: Publish to npm
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout Release Tag
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+          cache: npm
+
+      # Trusted Publishing needs npm >= 11.5.1.
+      - name: Update npm
+        run: npm install -g npm@^11.5.1
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate production environment
+        env:
+          BUILD_ENV: production
+        run: npm run env:generate
+
+      # prepublishOnly runs check, clean and build:prod.
+      - name: Publish to npm
+        run: npm publish --provenance --access public
