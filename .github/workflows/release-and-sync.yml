@@ -95,9 +95,9 @@ jobs:
           registry-url: https://registry.npmjs.org/
           cache: npm
 
-      # Trusted Publishing needs npm >= 11.5.1.
+      # `npm stage publish` needs npm >= 11.21.
       - name: Update npm
-        run: npm install -g npm@^11.5.1
+        run: npm install -g npm@^11.21.0
 
       - name: Install Dependencies
         run: npm ci
@@ -107,6 +107,7 @@ jobs:
           BUILD_ENV: production
         run: npm run env:generate
 
-      # prepublishOnly runs check, clean and build:prod.
-      - name: Publish to npm
-        run: npm publish --provenance --access public
+      # The trusted publisher allows staged publishes only; a maintainer approves the
+      # staged version on npmjs.com. prepublishOnly runs check, clean and build:prod.
+      - name: Stage publish to npm
+        run: npm stage publish --provenance --access public
