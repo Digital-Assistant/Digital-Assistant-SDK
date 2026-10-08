@@ -24,25 +24,25 @@ export const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        setUserData(state, action: PayloadAction<any>) {
+        setUserData(state: UserState, action: PayloadAction<any>) {
             state.userData = action.payload;
             if (!state.userSessionData) {
                 state.userSessionData = { authData: action.payload };
             }
         },
-        setUserSessionData(state, action: PayloadAction<any>) {
+        setUserSessionData(state: UserState, action: PayloadAction<any>) {
             state.userSessionData = action.payload;
         },
-        setKeycloakSessionData(state, action: PayloadAction<any>) {
+        setKeycloakSessionData(state: UserState, action: PayloadAction<any>) {
             state.keycloakSessionData = action.payload;
         },
-        clearUserData(state) {
+        clearUserData(state: UserState) {
             state.userSessionData = undefined;
             state.userData = undefined;
             state.keycloakSessionData = undefined;
             state.userSessionId = undefined;
         },
-        setUserSessionId(state, action: PayloadAction<string>) {
+        setUserSessionId(state: UserState, action: PayloadAction<string>) {
             state.userSessionId = action.payload;
         },
     },

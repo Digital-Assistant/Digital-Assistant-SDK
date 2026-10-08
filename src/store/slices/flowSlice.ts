@@ -43,46 +43,49 @@ export const flowSlice = createSlice({
     name: 'flow',
     initialState,
     reducers: {
-        setSearchKeyword: (state, action: PayloadAction<string>) => {
+        setSearchKeyword: (state: FlowState, action: PayloadAction<string>) => {
             state.searchKeyword = action.payload;
             saveStateToStorage(state);
         },
-        setSearchResults: (state, action: PayloadAction<any[]>) => {
+        setSearchResults: (state: FlowState, action: PayloadAction<any[]>) => {
             state.searchResults = action.payload;
             saveStateToStorage(state);
         },
-        appendSearchResults: (state, action: PayloadAction<any[]>) => {
+        appendSearchResults: (
+            state: FlowState,
+            action: PayloadAction<any[]>,
+        ) => {
             state.searchResults = [...state.searchResults, ...action.payload];
             saveStateToStorage(state);
         },
-        setPage: (state, action: PayloadAction<number>) => {
+        setPage: (state: FlowState, action: PayloadAction<number>) => {
             state.page = action.payload;
             saveStateToStorage(state);
         },
-        incrementPage: (state) => {
+        incrementPage: (state: FlowState) => {
             state.page += 1;
             saveStateToStorage(state);
         },
-        setHasMorePages: (state, action: PayloadAction<boolean>) => {
+        setHasMorePages: (state: FlowState, action: PayloadAction<boolean>) => {
             state.hasMorePages = action.payload;
             saveStateToStorage(state);
         },
-        setReFetchSearch: (state, action: PayloadAction<string>) => {
+        setReFetchSearch: (state: FlowState, action: PayloadAction<string>) => {
             state.reFetchSearch = action.payload;
             saveStateToStorage(state);
         },
-        setShowSearch: (state, action: PayloadAction<boolean>) => {
+        setShowSearch: (state: FlowState, action: PayloadAction<boolean>) => {
             state.showSearch = action.payload;
             saveStateToStorage(state);
         },
         setRecordSequenceDetailsVisibility: (
-            state,
+            state: FlowState,
             action: PayloadAction<boolean>,
         ) => {
             state.recordSequenceDetailsVisibility = action.payload;
             saveStateToStorage(state);
         },
-        resetFlowState: (state) => {
+        resetFlowState: (state: FlowState) => {
             const resetState = {
                 searchKeyword: '',
                 searchResults: [],

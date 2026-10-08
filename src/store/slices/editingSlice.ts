@@ -40,7 +40,7 @@ export const editingSlice = createSlice({
     initialState,
     reducers: {
         startEditingStep: (
-            state,
+            state: EditingStepState,
             action: PayloadAction<{
                 recordingId: number;
                 editingStepId: number;
@@ -76,7 +76,7 @@ export const editingSlice = createSlice({
                 editingStepOriginalData: null,
             });
         },
-        startValidation: (state) => {
+        startValidation: (state: EditingStepState) => {
             state.validationRequired = true;
             state.validationCompleted = false;
             // Save to localStorage after state update
@@ -86,7 +86,7 @@ export const editingSlice = createSlice({
                 validationCompleted: false,
             });
         },
-        markValidationCompleted: (state) => {
+        markValidationCompleted: (state: EditingStepState) => {
             state.validationCompleted = true;
             // Save to localStorage after state update
             saveStateToStorage({
@@ -94,7 +94,7 @@ export const editingSlice = createSlice({
                 validationCompleted: true,
             });
         },
-        resetValidationState: (state) => {
+        resetValidationState: (state: EditingStepState) => {
             const resetState = {
                 recordingId: null,
                 editingStepId: null,

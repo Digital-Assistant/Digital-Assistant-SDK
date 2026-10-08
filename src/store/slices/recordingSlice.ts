@@ -92,34 +92,58 @@ export const recordingSlice = createSlice({
     name: 'recording',
     initialState,
     reducers: {
-        setIsRecording: (state, action: PayloadAction<boolean>) => {
+        setIsRecording: (
+            state: RecordingState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.isRecording = action.payload;
         },
-        setIsPlaying: (state, action: PayloadAction<string>) => {
+        setIsPlaying: (
+            state: RecordingState,
+            action: PayloadAction<string>,
+        ) => {
             state.isPlaying = action.payload;
         },
-        setManualPlay: (state, action: PayloadAction<string>) => {
+        setManualPlay: (
+            state: RecordingState,
+            action: PayloadAction<string>,
+        ) => {
             state.manualPlay = action.payload;
         },
-        setPlayDelay: (state, action: PayloadAction<string>) => {
+        setPlayDelay: (
+            state: RecordingState,
+            action: PayloadAction<string>,
+        ) => {
             state.playDelay = action.payload;
         },
-        setRecSequenceData: (state, action: PayloadAction<any[]>) => {
+        setRecSequenceData: (
+            state: RecordingState,
+            action: PayloadAction<any[]>,
+        ) => {
             state.recSequenceData = action.payload;
         },
-        addRecSequenceData: (state, action: PayloadAction<any>) => {
+        addRecSequenceData: (
+            state: RecordingState,
+            action: PayloadAction<any>,
+        ) => {
             state.recSequenceData.push(action.payload);
         },
         setSelectedRecordingDetails: (
-            state,
+            state: RecordingState,
             action: PayloadAction<any | null>,
         ) => {
             state.selectedRecordingDetails = action.payload;
         },
-        setShowRecord: (state, action: PayloadAction<boolean>) => {
+        setShowRecord: (
+            state: RecordingState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.showRecord = action.payload;
         },
-        setShowLoader: (state, action: PayloadAction<boolean>) => {
+        setShowLoader: (
+            state: RecordingState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.showLoader = action.payload;
         },
         resetRecordingState: () => {
@@ -127,9 +151,12 @@ export const recordingSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(initializeRecordingState.fulfilled, (state, action) => {
-            return { ...state, ...action.payload };
-        });
+        builder.addCase(
+            initializeRecordingState.fulfilled,
+            (state: RecordingState, action) => {
+                return { ...state, ...action.payload };
+            },
+        );
     },
 });
 

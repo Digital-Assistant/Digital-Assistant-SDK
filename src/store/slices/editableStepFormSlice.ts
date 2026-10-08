@@ -138,7 +138,7 @@ export const editableStepFormSlice = createSlice({
          * Initialize form with item data
          */
         initializeFormForStep: (
-            state,
+            state: EditableStepFormState,
             action: PayloadAction<InitializeFormPayload>,
         ) => {
             const { item, index, isUpdateMode, recordingId } = action.payload;
@@ -203,7 +203,7 @@ export const editableStepFormSlice = createSlice({
          * Start editing a step (explicit action for update mode)
          */
         startStepEditing: (
-            state,
+            state: EditableStepFormState,
             action: PayloadAction<StartStepEditingPayload>,
         ) => {
             const { index, stepData, recordingId } = action.payload;
@@ -248,7 +248,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Update draft changes (temporary storage)
          */
-        updateDraftChanges: (state, action: PayloadAction<any>) => {
+        updateDraftChanges: (
+            state: EditableStepFormState,
+            action: PayloadAction<any>,
+        ) => {
             state.editingWorkflow.draftChanges = action.payload;
             // Changes to draft imply validation is now required
             state.editingWorkflow.validationRequired = true;
@@ -259,7 +262,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Start validation control
          */
-        startValidation: (state, action: PayloadAction<number | void>) => {
+        startValidation: (
+            state: EditableStepFormState,
+            action: PayloadAction<number | void>,
+        ) => {
             state.editingWorkflow.validationRequired = true;
             state.editingWorkflow.validationInProgress = true;
             state.editingWorkflow.validationCompleted = false;
@@ -269,7 +275,7 @@ export const editableStepFormSlice = createSlice({
         /**
          * Mark validation as completed
          */
-        markValidationCompleted: (state) => {
+        markValidationCompleted: (state: EditableStepFormState) => {
             state.editingWorkflow.validationCompleted = true;
             state.editingWorkflow.validationInProgress = false;
             state.editingWorkflow.validationRequired = false;
@@ -279,7 +285,7 @@ export const editableStepFormSlice = createSlice({
         /**
          * Cancel editing - revert to original state
          */
-        cancelStepEditing: (state) => {
+        cancelStepEditing: (state: EditableStepFormState) => {
             state.isUpdateMode = false;
             state.editingWorkflow = {
                 isEditing: false,
@@ -296,7 +302,7 @@ export const editableStepFormSlice = createSlice({
         /**
          * Reset form to initial state
          */
-        resetForm: (state) => {
+        resetForm: (state: EditableStepFormState) => {
             const newState = getInitialState();
             saveStateToStorage(newState);
             return newState;
@@ -305,7 +311,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Update step name
          */
-        updateStepName: (state, action: PayloadAction<string>) => {
+        updateStepName: (
+            state: EditableStepFormState,
+            action: PayloadAction<string>,
+        ) => {
             state.formFields.stepEditValue = action.payload;
             // Updating field marks validation as required
             if (state.isUpdateMode) {
@@ -345,7 +354,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Update tooltip
          */
-        updateTooltip: (state, action: PayloadAction<string>) => {
+        updateTooltip: (
+            state: EditableStepFormState,
+            action: PayloadAction<string>,
+        ) => {
             state.formFields.tooltip = action.payload;
             saveStateToStorage(state);
         },
@@ -353,7 +365,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Update slow playback time
          */
-        updateSlowPlaybackTime: (state, action: PayloadAction<string>) => {
+        updateSlowPlaybackTime: (
+            state: EditableStepFormState,
+            action: PayloadAction<string>,
+        ) => {
             state.formFields.slowPlaybackTime = action.payload;
             saveStateToStorage(state);
         },
@@ -362,7 +377,7 @@ export const editableStepFormSlice = createSlice({
          * Update custom metadata
          */
         updateCustomMetadata: (
-            state,
+            state: EditableStepFormState,
             action: PayloadAction<UpdateCustomMetadataPayload>,
         ) => {
             const { key, value } = action.payload;
@@ -373,7 +388,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Clear custom metadata field
          */
-        clearCustomMetadata: (state, action: PayloadAction<string>) => {
+        clearCustomMetadata: (
+            state: EditableStepFormState,
+            action: PayloadAction<string>,
+        ) => {
             delete state.formFields.customMetadata[action.payload];
             saveStateToStorage(state);
         },
@@ -381,7 +399,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Set step profanity error
          */
-        setStepProfanityError: (state, action: PayloadAction<boolean>) => {
+        setStepProfanityError: (
+            state: EditableStepFormState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.errors.stepProfanityError = action.payload;
             saveStateToStorage(state);
         },
@@ -389,7 +410,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Set step input error
          */
-        setStepInputError: (state, action: PayloadAction<boolean>) => {
+        setStepInputError: (
+            state: EditableStepFormState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.errors.stepInputError = action.payload;
             saveStateToStorage(state);
         },
@@ -397,7 +421,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Set tooltip error
          */
-        setTooltipError: (state, action: PayloadAction<boolean>) => {
+        setTooltipError: (
+            state: EditableStepFormState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.errors.tooltipError = action.payload;
             saveStateToStorage(state);
         },
@@ -405,7 +432,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Set slow playback time error
          */
-        setSlowPlaybackTimeError: (state, action: PayloadAction<boolean>) => {
+        setSlowPlaybackTimeError: (
+            state: EditableStepFormState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.errors.slowPlaybackTimeError = action.payload;
             saveStateToStorage(state);
         },
@@ -413,7 +443,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Set disable tooltip submit button
          */
-        setDisableTooltipSubmit: (state, action: PayloadAction<boolean>) => {
+        setDisableTooltipSubmit: (
+            state: EditableStepFormState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.uiState.disableTooltipSubmitBtn = action.payload;
             saveStateToStorage(state);
         },
@@ -421,7 +454,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Set mounted state
          */
-        setMountedState: (state, action: PayloadAction<boolean>) => {
+        setMountedState: (
+            state: EditableStepFormState,
+            action: PayloadAction<boolean>,
+        ) => {
             state.uiState.isMounted = action.payload;
             saveStateToStorage(state);
         },
@@ -429,7 +465,10 @@ export const editableStepFormSlice = createSlice({
         /**
          * Update all errors at once
          */
-        setAllErrors: (state, action: PayloadAction<Partial<FormErrors>>) => {
+        setAllErrors: (
+            state: EditableStepFormState,
+            action: PayloadAction<Partial<FormErrors>>,
+        ) => {
             state.errors = { ...state.errors, ...action.payload };
             saveStateToStorage(state);
         },
