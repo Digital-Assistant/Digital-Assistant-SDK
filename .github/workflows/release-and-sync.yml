@@ -69,7 +69,7 @@ jobs:
   # ---------------------------------------------------------------------------
   # npm publishing is intentionally DISABLED for now.
   #
-  # Done: package renamed to @udan/digital-assistant-core, consumer-safe install
+  # Done: package renamed to @udan/digital-assistant-sdk, consumer-safe install
   # (domjson patch runs from `prepare`), production build in prepublishOnly,
   # tests excluded from the packed declarations.
   #

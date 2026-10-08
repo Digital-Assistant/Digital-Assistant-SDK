@@ -2,7 +2,7 @@
 
 ## 1. Project Overview
 
-`@udan/digital-assistant-core` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
+`@udan/digital-assistant-sdk` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
 
 Stack: TypeScript 4.9 (strict, `allowJs`), Redux Toolkit + redux-thunk, webpack 5 multi-env builds, Jest 30 (jsdom) + ts-jest, ESLint 8 + Prettier, i18next, Keycloak, winston (remote logging).
 
@@ -163,7 +163,7 @@ therefore enforces production dependencies at `high` severity plus `critical` an
 
 **Release lifecycle:** version bumps, changelog generation, GitHub Releases, and the
 `main` → `dev` back-merge are automated via `.github/workflows/release-and-sync.yml`
-(npm publishing is currently disabled; the package is `@udan/digital-assistant-core`).
+(npm publishing is currently disabled; the package is `@udan/digital-assistant-sdk`).
 Release Please and the back-merge job open PRs with a GitHub App token
 (`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**

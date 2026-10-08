@@ -1,4 +1,4 @@
-# @udan/digital-assistant-core
+# @udan/digital-assistant-sdk
 
 Core SDK for the Digital Assistant (UDA): a browser-embedded library that records and replays user
 click/hover sequences, manages recording/playback state in a Redux store, and talks to the UDA backend

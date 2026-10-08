@@ -48,7 +48,7 @@ export interface ApiError {
  *
  * Usage:
  * ```typescript
- * import { apiClient } from '@udan/digital-assistant-core';
+ * import { apiClient } from '@udan/digital-assistant-sdk';
  *
  * // Make authenticated requests
  * const response = await apiClient.get('/api/user/profile');
