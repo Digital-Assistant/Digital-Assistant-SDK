@@ -1,0 +1,73 @@
+name: Cross-OS Verification
+
+# Non-blocking: runs the full gate on macOS and Windows weekly so OS-specific regressions
+# surface without slowing every PR. Not a required check.
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      # Generate environments/local.env from repository variables/secrets.
+      # Values are inlined into the browser bundle, so non-secret config lives in
+      # repository variables and credentials in secrets (see AGENTS.md section 8).
+      - name: Generate build environment
+        env:
+          BUILD_ENV: local
+          baseURL: ${{ vars.BASE_URL }}
+          baseProdURL: ${{ vars.BASE_PROD_URL }}
+          baseTestURL: ${{ vars.BASE_TEST_URL }}
+          profanityUrl: ${{ vars.PROFANITY_URL }}
+          profanityRegion: ${{ vars.PROFANITY_REGION }}
+          googleTranslateUrl: ${{ vars.GOOGLE_TRANSLATE_URL }}
+          keycloakUrl: ${{ vars.KEYCLOAK_URL }}
+          tokenUrl: ${{ vars.TOKEN_URL }}
+          llmUrl: ${{ vars.LLM_URL }}
+          keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
+          keycloakClientId: ${{ vars.KEYCLOAK_CLIENT_ID }}
+          googleAnalyticsMeasurementId: ${{ vars.GOOGLE_ANALYTICS_MEASUREMENT_ID }}
+          enableGoogleAnalytics: ${{ vars.ENABLE_GOOGLE_ANALYTICS }}
+          profanityKey: ${{ secrets.PROFANITY_KEY }}
+          googleTranslateApiKey: ${{ secrets.GOOGLE_TRANSLATE_API_KEY }}
+          keycloakClientSecret: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
+          googleAnalyticsSecretKey: ${{ secrets.GOOGLE_ANALYTICS_SECRET_KEY }}
+        run: npm run env:generate
+
+      - name: Build
+        run: npm run build

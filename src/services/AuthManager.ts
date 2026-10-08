@@ -1,4 +1,8 @@
-import Keycloak from 'keycloak-js';
+import Keycloak, {
+    KeycloakLoginOptions,
+    KeycloakLogoutOptions,
+    KeycloakProfile,
+} from 'keycloak-js';
 import { store } from '../store';
 import {
     setKeycloakSessionData,
@@ -127,7 +131,7 @@ export class AuthManager {
     /**
      * Redirect to Keycloak login page
      */
-    public async login(options?: Keycloak.KeycloakLoginOptions): Promise<void> {
+    public async login(options?: KeycloakLoginOptions): Promise<void> {
         if (!this.keycloak) {
             console.error('AuthManager: Not initialized');
             return;
@@ -138,9 +142,7 @@ export class AuthManager {
     /**
      * Logout from Keycloak and clear all session storage.
      */
-    public async logout(
-        options?: Keycloak.KeycloakLogoutOptions,
-    ): Promise<void> {
+    public async logout(options?: KeycloakLogoutOptions): Promise<void> {
         // Always clear storage and Redux state regardless of Keycloak status
         await Promise.all([
             StorageUtil.remove(CONFIG.USER_AUTH_DATA_KEY),
@@ -183,9 +185,7 @@ export class AuthManager {
     /**
      * Get user profile
      */
-    public async getUserProfile(): Promise<
-        Keycloak.KeycloakProfile | undefined
-    > {
+    public async getUserProfile(): Promise<KeycloakProfile | undefined> {
         if (!this.keycloak) return undefined;
         return await this.keycloak.loadUserProfile();
     }
