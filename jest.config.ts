@@ -1,5 +1,5 @@
 /**
- * Jest Configuration for @udan/digital-assistant-core
+ * Jest Configuration for @udan/digital-assistant-sdk
  * 
  * This configuration sets up Jest for testing TypeScript code in a browser-like environment.
  * It includes optimizations for performance and proper handling of ES modules.

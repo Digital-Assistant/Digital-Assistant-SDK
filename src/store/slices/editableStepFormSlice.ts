@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { loadFromStorage, saveToStorage } from '../utils/storageHelper';
+import {
+    loadFromStorage,
+    saveToStorage,
+} from '../../util/storage/storageHelper';
 
 /**
  * TypeScript Interfaces for EditableStepForm State

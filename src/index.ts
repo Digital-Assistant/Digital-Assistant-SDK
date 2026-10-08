@@ -12,6 +12,7 @@ import { AuthDataConfig } from './util/user/AuthDataConfig';
 import { AuthConfig } from './util/user/UserAuthConfig';
 import { AppConfig } from './config/AppConfig';
 import { CustomConfig } from './config/CustomConfig';
+import { UDAConsoleLogger } from './util/error';
 
 // Export for module usage
 export { AuthDataConfig, AuthConfig, AppConfig, CustomConfig };
@@ -54,7 +55,7 @@ export class DigitalAssistantCore {
     private lastRecordingRef: any = null;
 
     constructor(config: DigitalAssistantConfiguration) {
-        console.log('Digital Assistant SDK Core initialized');
+        UDAConsoleLogger.info('Digital Assistant SDK Core initialized', 3);
         this.errorLogger = new ErrorLoggerService(config);
         this.translateService = new TranslateService(
             apiClient,

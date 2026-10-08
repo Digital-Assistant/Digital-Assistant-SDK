@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { loadFromStorage, saveToStorage } from '../utils/storageHelper';
+import {
+    loadFromStorage,
+    saveToStorage,
+} from '../../util/storage/storageHelper';
 
 // Define the state interface for flow data
 export interface FlowState {

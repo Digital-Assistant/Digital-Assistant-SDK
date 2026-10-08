@@ -1,3 +1,4 @@
+import { UDAConsoleLogger } from '../error';
 // This module defines a function to add DOM elements to a global click tracking array.
 // It includes a list of HTML tags that should be ignored to avoid tracking irrelevant elements.
 
@@ -88,7 +89,9 @@ export const AddToClickObjects = (node: any) => {
         window.UDAClickObjects.push(clickObject);
     } catch (e) {
         // Log an error if the clickable object cannot be processed.
-        // eslint-disable-next-line no-console
-        console.log('Unable to process clickable object - ' + node, e);
+        UDAConsoleLogger.info(
+            'Unable to process clickable object - ' + node,
+            2,
+        );
     }
 };

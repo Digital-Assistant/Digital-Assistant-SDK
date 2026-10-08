@@ -10,6 +10,7 @@ import {
     setIsPlaying,
     setSelectedRecordingDetails,
 } from '../../store/slices/recordingSlice';
+import { UDAConsoleLogger } from '../error';
 
 /**
  * PlaybackService orchestrates the automatic playback of recording sequences.
@@ -42,8 +43,9 @@ export class PlaybackService {
             true,
         );
         if (playStatus === 'on') {
-            console.log(
+            UDAConsoleLogger.info(
                 'PlaybackService: Resuming playback from storage state.',
+                3,
             );
             // Short delay to ensure DOM is ready and stabilization has occurred
             setTimeout(() => this.autoPlay(), 1000);
@@ -66,7 +68,7 @@ export class PlaybackService {
      * Orchestrates the playback of the next available item in the sequence.
      */
     private async autoPlay() {
-        console.log('PlaybackService: autoPlay triggered.');
+        UDAConsoleLogger.info('PlaybackService: autoPlay triggered.', 3);
         const playStatus = StorageUtil.getFromStore(
             CONFIG.RECORDING_IS_PLAYING,
             true,
@@ -99,8 +101,9 @@ export class PlaybackService {
         }
 
         if (playItem && playItem.node) {
-            console.log(
+            UDAConsoleLogger.info(
                 `PlaybackService: Playing item at index ${playItem.index}`,
+                3,
             );
 
             // Attempt to match and invoke the node
@@ -127,7 +130,7 @@ export class PlaybackService {
             }
         } else {
             // Sequence completed
-            console.log('PlaybackService: Playback completed.');
+            UDAConsoleLogger.info('PlaybackService: Playback completed.', 3);
             this.pause(selectedRecording?.id);
 
             const currentWorkflow = state.editableStepForm?.editingWorkflow;
@@ -158,8 +161,9 @@ export class PlaybackService {
 
             // Notify UI to show completion state
             if (selectedRecording) {
-                console.log(
+                UDAConsoleLogger.info(
                     'PlaybackService: Pushing final completed state to Redux',
+                    3,
                 );
                 // Fetch the absolute latest from storage to ensure all statuses are captured
                 const finalRecording = StorageUtil.getFromStore(

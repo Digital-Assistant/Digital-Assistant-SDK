@@ -21,8 +21,9 @@ export const AuthDataConfig = async (data: AuthConfigPropTypes) => {
                 UDAConsoleLogger.info(encrypted);
                 config[key] = encrypted;
             } else {
-                console.log(
+                UDAConsoleLogger.info(
                     key + ' accepts only ' + typeof config[key] + ' data type.',
+                    2,
                 );
             }
         }

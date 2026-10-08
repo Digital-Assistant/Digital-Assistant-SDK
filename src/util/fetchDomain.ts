@@ -1,4 +1,5 @@
 import { parseDomain, ParseResultType } from 'parse-domain';
+import { UDAConsoleLogger } from './error';
 
 /**
  * Fetches the top-level domain of the current window's host.
@@ -34,15 +35,16 @@ export const fetchDomain = (): string | null => {
             case ParseResultType.NotListed: {
                 // For reserved or unlisted domains, log a message and keep the full hostname.
                 const { hostname } = parseResult;
-                console.log(`${hostname} is a reserved or unknown domain`);
+                UDAConsoleLogger.info(
+                    `${hostname} is a reserved or unknown domain`,
+                    3,
+                );
                 // `finalDomain` remains `window.location.host` in this case.
                 break;
             }
             default:
-                // For any other parse result type, log the hostname.
-                const { hostname } = parseResult;
-                console.log(hostname);
-            // `finalDomain` remains `window.location.host` in this case.
+                // `finalDomain` remains `window.location.host` in this case.
+                break;
         }
     }
     return finalDomain;

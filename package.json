@@ -1,5 +1,5 @@
 {
-  "name": "@udan/digital-assistant-core",
+  "name": "@udan/digital-assistant-sdk",
   "version": "0.10.0",
   "description": "Core SDK for Digital Assistant",
   "engines": {
