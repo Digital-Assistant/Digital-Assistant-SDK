@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.2](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.10.1...v0.10.2) (2026-10-08)
+
+
+### Bug Fixes
+
+* **release:** stage npm publishes and keep declarations in production builds ([14ccdf0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/14ccdf04ed1287524c91566dc89b6524c99f8d50))
+
 ## [0.10.1](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.10.0...v0.10.1) (2026-10-08)
 
 
