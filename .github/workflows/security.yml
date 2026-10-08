@@ -1,18 +1,20 @@
 name: Security Audit
 
+# Scheduled audit so newly published advisories surface without waiting for a PR.
+# PR/push audits run as the `audit` job in ci.yml (only when dependencies change).
 on:
-  push:
-    branches: ['main', 'dev', 'qa']
-  pull_request:
-    branches: ['main', 'dev', 'qa']
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   audit:
-    name: Dependency Audit
+    name: Scheduled Dependency Audit
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
@@ -21,10 +23,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 22
-          cache: npm
 
-      - name: Install Dependencies
-        run: npm ci
-
+      # npm audit reads package-lock.json; no install needed.
       - name: Audit Dependencies
         run: npm run security

@@ -21,7 +21,7 @@ See [`AGENTS.md`](AGENTS.md) for the full command list, architecture, and conven
 
 ## Releases
 
-Releases are automated with Release Please from Conventional Commits, flowing `dev` → `qa` → `main`.
+Releases are automated with Release Please from Conventional Commits, flowing `dev` → `main`.
 See [`RELEASE_PROCESS.md`](RELEASE_PROCESS.md).
 
 ## Repository layout notes

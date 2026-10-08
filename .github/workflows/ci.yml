@@ -2,21 +2,80 @@ name: CI
 
 on:
   push:
-    branches: ['main', 'dev', 'qa']
+    branches: ['main', 'dev']
   pull_request:
-    branches: ['main', 'dev', 'qa']
+    branches: ['main', 'dev']
 
 permissions:
   contents: read
 
+# Superseded PR runs are cancelled; pushes to protected branches always run to completion.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  build-and-verify:
-    name: Build, Check, and Verify (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+  # Decides which heavy jobs are needed. Skipping is done at job level (not with workflow
+  # `paths-ignore`) so the required `CI Gate` check always reports.
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+      deps: ${{ steps.diff.outputs.deps }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Classify changed files
+        id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          code=true
+          deps=true
+          files=""
+          if [[ "$EVENT" == "pull_request" ]]; then
+            files=$(git diff --name-only "$PR_BASE...$PR_HEAD") || files=""
+          elif [[ "$EVENT" == "push" ]] && [[ ! "$PUSH_BEFORE" =~ ^0+$ ]]; then
+            files=$(git diff --name-only "$PUSH_BEFORE" "$PUSH_AFTER") || files=""
+          fi
+
+          # Unknown or empty diff: run everything.
+          if [[ -n "$files" ]]; then
+            # Only these paths may be skipped; everything else (config, scripts, tests,
+            # workflows, lockfile) runs the full gate.
+            if ! grep -v -E '^(.*\.md|artefacts/.*|LICENSE|CHANGELOG\.md)$' <<< "$files" | grep -q .; then
+              code=false
+            fi
+            if ! grep -q -E '^(package\.json|package-lock\.json)$' <<< "$files"; then
+              deps=false
+            fi
+          fi
+
+          # Audit always runs for pushes to main (post-merge / release baseline).
+          if [[ "$EVENT" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            deps=true
+          fi
+
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "deps=$deps" >> "$GITHUB_OUTPUT"
+          echo "code=$code deps=$deps"
+          echo "$files"
+
+  verify:
+    name: Build, Check, and Verify
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
@@ -30,18 +89,33 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      # Restored after `npm ci`, which deletes node_modules (and its .cache directory).
+      - name: Restore webpack and Jest caches
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            node_modules/.cache/webpack
+            .jest-cache
+          key: build-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            build-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            build-cache-${{ runner.os }}-
+
       # --- Blocking gates ---
-      - name: Type check
-        run: npm run typecheck
-
-      - name: Format check
-        run: npm run format:check
-
-      - name: Lint
-        run: npm run lint
+      # Independent static checks run concurrently; any failure fails the step.
+      - name: Type check, format check, and lint
+        run: |
+          npm run typecheck & p_types=$!
+          npm run format:check & p_format=$!
+          npm run lint & p_lint=$!
+          rc=0
+          wait "$p_types" || { echo "::error::typecheck failed"; rc=1; }
+          wait "$p_format" || { echo "::error::format:check failed"; rc=1; }
+          wait "$p_lint" || { echo "::error::lint failed"; rc=1; }
+          exit "$rc"
 
       - name: Tests
-        run: npm test
+        run: npm test -- --ci --maxWorkers=100%
 
       # Generate environments/local.env from repository variables/secrets.
       # Values are inlined into the browser bundle, so non-secret config lives in
@@ -70,3 +144,43 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  audit:
+    name: Dependency Audit
+    needs: changes
+    if: ${{ needs.changes.outputs.deps == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      # npm audit reads package-lock.json; no install needed.
+      - name: Audit Dependencies
+        run: npm run security
+
+  # Single required status check for the rulesets. Skipped jobs (docs-only change, no
+  # dependency change) count as success; failed or cancelled jobs fail the gate.
+  gate:
+    name: CI Gate
+    needs: [changes, verify, audit]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Evaluate results
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for r in $RESULTS; do
+            if [[ "$r" != "success" && "$r" != "skipped" ]]; then
+              echo "::error::A required job did not succeed ($r)."
+              exit 1
+            fi
+          done

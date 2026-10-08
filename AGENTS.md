@@ -132,24 +132,25 @@ from these prefixes:
 - `feat!:` / `fix!:` → MAJOR bump (breaking change)
 - `chore:`, `docs:`, `test:`, `refactor:` → no bump, still recorded
 
-**Branch strategy** (`feature → dev → qa → main`):
-- All work happens on feature branches and is PR'd into `dev`. Never commit directly to `dev`, `qa`, or `main`.
+**Branch strategy** (`feature → dev → main`):
+- All work happens on feature branches and is PR'd into `dev`. Never commit directly to `dev` or `main`.
 - `dev` is the integration branch — all feature/fix work lands here first.
-- `qa` is the integration/pre-release testing branch (see `build:qa`); it accepts PRs **only from `dev`**.
-- `main` is production and contains only released code; it accepts PRs **only from `qa`** (plus automated `release-please--*` release PRs).
+- `main` is production and contains only released code; it accepts PRs **only from `dev`** (plus automated `release-please--*` release PRs).
+- `build:qa` is an environment build target only; there is no `qa` branch.
 - Source-branch rules are enforced by `.github/workflows/enforce-dev-base.yml` (`Check source branch`).
-- `main`, `dev`, and `qa` are protected by repository rulesets — changes arrive only via PR (no direct pushes, no force-push, no deletion).
+- `main` and `dev` are protected by repository rulesets — changes arrive only via PR (no direct pushes, no force-push, no deletion).
+- A move to trunk-based development is planned (see `RELEASE_PROCESS.md` → Future Plans).
 
-**Gate status** (all gates are blocking in CI):
+**Gate status** (all gates are blocking in CI). `ci.yml` runs on Ubuntu and ends in a single `CI Gate` job — the required status check in the rulesets. Docs-only changes (`*.md`, `artefacts/**`, `LICENSE`, `CHANGELOG.md`) skip `verify`; the audit runs only when `package.json`/lockfile change (and on pushes to `main` and weekly). macOS/Windows run weekly and non-blocking via `cross-os.yml`.
 
-| Gate | Workflow | Status |
+| Gate | Workflow job | Status |
 |---|---|---|
-| `npm run typecheck` | CI | **Blocking** |
-| `npm run format:check` | CI | **Blocking** |
-| `npm run lint` | CI | **Blocking** (legacy debt reported as warnings) |
-| `npm test` | CI | **Blocking** |
-| `npm run build` | CI (after `env:generate`) | **Blocking** |
-| `npm run security` | Security Audit | **Blocking** (production deps at `high`; `critical` anywhere) |
+| `npm run typecheck` | CI / `verify` | **Blocking** |
+| `npm run format:check` | CI / `verify` | **Blocking** |
+| `npm run lint` | CI / `verify` | **Blocking** (legacy debt reported as warnings) |
+| `npm test` | CI / `verify` | **Blocking** |
+| `npm run build` | CI / `verify` (after `env:generate`) | **Blocking** |
+| `npm run security` | CI / `audit` (+ weekly Security Audit) | **Blocking** (production deps at `high`; `critical` anywhere) |
 
 **Known lint debt:** the ESLint config downgrades `no-explicit-any`,
 `no-unused-vars`, `ban-ts-comment`, `ban-types`, `no-var-requires`, `no-var`, and
