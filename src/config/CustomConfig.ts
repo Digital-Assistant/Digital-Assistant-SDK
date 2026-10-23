@@ -39,7 +39,7 @@ export const CustomConfig: CustomConfigPropTypes = {
     enableEditClickedName: true, // Flag for editing the clicked element
     enableSkipDuringPlay: true, // Flag for enabling skip functionality
     enableTooltipAddition: true, // Flag for adding custom tooltip information
-    enableMultilingual: true, // Flag for enabling multilingual search with speech
+    enableMultilingual: false, // Flag for enabling multilingual search with speech. Off while translate is being redesigned (Google Translate key removed)
     enableNodeTypeSelection: true, // Flag for enabling node type selection
     enablePermissions: false, // Flag for enabling permissions addition
     permissions: { test: true }, // Object where the permissions can be passed
