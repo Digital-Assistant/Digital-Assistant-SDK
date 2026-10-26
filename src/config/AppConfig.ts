@@ -8,7 +8,7 @@ import { CustomConfig, CustomConfigPropTypes } from './CustomConfig';
  * @returns The updated `CustomConfigPropTypes` object.
  */
 export const AppConfig = (
-    data: CustomConfigPropTypes,
+    data: Partial<CustomConfigPropTypes>,
 ): CustomConfigPropTypes => {
     // Check if the input data is a valid object
     if (!data || typeof data !== 'object') {

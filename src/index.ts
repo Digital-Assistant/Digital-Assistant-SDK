@@ -17,18 +17,13 @@ import { UDAConsoleLogger } from './util/error';
 // Export for module usage
 export { AuthDataConfig, AuthConfig, AppConfig, CustomConfig };
 
-// Expose globally for both Browser Extension and Independent SDK
-if (typeof window !== 'undefined') {
-    (window as any).UDAAuthDataConfig = AuthDataConfig;
-    (window as any).UDAAuthConfig = AuthConfig;
-    (window as any).UDAPluginSDK = AppConfig;
-    (window as any).UDAGlobalConfig = CustomConfig;
-} else if (typeof global !== 'undefined') {
-    (global as any).UDAAuthDataConfig = AuthDataConfig;
-    (global as any).UDAAuthConfig = AuthConfig;
-    (global as any).UDAPluginSDK = AppConfig;
-    (global as any).UDAGlobalConfig = CustomConfig;
-}
+// Expose globally for both Browser Extension and Independent SDK. globalThis is
+// `window` on a page and `self` in the extension's background service worker.
+const sdkGlobal = globalThis as any;
+sdkGlobal.UDAAuthDataConfig = AuthDataConfig;
+sdkGlobal.UDAAuthConfig = AuthConfig;
+sdkGlobal.UDAPluginSDK = AppConfig;
+sdkGlobal.UDAGlobalConfig = CustomConfig;
 
 // Export the store and types for external consumption
 export { store } from './store';

@@ -4,6 +4,7 @@ import { specialNodes } from '../util/specialNodes';
 import { processUrlArgs } from '../util/urlProcessing';
 import { getUserId } from './userService';
 import { recordUserClickData } from './trackingService';
+import { resolveLlmUrl } from '../config/environment';
 
 /**
  * Search request interface
@@ -76,7 +77,7 @@ export const fetchSearchResults = async (
         if (request.additionalParams != null) {
             if (globalConfig?.enableAISearch) {
                 endpoint =
-                    (process.env.llmUrl || '') +
+                    resolveLlmUrl() +
                     processUrlArgs(ENDPOINT.AISearchWithPermissions, request);
             } else {
                 endpoint = processUrlArgs(
@@ -87,7 +88,7 @@ export const fetchSearchResults = async (
         } else {
             if (globalConfig?.enableAISearch) {
                 endpoint =
-                    (process.env.llmUrl || '') +
+                    resolveLlmUrl() +
                     processUrlArgs(ENDPOINT.AISearch, request);
             } else {
                 endpoint = processUrlArgs(ENDPOINT.Search, request);

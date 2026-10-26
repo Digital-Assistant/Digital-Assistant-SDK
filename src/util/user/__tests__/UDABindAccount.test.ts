@@ -42,7 +42,7 @@ describe('UDABindAccount', () => {
 
         // Mock process.env
         (process as any).env = {
-            tokenUrl: 'https://token.example.com',
+            tokenProdUrl: 'https://token.example.com',
         };
 
         mockUserAuthData = {
@@ -160,6 +160,41 @@ describe('UDABindAccount', () => {
         expect(StorageUtil.add).toHaveBeenCalledWith(
             mockUDASessionData,
             'custom-session-name',
+        );
+    });
+
+    it('should use the TEST token URL when the environment is TEST', async () => {
+        (process as any).env = {
+            tokenProdUrl: 'https://token.example.com',
+            tokenTestUrl: 'https://token-test.example.com',
+        };
+        (window as any).UDAGlobalConfig.environment = 'TEST';
+        (apiClient.post as jest.Mock)
+            .mockResolvedValueOnce({ data: { token: 'token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
+
+        await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
+
+        expect(apiClient.post).toHaveBeenNthCalledWith(
+            1,
+            'https://token-test.example.com' + ENDPOINT.tokenUrl,
+            expect.any(Object),
+        );
+    });
+
+    it('should prefer an explicit tokenUrl from the page config', async () => {
+        (window as any).UDAGlobalConfig.tokenUrl =
+            'https://page-token.example.com';
+        (apiClient.post as jest.Mock)
+            .mockResolvedValueOnce({ data: { token: 'token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
+
+        await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
+
+        expect(apiClient.post).toHaveBeenNthCalledWith(
+            1,
+            'https://page-token.example.com' + ENDPOINT.tokenUrl,
+            expect.any(Object),
         );
     });
 

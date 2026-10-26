@@ -79,7 +79,8 @@ describe('AuthManager', () => {
         });
 
         it('should fall back to CustomConfig if config not provided', async () => {
-            // Mock CustomConfig values
+            // The page config the SDK exposes as UDAGlobalConfig
+            (globalThis as any).UDAGlobalConfig = CustomConfig;
             CustomConfig.keycloakUrl = 'http://default-url';
             CustomConfig.realm = 'default-realm';
             CustomConfig.clientId = 'default-client';
@@ -91,6 +92,36 @@ describe('AuthManager', () => {
                 realm: 'default-realm',
                 clientId: 'default-client',
             });
+        });
+
+        it('should use the Keycloak URL of the environment when none is set', async () => {
+            const originalEnv = process.env;
+            process.env = {
+                ...originalEnv,
+                keycloakProdUrl: 'https://auth.prod.example.com/',
+                keycloakTestUrl: 'https://auth.test.example.com/',
+            };
+            (globalThis as any).UDAGlobalConfig = CustomConfig;
+            CustomConfig.keycloakUrl = '';
+            CustomConfig.realm = 'default-realm';
+            CustomConfig.clientId = 'default-client';
+
+            CustomConfig.environment = 'TEST';
+            await authManager.init();
+            expect(MockKeycloak).toHaveBeenLastCalledWith({
+                url: 'https://auth.test.example.com/',
+                realm: 'default-realm',
+                clientId: 'default-client',
+            });
+
+            CustomConfig.environment = 'PROD';
+            await authManager.init();
+            expect(MockKeycloak).toHaveBeenLastCalledWith({
+                url: 'https://auth.prod.example.com/',
+                realm: 'default-realm',
+                clientId: 'default-client',
+            });
+            process.env = originalEnv;
         });
 
         it('should return false if init fails', async () => {

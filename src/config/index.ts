@@ -3,3 +3,4 @@ export * from './AppConfig';
 export * from './CustomConfig';
 export * from './constants';
 export * from './endpoints';
+export * from './environment';

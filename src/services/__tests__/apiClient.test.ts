@@ -8,6 +8,8 @@ import {
 } from '../../store/slices/userSlice';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { AppConfig } from '../../config/AppConfig';
+import { CustomConfig } from '../../config/CustomConfig';
 
 describe('ApiClient', () => {
     let client: ApiClient;
@@ -449,6 +451,125 @@ describe('ApiClient', () => {
             await expect(client.get('/unmatched')).rejects.toMatchObject({
                 message: 'Not Found - The requested resource does not exist',
             });
+        });
+    });
+
+    describe('Runtime environment', () => {
+        const originalEnv = process.env;
+        const originalGlobalConfig = (globalThis as any).UDAGlobalConfig;
+        const pristine = { ...CustomConfig };
+        const PROD_BASE = 'https://prod.example.com/api';
+        const TEST_BASE = 'https://test.example.com/api';
+
+        const echo = (target: ApiClient) => {
+            const adapter = new MockAdapter(target.getAxiosInstance());
+            adapter
+                .onAny()
+                .reply((cfg: any) => [
+                    200,
+                    { baseURL: cfg.baseURL, headers: cfg.headers },
+                ]);
+            return adapter;
+        };
+
+        beforeEach(() => {
+            process.env = {
+                ...originalEnv,
+                baseProdURL: PROD_BASE,
+                baseTestURL: TEST_BASE,
+            };
+            Object.assign(CustomConfig, pristine);
+            (globalThis as any).UDAGlobalConfig = CustomConfig;
+        });
+
+        afterEach(() => {
+            process.env = originalEnv;
+            Object.assign(CustomConfig, pristine);
+            (globalThis as any).UDAGlobalConfig = originalGlobalConfig;
+        });
+
+        it('sends requests to the PROD base by default', async () => {
+            const adapter = echo(apiClient);
+            const response = await apiClient.get('/search');
+            expect(response.data.baseURL).toBe(PROD_BASE);
+            expect(apiClient.getBaseURL()).toBe(PROD_BASE);
+            adapter.restore();
+        });
+
+        it('switches to TEST on the next request after AppConfig({ environment: "TEST" })', async () => {
+            const adapter = echo(apiClient);
+            expect((await apiClient.get('/search')).data.baseURL).toBe(
+                PROD_BASE,
+            );
+
+            AppConfig({ environment: 'TEST' } as any);
+
+            expect((await apiClient.get('/search')).data.baseURL).toBe(
+                TEST_BASE,
+            );
+            adapter.restore();
+        });
+
+        it('an explicit apiBaseUrl beats the environment', async () => {
+            const adapter = echo(apiClient);
+            AppConfig({
+                environment: 'TEST',
+                apiBaseUrl: 'https://custom.example.com/api',
+            } as any);
+
+            const response = await apiClient.get('/search');
+            expect(response.data.baseURL).toBe(
+                'https://custom.example.com/api',
+            );
+            adapter.restore();
+        });
+
+        it('the constructor baseURL still wins', async () => {
+            const fixed = new ApiClient({
+                baseURL: 'https://fixed.example.com',
+            });
+            const adapter = echo(fixed);
+            AppConfig({
+                environment: 'TEST',
+                apiBaseUrl: 'https://custom.example.com/api',
+            } as any);
+
+            const response = await fixed.get('/search');
+            expect(response.data.baseURL).toBe('https://fixed.example.com');
+            adapter.restore();
+        });
+
+        it('updateBaseURL() wins, and an empty value returns to runtime resolution', async () => {
+            const dynamic = new ApiClient();
+            const adapter = echo(dynamic);
+
+            dynamic.updateBaseURL('https://pinned.example.com');
+            expect((await dynamic.get('/search')).data.baseURL).toBe(
+                'https://pinned.example.com',
+            );
+
+            dynamic.updateBaseURL('');
+            AppConfig({ environment: 'TEST' } as any);
+            expect((await dynamic.get('/search')).data.baseURL).toBe(TEST_BASE);
+            adapter.restore();
+        });
+
+        it('adds the UDAN-Realm header for a non-default realm', async () => {
+            const adapter = echo(apiClient);
+            AppConfig({ realm: 'customer-realm' } as any);
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers['UDAN-Realm']).toBe('customer-realm');
+            adapter.restore();
+        });
+
+        it('omits the UDAN-Realm header for the default realm', async () => {
+            const adapter = echo(apiClient);
+            AppConfig({ realm: 'UDAN' } as any);
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers['UDAN-Realm']).toBeUndefined();
+            adapter.restore();
         });
     });
 });

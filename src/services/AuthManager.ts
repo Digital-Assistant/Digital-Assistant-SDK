@@ -11,6 +11,7 @@ import {
 import { CustomConfig } from '../config/CustomConfig';
 import { StorageUtil } from '../util/storage';
 import { CONFIG } from '../config/constants';
+import { resolveKeycloakUrl } from '../config/environment';
 
 /**
  * Interface for AuthManager configuration
@@ -47,11 +48,12 @@ export class AuthManager {
 
     /**
      * Initialize Keycloak
-     * @param config Optional configuration override. Defaults to CustomConfig values.
+     * @param config Optional configuration override. Defaults to CustomConfig values;
+     * the Keycloak URL is the page's keycloakUrl or the build default for the environment.
      */
     public async init(config?: AuthManagerConfig): Promise<boolean> {
         const keycloakConfig = {
-            url: config?.url || CustomConfig.keycloakUrl,
+            url: config?.url || resolveKeycloakUrl(),
             realm: config?.realm || CustomConfig.realm || '',
             clientId: config?.clientId || CustomConfig.clientId || '',
         };

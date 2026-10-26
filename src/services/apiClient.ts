@@ -2,7 +2,7 @@ import axios from 'axios';
 import { store } from '../store';
 import type { RootState } from '../store';
 import { specialNodes, trigger } from '../util';
-import { CONFIG } from '../config';
+import { getRuntimeConfig, resolveApiBaseUrl } from '../config/environment';
 
 /**
  * Configuration options for the API client
@@ -43,7 +43,7 @@ export interface ApiError {
  * - Automatic JWT token attachment from centralized state
  * - Request/Response interceptors for authentication
  * - Error handling for 401 responses
- * - Environment-aware base URL configuration
+ * - Base URL resolved per request from UDAGlobalConfig (environment, apiBaseUrl)
  * - TypeScript support with proper type definitions
  *
  * Usage:
@@ -65,21 +65,10 @@ export class ApiClient {
             ...config,
         };
 
-        // Determine base URL from environment variables (logic mirrored from invokeApi.ts)
-        const baseProdURL = process.env.baseProdURL;
-        const baseTestURL = process.env.baseTestURL;
-
-        let envBaseURL = baseProdURL;
-        if (CONFIG.current === 'TEST') {
-            envBaseURL = baseTestURL;
-        }
-
-        // Use provided baseURL from config or fall back to determined environment URL
-        const resolvedBaseURL = this.config.baseURL || envBaseURL;
-
-        // Create Axios instance
+        // An explicit baseURL is fixed here; without one the request interceptor
+        // resolves the base per request from UDAGlobalConfig (environment, apiBaseUrl).
         this.axiosInstance = axios.create({
-            baseURL: resolvedBaseURL,
+            baseURL: this.config.baseURL || undefined,
             timeout: this.config.timeout,
             headers: {
                 'Content-Type': 'application/json',
@@ -140,16 +129,14 @@ export class ApiClient {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
 
+                if (!this.config.baseURL && !config.baseURL) {
+                    config.baseURL = resolveApiBaseUrl();
+                }
+
                 // Add UDAN-Realm header if realm is not default (matches original logic)
-                // Access global UDAGlobalConfig like the original implementation
-                if (
-                    typeof window !== 'undefined' &&
-                    (window as any).UDAGlobalConfig
-                ) {
-                    const globalConfig = (window as any).UDAGlobalConfig;
-                    if (globalConfig.realm && globalConfig.realm !== 'UDAN') {
-                        config.headers['UDAN-Realm'] = globalConfig.realm;
-                    }
+                const globalConfig = getRuntimeConfig();
+                if (globalConfig.realm && globalConfig.realm !== 'UDAN') {
+                    config.headers['UDAN-Realm'] = globalConfig.realm;
                 }
 
                 // Add SDK identifier header
@@ -254,11 +241,19 @@ export class ApiClient {
     }
 
     /**
-     * Update the base URL for the API client
+     * Fix the base URL for the API client. An empty string returns to resolving
+     * the base per request from UDAGlobalConfig.
      */
     public updateBaseURL(baseURL: string): void {
-        this.axiosInstance.defaults.baseURL = baseURL;
+        this.axiosInstance.defaults.baseURL = baseURL || undefined;
         this.config.baseURL = baseURL;
+    }
+
+    /**
+     * The base URL the next request will use.
+     */
+    public getBaseURL(): string {
+        return this.config.baseURL || resolveApiBaseUrl();
     }
 
     /**
