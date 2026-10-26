@@ -21,10 +21,12 @@ jobs:
         os: [macos-latest, windows-latest]
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js 22
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
           cache: npm
@@ -44,29 +46,27 @@ jobs:
       - name: Tests
         run: npm test
 
-      # Generate environments/local.env from repository variables/secrets.
-      # Values are inlined into the browser bundle, so non-secret config lives in
-      # repository variables and credentials in secrets (see AGENTS.md section 8).
+      # Generate environments/local.env from repository variables. Every value is
+      # inlined into the public browser bundle, so only public keys are mapped and
+      # no secret is ever passed to the build (see AGENTS.md section 8).
       - name: Generate build environment
         env:
           BUILD_ENV: local
-          baseURL: ${{ vars.BASE_URL }}
           baseProdURL: ${{ vars.BASE_PROD_URL }}
           baseTestURL: ${{ vars.BASE_TEST_URL }}
+          tokenProdUrl: ${{ vars.TOKEN_PROD_URL }}
+          tokenTestUrl: ${{ vars.TOKEN_TEST_URL }}
+          llmProdUrl: ${{ vars.LLM_PROD_URL }}
+          llmTestUrl: ${{ vars.LLM_TEST_URL }}
+          keycloakProdUrl: ${{ vars.KEYCLOAK_PROD_URL }}
+          keycloakTestUrl: ${{ vars.KEYCLOAK_TEST_URL }}
+          keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
+          keycloakClientId: ${{ vars.KEYCLOAK_CLIENT_ID }}
           profanityUrl: ${{ vars.PROFANITY_URL }}
           profanityRegion: ${{ vars.PROFANITY_REGION }}
           googleTranslateUrl: ${{ vars.GOOGLE_TRANSLATE_URL }}
-          keycloakUrl: ${{ vars.KEYCLOAK_URL }}
-          tokenUrl: ${{ vars.TOKEN_URL }}
-          llmUrl: ${{ vars.LLM_URL }}
-          keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
-          keycloakClientId: ${{ vars.KEYCLOAK_CLIENT_ID }}
           googleAnalyticsMeasurementId: ${{ vars.GOOGLE_ANALYTICS_MEASUREMENT_ID }}
           enableGoogleAnalytics: ${{ vars.ENABLE_GOOGLE_ANALYTICS }}
-          profanityKey: ${{ secrets.PROFANITY_KEY }}
-          googleTranslateApiKey: ${{ secrets.GOOGLE_TRANSLATE_API_KEY }}
-          keycloakClientSecret: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
-          googleAnalyticsSecretKey: ${{ secrets.GOOGLE_ANALYTICS_SECRET_KEY }}
         run: npm run env:generate
 
       - name: Build

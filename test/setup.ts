@@ -85,11 +85,15 @@ jest.mock('parse-domain', () => {
  * These are typically set by the host application but need to be
  * initialized in the test environment.
  */
-(window as any).UDAGlobalConfig = (window as any).UDAGlobalConfig || {
-    enableOverlay: false
-};
+// Guarded so suites can opt into `@jest-environment node` (no window), which
+// simulates the extension's background service worker.
+if (typeof window !== 'undefined') {
+    (window as any).UDAGlobalConfig = (window as any).UDAGlobalConfig || {
+        enableOverlay: false
+    };
 
-(window as any).udaSpecialNodes = (window as any).udaSpecialNodes || {};
+    (window as any).udaSpecialNodes = (window as any).udaSpecialNodes || {};
+}
 
 // =============================================================================
 // BROWSER API POLYFILLS
@@ -101,8 +105,10 @@ jest.mock('parse-domain', () => {
  * jsdom doesn't implement scrollTo, but some tests may call it.
  * Provide a no-op mock to avoid errors.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(Element.prototype as any).scrollTo = (Element.prototype as any).scrollTo || jest.fn();
+if (typeof Element !== 'undefined') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (Element.prototype as any).scrollTo = (Element.prototype as any).scrollTo || jest.fn();
+}
 
 // Export empty object to make this a module
 export { };

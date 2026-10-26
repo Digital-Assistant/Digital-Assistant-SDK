@@ -45,11 +45,16 @@ flowchart LR
 3. **Release Please:** GitHub Actions automatically opens a new "Release PR" against `main`.
    This PR contains the version bump (in `package.json`) and the updated `CHANGELOG.md`.
 4. **Publish GitHub Release:** The maintainer reviews and merges the Release PR. The GitHub
-   Release is automatically published.
-   > The `publish` job then uploads the release to npm as a **staged** version. A maintainer
-   > approves it on npmjs.com (passkey/2FA) before it goes live. See
-   > [npm Publishing](#npm-publishing).
-5. **⚠️ THE BACK-MERGE (DO NOT FORGET):** Because Release Please updated the version and
+   Release is automatically published. One `pack` job builds and packs the release tag
+   **once**; that exact tarball is attached to the GitHub release and staged on npm with the
+   dist-tag **`next`** — never `latest`. A maintainer approves the staged version on
+   npmjs.com (passkey/2FA). See [npm Publishing](#npm-publishing).
+5. **TEST, then promote:** Build the Client against the new SDK version, deploy it to TEST
+   (Client `Deploy to TEST`), and only after the TEST pass move `latest`:
+   `npm dist-tag add @udan/digital-assistant-sdk@<version> latest`. Until then `latest` stays
+   on the previous version. A rollback is the same command with the previous version. See
+   [Promotion and rollback](#promotion-and-rollback).
+6. **⚠️ THE BACK-MERGE (DO NOT FORGET):** Because Release Please updated the version and
    changelog directly on `main`, `main` is now exactly one commit ahead of `dev`.
    **You MUST immediately back-merge `main` into `dev`** or merge the automated PR from
    `main` to `dev` (created by the `back-merge` job). If this is skipped, the next release
@@ -105,14 +110,14 @@ flowchart TD
 
 All gates are blocking in CI:
 
-| Gate | Workflow job | Status |
-|---|---|---|
-| `npm run typecheck` | CI / `verify` | **Blocking** |
-| `npm run format:check` | CI / `verify` | **Blocking** |
-| `npm run lint` | CI / `verify` | **Blocking** (legacy debt reported as warnings) |
-| `npm test` | CI / `verify` | **Blocking** |
-| `npm run build` | CI / `verify` (after `env:generate`) | **Blocking** |
-| `npm run security` | CI / `audit` (and weekly `security.yml`) | **Blocking** (production deps at `high`; `critical` anywhere) |
+| Gate                   | Workflow job                             | Status                                                        |
+| ---------------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| `npm run typecheck`    | CI / `verify`                            | **Blocking**                                                  |
+| `npm run format:check` | CI / `verify`                            | **Blocking**                                                  |
+| `npm run lint`         | CI / `verify`                            | **Blocking** (legacy debt reported as warnings)               |
+| `npm test`             | CI / `verify`                            | **Blocking**                                                  |
+| `npm run build`        | CI / `verify` (after `env:generate`)     | **Blocking**                                                  |
+| `npm run security`     | CI / `audit` (and weekly `security.yml`) | **Blocking** (production deps at `high`; `critical` anywhere) |
 
 How CI keeps runs short without dropping gates:
 
@@ -197,9 +202,14 @@ flowchart TD
     RPJ --> Q{"Is the pushed commit<br/>a merged Release PR?"}
     Q -->|"no"| OPEN["Open or update the Release PR<br/>version bump and CHANGELOG"]
     Q -->|"yes"| REL["Create tag and GitHub Release<br/>release_created = true"]
+    REL --> PACK["pack job: check, build:prod once,<br/>npm pack once, pack-check.sh"]
+    PACK --> ATT["attach job: upload the tarball<br/>and SHA256SUMS to the GitHub release"]
+    ATT --> PUB["publish job: verify the same bytes,<br/>npm stage publish the tarball --tag next"]
+    PUB --> APR["Maintainer approves the staged version<br/>on npmjs.com"]
+    APR --> TEST["Client TEST build and deploy<br/>against the new version"]
+    TEST --> LAT["Promotion: npm dist-tag add<br/>@udan/digital-assistant-sdk@version latest"]
     REL --> BM["back-merge job<br/>gh pr create --base dev --head main"]
     BM --> BMPR["PR: sync main back to dev"]
-    REL --> PUB["publish job (npm stage publish)"]
 ```
 
 The App token matters because PRs opened with the default `GITHUB_TOKEN` do not trigger
@@ -231,10 +241,10 @@ Release Please commits the version bump and changelog directly on `main`. Withou
 classic branch protection). Configured with no bypass actors, direct pushes, force-pushes, and
 branch deletion are blocked for everyone, including maintainers.
 
-| Ruleset | Targets | Rules |
-|---|---|---|
+| Ruleset               | Targets           | Rules                                                                                                  |
+| --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------ |
 | `Protect main branch` | `refs/heads/main` | require PR, block deletion, block force-push, require status checks (`Check source branch`, `CI Gate`) |
-| `Protect dev branch` | `refs/heads/dev` | require PR, block deletion, block force-push, require status checks (`CI Gate`) |
+| `Protect dev branch`  | `refs/heads/dev`  | require PR, block deletion, block force-push, require status checks (`CI Gate`)                        |
 
 `CI Gate` is the single aggregate check emitted by `ci.yml`. It passes only when the
 `verify` and `audit` jobs each succeeded or were intentionally skipped (docs-only change, or no
@@ -361,25 +371,78 @@ The package is published to npm as **`@udan/digital-assistant-sdk`** (npm org `u
 `--access public`) by the `publish` job in `release-and-sync.yml`, whenever a Release PR is
 merged into `main`.
 
-**How it works:**
+**How it works (build once, publish those bytes):**
 
 - **Trusted Publishing** (GitHub OIDC, no stored token): on npmjs.com the package's
   **Settings → Trusted Publisher** allows owner `Digital-Assistant`, repository
   `Digital-Assistant-SDK`, workflow `release-and-sync.yml`, environment `production`.
   Publishing access is set to require 2FA and disallow tokens.
-- The job runs in the GitHub Environment `production`, checks out the release tag, generates
-  `environments/production.env`, and runs `npm stage publish --provenance --access public`
-  (npm >= 11.21). The trusted publisher allows staged publishes only; a plain `npm publish`
-  from CI fails with `403 OIDC permission denied for this action`.
-  `prepublishOnly` runs `check`, `clean`, and `build:prod` (production mode, minified).
-- **Build-time keys are intentionally empty.** Host applications pass configuration at
-  runtime, so nothing secret is inlined into the public bundle.
+- `pack` job (no environment, `contents: read`): checks out the release tag, generates
+  `environments/production.env` from the org Actions variables, runs `npm run check`, then
+  `npm run clean && npm run build:prod`, the strict `check-build-env.mjs`, and
+  `npm pack --ignore-scripts` **once**. `scripts/ci/pack-check.sh` checks that tarball, and
+  the SHA256/integrity go to the run summary. The same file is uploaded as artifact
+  `sdk-release-tarball` (30 days). Lifecycle scripts do not run for a tarball publish and
+  `npm pack` skips `prepublishOnly`, so check/build run explicitly here.
+- `attach` job (`contents: write`, runs no project code): downloads the artifact, verifies
+  `SHA256SUMS`, and attaches the tarball and `SHA256SUMS` to the GitHub release. Existing
+  assets are never replaced: a re-run must have identical bytes.
+- `publish` job (GitHub Environment `production`, `id-token: write`): downloads the same
+  artifact, verifies it against the release asset, runs the pinned npm 11.21.0 straight from
+  its registry tarball (integrity checked; no global install), and runs
+  `npm stage publish <tarball> --tag next --provenance --access public`. The trusted
+  publisher allows staged publishes only; a plain `npm publish` from CI fails with
+  `403 OIDC permission denied for this action`.
+- **Build-time keys are public.** URL defaults come from Actions variables; host applications
+  pick TEST or PROD at runtime. `pack-check.sh` fails the tarball if a PROD URL default is
+  empty (strict on releases) or a secret key name or value appears in it.
 - **Staged publishing:** the upload lands as a staged version. Approve it on npmjs.com
   (package page → staged versions) with your passkey/2FA, or from a terminal with
-  `npm stage list @udan/digital-assistant-sdk` and `npm stage approve <stage-id>`. Only then
-  does it become `latest`.
+  `npm stage list @udan/digital-assistant-sdk` and `npm stage approve <stage-id>`. Approval
+  publishes it under the **`next`** dist-tag; `latest` does not move until promotion below.
 - The domjson patch runs from the `prepare` script, so consumer installs don't run it, and
   `tsconfig.build.json` keeps test files out of the emitted declarations.
+
+### Promotion and rollback
+
+`latest` moves only after a Client TEST build with the exact SDK version passed:
+
+```bash
+# 1. Confirm what is staged/published and which tags point where.
+npm view @udan/digital-assistant-sdk dist-tags
+npm view @udan/digital-assistant-sdk@<version> dist.integrity
+
+# 2. Promote the TEST-approved version (maintainer, 2FA).
+npm dist-tag add @udan/digital-assistant-sdk@<version> latest
+
+# Rollback: point latest at the previous version again (same command, 2FA).
+npm dist-tag add @udan/digital-assistant-sdk@<previous> latest
+```
+
+The integrity shown by `npm view` must equal the integrity of the tarball attached to the
+GitHub release (both are printed in the release run summary). A dist-tag move is a
+maintainer action with 2FA, not a CI job; the trusted publisher's "Allow npm dist-tag"
+setting is therefore not needed. If it is enabled later, the same two commands can run from
+a `promote.yml` workflow deployed to the `production` environment.
+
+### The tarball check
+
+`scripts/ci/pack-check.sh <package.tgz> [--env=<name>] [--allow-empty-urls]` is used by CI
+and can be run locally on a release asset. It does not rebuild anything:
+
+1. Contents: only `package.json`, `README*`, `LICENSE*` and `dist/`; the ESM/CJS/type entry
+   points exist; no env files, `src/`, tests, nested tarballs or `node_modules`.
+2. `scripts/ci/check-build-env.mjs --dist=<unpacked dist>` with `environments/<name>.env`:
+   URL defaults inlined, no secret key name or value (names only in logs).
+3. `publint` and `@arethetypeswrong/cli`, pinned in `scripts/ci/pack-tools` (own lockfile).
+   `attw` ignores only `unexpected-module-syntax` (the ESM bundle lives in a package without
+   `"type": "module"`, which Node resolves correctly and bundlers ignore).
+4. A scratch project installs the tarball and loads it with ESM `import` and CJS `require`;
+   the exports must match and PROD URL defaults must be present (R9), `clientSecret` empty.
+
+`ci.yml` job `pack` runs the same script on every code change (PRs and `dev`, production
+build, artifact `sdk-tarball` kept 30 days), so an unreleased commit can be tried in a Client
+TEST build before a release.
 
 **Package setup history:** `0.0.0-placeholder` was published by hand so that the trusted
 publisher could be configured (npm requires the package to exist first). If the trusted
@@ -395,10 +458,13 @@ flowchart LR
     end
     subgraph AUTO ["Every release afterwards"]
         direction TB
-        R1["Release created"] --> R2["env:generate production.env"]
-        R2 --> R3["prepublishOnly:<br/>check, clean, build:prod"]
-        R3 --> R4["npm stage publish --provenance<br/>(OIDC id-token)"]
-        R4 --> R5["Maintainer approves staged<br/>version on npmjs.com"]
+        R1["Release created"] --> R2["env:generate production.env<br/>(URL defaults from Actions variables)"]
+        R2 --> R2b["npm run check, clean, build:prod,<br/>check-build-env (no secrets)"]
+        R2b --> R3["npm pack once + pack-check.sh<br/>(artifact sdk-release-tarball)"]
+        R3 --> R4["attach job: tarball + SHA256SUMS<br/>on the GitHub release"]
+        R4 --> R5["npm stage publish the tarball<br/>--tag next --provenance (OIDC)"]
+        R5 --> R6["Maintainer approves staged<br/>version on npmjs.com"]
+        R6 --> R7["Client TEST pass, then<br/>npm dist-tag add version latest"]
     end
     ONCE --> AUTO
 ```
@@ -433,5 +499,16 @@ gates once per change and removes the back-merge risk described above.
   `googleAnalyticsSecretKey` (and any other exposed keys) regardless of the untracking.
 - **Secrets must not be baked into the browser bundle.** `webpack.config.js` uses
   `dotenv-webpack`, which inlines every `process.env.*` referenced in `src/` into the
-  client-side bundle. Treat all `environments/*.env` values as public. The long-term fix
-  (move secret-bearing config to runtime host-provided config) is a tracked follow-up.
+  client-side bundle. Treat all `environments/*.env` values as public. The env schema
+  holds public keys only, workflows map no secrets, and `scripts/ci/check-build-env.mjs`
+  fails the build if a secret key has a value or appears in `dist/`.
+- **URL defaults come from GitHub Actions variables.** One build serves TEST and PROD; the
+  page picks the environment at runtime (see `USAGE.md`). The publish job fails if a PROD
+  URL default is empty. The variables are set at the organization level (organization
+  Settings → Secrets and variables → Actions → Variables) and shared with the Client
+  repo, which uses the same names. A repository variable with the same name overrides
+  the organization one. Variables: `BASE_PROD_URL`, `BASE_TEST_URL`, `TOKEN_PROD_URL`, `TOKEN_TEST_URL`,
+  `LLM_PROD_URL`, `LLM_TEST_URL`, `KEYCLOAK_PROD_URL`, `KEYCLOAK_TEST_URL`,
+  `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, and optionally `PROFANITY_URL`,
+  `PROFANITY_REGION`, `GOOGLE_TRANSLATE_URL`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`,
+  `ENABLE_GOOGLE_ANALYTICS`.

@@ -26,8 +26,9 @@ jobs:
       deps: ${{ steps.diff.outputs.deps }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Classify changed files
@@ -78,10 +79,12 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js 22
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
           cache: npm
@@ -117,33 +120,142 @@ jobs:
       - name: Tests
         run: npm test -- --ci --maxWorkers=100%
 
-      # Generate environments/local.env from repository variables/secrets.
-      # Values are inlined into the browser bundle, so non-secret config lives in
-      # repository variables and credentials in secrets (see AGENTS.md section 8).
+      # Generate environments/local.env from repository variables. Every value is
+      # inlined into the public browser bundle, so only public keys are mapped and
+      # no secret is ever passed to the build (see AGENTS.md section 8).
       - name: Generate build environment
         env:
           BUILD_ENV: local
-          baseURL: ${{ vars.BASE_URL }}
           baseProdURL: ${{ vars.BASE_PROD_URL }}
           baseTestURL: ${{ vars.BASE_TEST_URL }}
+          tokenProdUrl: ${{ vars.TOKEN_PROD_URL }}
+          tokenTestUrl: ${{ vars.TOKEN_TEST_URL }}
+          llmProdUrl: ${{ vars.LLM_PROD_URL }}
+          llmTestUrl: ${{ vars.LLM_TEST_URL }}
+          keycloakProdUrl: ${{ vars.KEYCLOAK_PROD_URL }}
+          keycloakTestUrl: ${{ vars.KEYCLOAK_TEST_URL }}
+          keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
+          keycloakClientId: ${{ vars.KEYCLOAK_CLIENT_ID }}
           profanityUrl: ${{ vars.PROFANITY_URL }}
           profanityRegion: ${{ vars.PROFANITY_REGION }}
           googleTranslateUrl: ${{ vars.GOOGLE_TRANSLATE_URL }}
-          keycloakUrl: ${{ vars.KEYCLOAK_URL }}
-          tokenUrl: ${{ vars.TOKEN_URL }}
-          llmUrl: ${{ vars.LLM_URL }}
-          keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
-          keycloakClientId: ${{ vars.KEYCLOAK_CLIENT_ID }}
           googleAnalyticsMeasurementId: ${{ vars.GOOGLE_ANALYTICS_MEASUREMENT_ID }}
           enableGoogleAnalytics: ${{ vars.ENABLE_GOOGLE_ANALYTICS }}
-          profanityKey: ${{ secrets.PROFANITY_KEY }}
-          googleTranslateApiKey: ${{ secrets.GOOGLE_TRANSLATE_API_KEY }}
-          keycloakClientSecret: ${{ secrets.KEYCLOAK_CLIENT_SECRET }}
-          googleAnalyticsSecretKey: ${{ secrets.GOOGLE_ANALYTICS_SECRET_KEY }}
         run: npm run env:generate
 
       - name: Build
         run: npm run build
+
+      # Fails if a secret key has a value or appears in the bundle. Empty PROD URL
+      # defaults fail on release candidates (PRs into main, pushes to main) and
+      # only warn elsewhere, so PRs into dev stay green until the repository
+      # variables exist.
+      - name: Check URL defaults and secrets
+        env:
+          BUILD_ENV: local
+          STRICT_URLS: ${{ github.base_ref == 'main' || github.ref == 'refs/heads/main' }}
+        run: |
+          if [[ "$STRICT_URLS" == "true" ]]; then
+            node scripts/ci/check-build-env.mjs
+          else
+            node scripts/ci/check-build-env.mjs --allow-empty-urls
+          fi
+
+  # Builds the production bundle, packs it as a release would and checks the
+  # tarball (scripts/ci/pack-check.sh). The tarball is kept as artifact
+  # `sdk-tarball` for 30 days, so a Client build can be tried against exactly
+  # these bytes. It is a CI build of this commit, not a release.
+  pack:
+    name: Pack and check tarball
+    needs: changes
+    if: ${{ needs.changes.outputs.code == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm ci
+
+      # Same keys as the release build (public values only; see verify).
+      - name: Generate production environment
+        env:
+          BUILD_ENV: production
+          baseProdURL: ${{ vars.BASE_PROD_URL }}
+          baseTestURL: ${{ vars.BASE_TEST_URL }}
+          tokenProdUrl: ${{ vars.TOKEN_PROD_URL }}
+          tokenTestUrl: ${{ vars.TOKEN_TEST_URL }}
+          llmProdUrl: ${{ vars.LLM_PROD_URL }}
+          llmTestUrl: ${{ vars.LLM_TEST_URL }}
+          keycloakProdUrl: ${{ vars.KEYCLOAK_PROD_URL }}
+          keycloakTestUrl: ${{ vars.KEYCLOAK_TEST_URL }}
+          keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
+          keycloakClientId: ${{ vars.KEYCLOAK_CLIENT_ID }}
+          profanityUrl: ${{ vars.PROFANITY_URL }}
+          profanityRegion: ${{ vars.PROFANITY_REGION }}
+          googleTranslateUrl: ${{ vars.GOOGLE_TRANSLATE_URL }}
+          googleAnalyticsMeasurementId: ${{ vars.GOOGLE_ANALYTICS_MEASUREMENT_ID }}
+          enableGoogleAnalytics: ${{ vars.ENABLE_GOOGLE_ANALYTICS }}
+        run: npm run env:generate
+
+      - name: Build (production)
+        run: |
+          npm run clean
+          npm run build:prod
+
+      - name: Pack
+        id: pack
+        run: |
+          mkdir -p "$RUNNER_TEMP/pack"
+          tarball="$(npm pack --ignore-scripts --json --pack-destination "$RUNNER_TEMP/pack" | node -e 'console.log(JSON.parse(require("fs").readFileSync(0, "utf8"))[0].filename)')"
+          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+
+      # Same strictness as the verify job's check: empty PROD URL defaults fail on
+      # release candidates and warn elsewhere; secrets always fail.
+      - name: Check the tarball
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          STRICT_URLS: ${{ github.base_ref == 'main' || github.ref == 'refs/heads/main' }}
+        run: |
+          args=(--env=production)
+          [[ "$STRICT_URLS" == "true" ]] || args+=(--allow-empty-urls)
+          scripts/ci/pack-check.sh "${args[@]}" "$RUNNER_TEMP/pack/$TARBALL"
+
+      - name: Checksums and summary
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          cd "$RUNNER_TEMP/pack"
+          sha256sum "$TARBALL" > SHA256SUMS
+          integrity="sha512-$(openssl dgst -sha512 -binary "$TARBALL" | base64 -w0)"
+          {
+            echo "### SDK tarball (CI build of \`${COMMIT:0:7}\`, not a release)"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| File | \`$TARBALL\` (artifact \`sdk-tarball\`, 30 days) |"
+            echo "| SHA256 | \`$(cut -d' ' -f1 SHA256SUMS)\` |"
+            echo "| npm integrity | \`$integrity\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sdk-tarball
+          path: |
+            ${{ runner.temp }}/pack/${{ steps.pack.outputs.tarball }}
+            ${{ runner.temp }}/pack/SHA256SUMS
+          if-no-files-found: error
+          retention-days: 30
 
   audit:
     name: Dependency Audit
@@ -153,10 +265,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js 22
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
 
@@ -168,7 +282,7 @@ jobs:
   # dependency change) count as success; failed or cancelled jobs fail the gate.
   gate:
     name: CI Gate
-    needs: [changes, verify, audit]
+    needs: [changes, verify, pack, audit]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5

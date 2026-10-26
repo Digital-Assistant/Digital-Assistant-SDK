@@ -1,5 +1,6 @@
 // Import necessary modules and configurations.
 import { CONFIG } from '../../config';
+import { resolveTokenUrl } from '../../config/environment';
 import { StorageUtil } from '../storage';
 import * as winston from 'winston';
 
@@ -10,8 +11,28 @@ const { format, transports: WinstonTransports } = winston as any;
 // Consumers should rely on Winston levels through the logger.
 export const UDALogLevel = 3;
 
-// Define the host for the error-only HTTP transport.
-const UDA_LOG_URL = process.env.tokenUrl;
+// The error-only HTTP transport posts to <token service URL>logging/error. The URL is
+// resolved when a log is written, so it follows UDAGlobalConfig.environment.
+export function resolveLogTransportOptions(
+    tokenUrl: string = resolveTokenUrl(),
+): { host: string; port: number; path: string; ssl: boolean } | null {
+    if (!tokenUrl) return null;
+    try {
+        const url = new URL(tokenUrl);
+        const ssl = url.protocol === 'https:';
+        const basePath = url.pathname.endsWith('/')
+            ? url.pathname
+            : url.pathname + '/';
+        return {
+            host: url.hostname,
+            port: url.port ? Number(url.port) : ssl ? 443 : 80,
+            path: basePath + 'logging/error',
+            ssl,
+        };
+    } catch (e) {
+        return { host: tokenUrl, port: 443, path: 'logging/error', ssl: true };
+    }
+}
 
 // Define a type for supported Winston levels.
 export type WinstonLevel =
@@ -50,12 +71,16 @@ function mapNumericToLevel(n?: number): WinstonLevel {
 }
 
 // Build a singleton logger to be shared by UDAConsoleLogger and UDAErrorLogger.
+// It is rebuilt when the log URL changes (for example after a switch to TEST).
 let sharedLogger: winston.Logger | null = null;
+let sharedLoggerUrl: string | null = null;
 
 // Function to get the shared logger instance, creating it if it doesn't exist.
 function getLogger(): winston.Logger {
-    // Return the existing logger if it has already been created.
-    if (sharedLogger) return sharedLogger;
+    const logUrl = resolveTokenUrl();
+    // Return the existing logger if it was built for the current log URL.
+    if (sharedLogger && sharedLoggerUrl === logUrl) return sharedLogger;
+    sharedLoggerUrl = logUrl;
 
     // Check if the current environment is for testing.
     const isTestEnv = process.env.NODE_ENV === 'test';
@@ -66,13 +91,12 @@ function getLogger(): winston.Logger {
     const tx: any[] = [new WinstonTransports.Console({ level: consoleLevel })];
 
     // Add HTTP transport for error level logs, but not in test environments and only if a host is present.
-    if (!isTestEnv && WinstonTransports?.Http && UDA_LOG_URL) {
+    const httpOptions = resolveLogTransportOptions(logUrl);
+    if (!isTestEnv && WinstonTransports?.Http && httpOptions) {
         tx.push(
             new WinstonTransports.Http({
                 level: 'error',
-                host: UDA_LOG_URL, // Remote server host.
-                port: 443,
-                path: 'logging/error',
+                ...httpOptions,
             }),
         );
     }
