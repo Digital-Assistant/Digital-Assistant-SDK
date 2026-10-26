@@ -68,6 +68,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 - Environment variables are loaded per env via dotenv-webpack from `environments/<env>.env` (gitignored). `environments/local.env.example` is the committed schema; it activates dotenv-webpack `safe` mode, so every key it declares must be present in `<env>.env` (empty values are allowed). Local dev copies the example to `local.env`; CI generates `local.env` via `npm run env:generate` from environment variables.
 - **Runtime environment**: one build serves TEST and PROD. `src/config/environment.ts` reads `globalThis.UDAGlobalConfig` on every call (not `window`: the extension background worker has none). Per URL: explicit page key (`apiBaseUrl`, `tokenUrl`, `llmUrl`, `keycloakUrl`) → build default for `environment` (`baseProdURL`/`baseTestURL`, `tokenProdUrl`/`tokenTestUrl`, `llmProdUrl`/`llmTestUrl`, `keycloakProdUrl`/`keycloakTestUrl`); default `PROD`. `ApiClient({ baseURL })`/`updateBaseURL()` still win for API calls. Host-page guide: `USAGE.md`.
 - `scripts/ci/check-build-env.mjs` runs after the build in CI and before publish: it fails if a PROD URL default is empty or not inlined in `dist/`, or if a secret key has a value or appears in `dist/` (names only in logs). `--allow-empty-urls` turns empty URLs into warnings (PRs into `dev`).
+- `scripts/ci/pack-check.sh <package.tgz>` checks a `npm pack` tarball without rebuilding: contents, the env check above against the unpacked `dist/`, `publint` and `@arethetypeswrong/cli` (pinned in `scripts/ci/pack-tools`), then a scratch ESM `import` + CJS `require`. CI runs it in `ci.yml` (artifact `sdk-tarball`, 30 days) and in the release `pack` job before attaching the tarball to the GitHub release and staging it on npm as `next`.
 - `scripts/postinstall.js` patches `node_modules/domjson/dist/domJSON.js` (adds optional chaining for `window.location`, swaps `setImmediate` → `setTimeout`). It runs via the `prepare` script (local `npm install`/`npm ci` and before `npm pack`/`npm publish`), never in consumer installs; if domjson behaviors break, reinstall and re-patch.
 - `axios` is a peer dependency (`^1.0.0`) — host app must provide it.
 - Browser polyfills (assert, browserify-zlib, os, path, stream, url, process) are wired through webpack for browser builds.
@@ -166,9 +167,12 @@ follow-up.
 therefore enforces production dependencies at `high` severity plus `critical` anywhere.
 
 **Release lifecycle:** version bumps, changelog generation, GitHub Releases, the
-`main` → `dev` back-merge, and npm publishing of `@udan/digital-assistant-sdk` (Trusted
-Publishing, staged for maintainer approval on npmjs.com) are automated via
-`.github/workflows/release-and-sync.yml`.
+`main` → `dev` back-merge, and npm publishing of `@udan/digital-assistant-sdk` are automated
+via `.github/workflows/release-and-sync.yml`: the release tag is built and packed **once**
+(`pack` job, `scripts/ci/pack-check.sh`), that tarball is attached to the GitHub release and
+staged on npm as **`next`** (Trusted Publishing, maintainer approval on npmjs.com), and
+`latest` moves only after a Client TEST pass (`npm dist-tag add ... latest`; rollback is the
+same command with the previous version).
 Release Please and the back-merge job open PRs with a GitHub App token
 (`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**
