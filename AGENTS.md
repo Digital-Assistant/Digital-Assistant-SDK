@@ -153,7 +153,8 @@ from these prefixes:
 | `npm run lint` | CI / `verify` | **Blocking** (legacy debt reported as warnings) |
 | `npm test` | CI / `verify` | **Blocking** |
 | `npm run build` | CI / `verify` (after `env:generate`) | **Blocking** |
-| `check-build-env.mjs` | CI / `verify` (after build); Release / `publish` (before publish) | **Blocking** for secrets; empty PROD URLs block PRs into `main`, pushes to `main` and publish, warn elsewhere |
+| `check-build-env.mjs` | CI / `verify` (after build); Release / `pack` (before pack) | **Blocking** for secrets; empty PROD URLs block PRs into `main`, pushes to `main` and publish, warn elsewhere |
+| `scripts/ci/pack-check.sh` | CI / `pack` (artifact `sdk-tarball`); Release / `pack` (before attach and stage) | **Blocking**; same URL strictness as `check-build-env.mjs` |
 | `npm run security` | CI / `audit` (+ weekly Security Audit) | **Blocking** (production deps at `high`; `critical` anywhere) |
 
 **Known lint debt:** the ESLint config downgrades `no-explicit-any`,
