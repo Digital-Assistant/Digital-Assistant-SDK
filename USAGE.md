@@ -8,6 +8,102 @@ This SDK provides a framework-agnostic interface to the Digital Assistant functi
 npm install @udan/digital-assistant-sdk
 ```
 
+## Runtime configuration and environments
+
+One SDK build serves both backends, TEST and PROD. The SDK picks the environment
+**on every request** from `UDAGlobalConfig.environment` (`'PROD'` when unset), so
+switching it takes effect on the next API call. The SDK reads the config from
+`globalThis`, so the same rules apply on a page and in a browser-extension
+background service worker (which has no `window`).
+
+The host configures the SDK by calling `UDAPluginSDK({...})` (the same function as
+the exported `AppConfig`). It copies the known keys into `UDAGlobalConfig`, ignores
+unknown keys, warns and keeps the old value when a value has the wrong type, and
+fires a `UDAConfigUpdated` event on `window`.
+
+### Runtime keys
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `environment` | `'TEST' \| 'PROD'` | `'PROD'` | Selects the build-default URLs. Case-insensitive; any other value logs a warning and uses `PROD` |
+| `apiBaseUrl` | string | `''` | Backend API base URL, including `/api` |
+| `tokenUrl` | string | `''` | Token service base URL (token requests and remote error logging), with a trailing slash |
+| `llmUrl` | string | `''` | LLM search base URL (used when `enableAISearch` is on), with a trailing slash |
+| `keycloakUrl` | string | `''` | Keycloak server base URL |
+| `realm` | string | build default | Keycloak realm. A realm other than `UDAN` is sent to the backend as the `UDAN-Realm` header |
+| `clientId` | string | build default | Keycloak client ID |
+
+Feature flags (`enableRecording`, `enableOverlay`, `enableAISearch`, `udaDivId`, ...) are
+listed in `CustomConfig` (`src/config/CustomConfig.ts`).
+
+### Precedence
+
+For each URL, the first non-empty value wins:
+
+1. For backend API calls only: a base URL fixed on the client, `new ApiClient({ baseURL })` or
+   `apiClient.updateBaseURL(url)` (`updateBaseURL('')` returns to runtime resolution).
+2. The explicit page key (`apiBaseUrl`, `tokenUrl`, `llmUrl`, `keycloakUrl`).
+3. The build default for the current `environment` (public URLs baked in at release time).
+
+A page that passes nothing uses the PROD defaults.
+
+### Host page: script tags
+
+1. Load the headers script as the first script in `<head>`:
+
+    ```html
+    <script src="https://<sdk-cdn-host>/dist/assets/UDAHeaders.js"></script>
+    ```
+
+2. Load the SDK at the bottom of the page and configure it **in `onload`**. The SDK
+   sets `UDAGlobalConfig` when it loads, which replaces anything set earlier, so call
+   `UDAPluginSDK` only after the script has loaded:
+
+    ```html
+    <script type="text/javascript">
+        (function () {
+            var uda = document.createElement('script');
+            uda.type = 'text/javascript';
+            uda.src = 'https://<sdk-cdn-host>/dist/assets/UDALoad.js';
+            uda.onload = function () {
+                if (typeof UDAAuthDataConfig !== 'undefined') {
+                    UDAAuthDataConfig({
+                        id: '<unique-user-id>', // unique reference id of the user
+                        email: 'user@example.com', // optional
+                    });
+                    UDAPluginSDK({
+                        environment: 'PROD', // or 'TEST'
+                        // Optional overrides; leave out to use the build defaults
+                        // apiBaseUrl: 'https://<backend-host>/api',
+                        // tokenUrl: 'https://<token-host>/',
+                        // llmUrl: 'https://<llm-host>/',
+                        // keycloakUrl: 'https://<keycloak-host>/',
+                        realm: '<realm-name>',
+                        clientId: '<client-id>',
+                        enableRecording: true,
+                        enableOverlay: true,
+                        enableUdaIcon: true,
+                        udaDivId: '<id-of-the-element-that-opens-the-panel>',
+                    });
+                }
+            };
+            document.body.appendChild(uda);
+        })();
+    </script>
+    ```
+
+Never pass secrets (client secrets, API keys) to `UDAPluginSDK`: everything in a page
+is public.
+
+### npm / bundler
+
+```typescript
+import { AppConfig } from '@udan/digital-assistant-sdk';
+
+// Importing the package sets UDAGlobalConfig and UDAPluginSDK on globalThis.
+AppConfig({ environment: 'TEST' });
+```
+
 ## Framework-Agnostic Usage
 
 ### Basic Usage
@@ -283,7 +379,8 @@ const customClient = new ApiClient({
     }
 });
 
-// Update configuration after creation
+// Update configuration after creation. A fixed base URL wins over the runtime
+// environment; updateBaseURL('') returns to per-request resolution.
 customClient.updateBaseURL('https://new-api.example.com');
 customClient.updateHeaders({ 'X-New-Header': 'new-value' });
 ```

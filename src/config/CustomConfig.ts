@@ -4,6 +4,8 @@
  * Objective: Config Objects
  */
 
+import type { SdkEnvironment } from './environment';
+
 export interface CustomConfigPropTypes {
     enableEditClickedName: boolean;
     enableSkipDuringPlay: boolean;
@@ -15,7 +17,7 @@ export interface CustomConfigPropTypes {
     enableNodeTypeSelection: boolean;
     enableRecording: boolean;
     enableOverlay: boolean;
-    environment: string;
+    environment: SdkEnvironment;
     enableUdaIcon: boolean;
     udaDivId: string;
     enableForAllDomains: boolean;
@@ -26,7 +28,10 @@ export interface CustomConfigPropTypes {
     realm: string | undefined;
     clientId: string | undefined;
     clientSecret: string | undefined;
-    keycloakUrl?: string; // Keycloak Base URL
+    keycloakUrl: string; // Keycloak base URL; empty = build default for the environment
+    apiBaseUrl: string; // Backend API base URL (including /api); empty = build default for the environment
+    tokenUrl: string; // Token service base URL; empty = build default for the environment
+    llmUrl: string; // LLM search base URL; empty = build default for the environment
     enableHidePanelAfterCompletion: boolean;
     enableStatusSelection: boolean;
     enableUDAIconDuringRecording: boolean;
@@ -46,7 +51,7 @@ export const CustomConfig: CustomConfigPropTypes = {
     enableProfanity: false, // Flag for enabling profanity check
     enableRecording: true, // Flag for enabling recording functionality
     enableOverlay: true, // Flag for enabling overlay functionality or enabling squeeze functionality
-    environment: 'PROD', // Environment variable
+    environment: 'PROD', // 'TEST' or 'PROD'; selects the build-default URLs on every request
     enableUdaIcon: true, // Flag for enabling UDA icon
     udaDivId: 'uda-nistapp-logo',
     enableForAllDomains: false, // Flag to enable all the recording to be visible across all domains
@@ -54,10 +59,13 @@ export const CustomConfig: CustomConfigPropTypes = {
     enableSlowReplay: true, // Flag to enable slow playback
     enableCustomIcon: false, // Flag to enable custom icon
     customIcon: 'https://udan.nistapp.com/uda-logo.jpg', // Custom icon URL
-    realm: process.env.keycloakRealm, // Realm name to be used for authentication
-    clientId: process.env.keycloakClientId, // Client ID to be used for authentication
-    clientSecret: process.env.keycloakClientSecret, // Client secret to be used for authentication
-    keycloakUrl: process.env.keycloakUrl, // Keycloak URL
+    realm: process.env.keycloakRealm || '', // Realm name to be used for authentication
+    clientId: process.env.keycloakClientId || '', // Client ID to be used for authentication
+    clientSecret: '', // Kept for backward compatibility only; never set at build time
+    keycloakUrl: '', // Explicit Keycloak URL override
+    apiBaseUrl: '', // Explicit backend API base URL override
+    tokenUrl: '', // Explicit token service URL override
+    llmUrl: '', // Explicit LLM search URL override
     enableHidePanelAfterCompletion: true, // Flag to enable hiding the panel after completion
     enableStatusSelection: true, // Flag to enable status selection
     enableUDAIconDuringRecording: true, // Flag to enable UDA icon during recording

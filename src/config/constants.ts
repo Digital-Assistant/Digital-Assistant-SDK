@@ -4,6 +4,12 @@
  * Objective: Config Objects
  */
 
+import {
+    getRuntimeConfig,
+    resolveApiBaseUrl,
+    resolveEnvironment,
+} from './environment';
+
 interface ConfigType {
     current: string;
     UDADebug: boolean;
@@ -85,12 +91,23 @@ interface ConfigType {
 }
 
 export const CONFIG: ConfigType = {
-    current: 'TEST',
+    // Legacy aliases: the environment lives in UDAGlobalConfig.environment and
+    // the URLs are resolved per request (see ./environment).
+    get current(): string {
+        return resolveEnvironment();
+    },
+    set current(value: string) {
+        this.Environment = value;
+    },
     UDADebug: false,
     UDA_CONTAINER_CLASS: 'udan-main-panel',
     UDA_CLICK_IGNORE_CLASS: 'uda_exclude',
-    UDA_DOMAIN: process.env.baseURL,
-    UDA_API_URL: process.env.baseURL + '/api',
+    get UDA_DOMAIN(): string {
+        return resolveApiBaseUrl().replace(/\/api\/?$/, '');
+    },
+    get UDA_API_URL(): string {
+        return resolveApiBaseUrl();
+    },
     UDASessionID:
         Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15),
@@ -116,16 +133,10 @@ export const CONFIG: ConfigType = {
     enableInfiniteScrollPageLength: 10,
     UDA_URL_Param: 'UDA_Sequence_id',
     set Environment(value: string) {
-        this.current = value.toString().toUpperCase();
-        if (this.current === 'PROD') {
-            this.UDA_DOMAIN = 'https://udan.nistapp.ai';
-        } else {
-            this.UDA_DOMAIN = 'https://udantest.nistapp.ai';
-        }
-        this.UDA_API_URL = this.UDA_DOMAIN + '/api';
+        getRuntimeConfig().environment = String(value).trim().toUpperCase();
     },
     get Environment(): string {
-        return this.current;
+        return resolveEnvironment();
     },
     DEBOUNCE_INTERVAL: 1000,
     indexInterval: 1000,
@@ -146,8 +157,9 @@ export const CONFIG: ConfigType = {
         enabled: false,
         provider: 'azure',
         config: {
-            key1: process.env.profanityKey,
-            key2: process.env.profanityKey,
+            // Secret keys are never inlined into the public bundle.
+            key1: undefined,
+            key2: undefined,
             endPoint: process.env.profanityUrl,
             region: process.env.profanityRegion,
         },
@@ -160,7 +172,7 @@ export const CONFIG: ConfigType = {
         translatedText: '',
         translate: {
             provider: 'google',
-            apikey: process.env.googleTranslateApiKey,
+            apikey: undefined,
             translateTo: 'en',
             apiurl: process.env.googleTranslateUrl,
         },

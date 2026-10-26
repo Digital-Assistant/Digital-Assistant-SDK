@@ -205,6 +205,31 @@ describe('fetchSearchResults', () => {
             );
         });
 
+        it('should prefix AI search with the LLM URL of the environment', async () => {
+            const originalEnv = process.env;
+            process.env = {
+                ...originalEnv,
+                llmProdUrl: 'https://llm.prod.example.com/',
+                llmTestUrl: 'https://llm.test.example.com/',
+            };
+            (apiClient.get as jest.Mock).mockResolvedValue({ data: [] });
+
+            setGlobalConfig({ enableAISearch: true });
+            await fetchSearchResults({ page: 1 });
+            setGlobalConfig({ enableAISearch: true, environment: 'TEST' });
+            await fetchSearchResults({ page: 1 });
+
+            expect(apiClient.get).toHaveBeenNthCalledWith(
+                1,
+                `https://llm.prod.example.com/${ENDPOINT.AISearch}?page=1`,
+            );
+            expect(apiClient.get).toHaveBeenNthCalledWith(
+                2,
+                `https://llm.test.example.com/${ENDPOINT.AISearch}?page=1`,
+            );
+            process.env = originalEnv;
+        });
+
         it('should use standard Search endpoint when enableAISearch is false and no additionalParams', async () => {
             setGlobalConfig({ enableAISearch: false });
             (apiClient.get as jest.Mock).mockResolvedValue({

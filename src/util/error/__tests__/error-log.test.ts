@@ -1,4 +1,4 @@
-import { UDAErrorLogger } from '../error-log';
+import { UDAErrorLogger, resolveLogTransportOptions } from '../error-log';
 import { StorageUtil } from '../../storage';
 import * as winston from 'winston';
 
@@ -83,5 +83,74 @@ describe('UDAErrorLogger', () => {
         // I've updated the test to reflect the actual stringified behavior. If this is not desired, the source code should be changed.
         // Assuming the source code stringifies the object:
         expect(mockError).toHaveBeenCalledWith(expectedMessage);
+    });
+
+    describe('resolveLogTransportOptions', () => {
+        const originalEnv = process.env;
+        const originalGlobalConfig = (globalThis as any).UDAGlobalConfig;
+
+        afterEach(() => {
+            process.env = originalEnv;
+            (globalThis as any).UDAGlobalConfig = originalGlobalConfig;
+        });
+
+        it('returns null when no token URL is configured', () => {
+            expect(resolveLogTransportOptions('')).toBeNull();
+        });
+
+        it('splits an https URL into host, port and path', () => {
+            expect(
+                resolveLogTransportOptions('https://token.example.com/'),
+            ).toEqual({
+                host: 'token.example.com',
+                port: 443,
+                path: '/logging/error',
+                ssl: true,
+            });
+        });
+
+        it('keeps an explicit port and a path prefix', () => {
+            expect(
+                resolveLogTransportOptions('http://localhost:3000/nest'),
+            ).toEqual({
+                host: 'localhost',
+                port: 3000,
+                path: '/nest/logging/error',
+                ssl: false,
+            });
+        });
+
+        it('rebuilds the shared logger when the log URL changes', async () => {
+            process.env = {
+                ...originalEnv,
+                tokenProdUrl: 'https://token.prod.example.com/',
+                tokenTestUrl: 'https://token.test.example.com/',
+            };
+            (globalThis as any).UDAGlobalConfig = { environment: 'PROD' };
+            await UDAErrorLogger.error('first');
+            await UDAErrorLogger.error('same URL');
+            expect(mockCreateLogger).toHaveBeenCalledTimes(1);
+
+            (globalThis as any).UDAGlobalConfig = { environment: 'TEST' };
+            await UDAErrorLogger.error('after switch');
+            expect(mockCreateLogger).toHaveBeenCalledTimes(2);
+        });
+
+        it('follows the environment at call time', () => {
+            process.env = {
+                ...originalEnv,
+                tokenProdUrl: 'https://token.prod.example.com/',
+                tokenTestUrl: 'https://token.test.example.com/',
+            };
+            (globalThis as any).UDAGlobalConfig = { environment: 'PROD' };
+            expect(resolveLogTransportOptions()?.host).toBe(
+                'token.prod.example.com',
+            );
+
+            (globalThis as any).UDAGlobalConfig = { environment: 'TEST' };
+            expect(resolveLogTransportOptions()?.host).toBe(
+                'token.test.example.com',
+            );
+        });
     });
 });

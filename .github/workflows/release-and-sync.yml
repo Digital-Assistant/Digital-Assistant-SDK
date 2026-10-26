@@ -73,8 +73,8 @@ jobs:
   # configured for this repo, workflow 'release-and-sync.yml', environment
   # 'production'. Publishes are staged: a maintainer approves them on npmjs.com.
   #
-  # Build-time keys are intentionally empty: host applications pass runtime
-  # configuration, and nothing secret is inlined into the public bundle.
+  # Build-time keys are the public TEST and PROD URL defaults from repository
+  # variables; the page picks the environment at runtime. No secret is passed.
   publish:
     name: Publish to npm
     needs: release-please
@@ -108,7 +108,31 @@ jobs:
       - name: Generate production environment
         env:
           BUILD_ENV: production
+          baseProdURL: ${{ vars.BASE_PROD_URL }}
+          baseTestURL: ${{ vars.BASE_TEST_URL }}
+          tokenProdUrl: ${{ vars.TOKEN_PROD_URL }}
+          tokenTestUrl: ${{ vars.TOKEN_TEST_URL }}
+          llmProdUrl: ${{ vars.LLM_PROD_URL }}
+          llmTestUrl: ${{ vars.LLM_TEST_URL }}
+          keycloakProdUrl: ${{ vars.KEYCLOAK_PROD_URL }}
+          keycloakTestUrl: ${{ vars.KEYCLOAK_TEST_URL }}
+          keycloakRealm: ${{ vars.KEYCLOAK_REALM }}
+          keycloakClientId: ${{ vars.KEYCLOAK_CLIENT_ID }}
+          profanityUrl: ${{ vars.PROFANITY_URL }}
+          profanityRegion: ${{ vars.PROFANITY_REGION }}
+          googleTranslateUrl: ${{ vars.GOOGLE_TRANSLATE_URL }}
+          googleAnalyticsMeasurementId: ${{ vars.GOOGLE_ANALYTICS_MEASUREMENT_ID }}
+          enableGoogleAnalytics: ${{ vars.ENABLE_GOOGLE_ANALYTICS }}
         run: npm run env:generate
+
+      # Build here so the check below sees the bundle; prepublishOnly rebuilds it
+      # from the same environment file.
+      - name: Build (production)
+        run: npm run build:prod
+
+      # Never publish without URL defaults or with a secret in the bundle.
+      - name: Check URL defaults and secrets
+        run: node scripts/ci/check-build-env.mjs --env=production
 
       # The trusted publisher allows staged publishes only; a maintainer approves the
       # staged version on npmjs.com. prepublishOnly runs check, clean and build:prod.

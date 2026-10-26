@@ -46,9 +46,9 @@ flowchart LR
    This PR contains the version bump (in `package.json`) and the updated `CHANGELOG.md`.
 4. **Publish GitHub Release:** The maintainer reviews and merges the Release PR. The GitHub
    Release is automatically published.
-   > The `publish` job then uploads the release to npm as a **staged** version. A maintainer
-   > approves it on npmjs.com (passkey/2FA) before it goes live. See
-   > [npm Publishing](#npm-publishing).
+    > The `publish` job then uploads the release to npm as a **staged** version. A maintainer
+    > approves it on npmjs.com (passkey/2FA) before it goes live. See
+    > [npm Publishing](#npm-publishing).
 5. **⚠️ THE BACK-MERGE (DO NOT FORGET):** Because Release Please updated the version and
    changelog directly on `main`, `main` is now exactly one commit ahead of `dev`.
    **You MUST immediately back-merge `main` into `dev`** or merge the automated PR from
@@ -105,14 +105,14 @@ flowchart TD
 
 All gates are blocking in CI:
 
-| Gate | Workflow job | Status |
-|---|---|---|
-| `npm run typecheck` | CI / `verify` | **Blocking** |
-| `npm run format:check` | CI / `verify` | **Blocking** |
-| `npm run lint` | CI / `verify` | **Blocking** (legacy debt reported as warnings) |
-| `npm test` | CI / `verify` | **Blocking** |
-| `npm run build` | CI / `verify` (after `env:generate`) | **Blocking** |
-| `npm run security` | CI / `audit` (and weekly `security.yml`) | **Blocking** (production deps at `high`; `critical` anywhere) |
+| Gate                   | Workflow job                             | Status                                                        |
+| ---------------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| `npm run typecheck`    | CI / `verify`                            | **Blocking**                                                  |
+| `npm run format:check` | CI / `verify`                            | **Blocking**                                                  |
+| `npm run lint`         | CI / `verify`                            | **Blocking** (legacy debt reported as warnings)               |
+| `npm test`             | CI / `verify`                            | **Blocking**                                                  |
+| `npm run build`        | CI / `verify` (after `env:generate`)     | **Blocking**                                                  |
+| `npm run security`     | CI / `audit` (and weekly `security.yml`) | **Blocking** (production deps at `high`; `critical` anywhere) |
 
 How CI keeps runs short without dropping gates:
 
@@ -231,10 +231,10 @@ Release Please commits the version bump and changelog directly on `main`. Withou
 classic branch protection). Configured with no bypass actors, direct pushes, force-pushes, and
 branch deletion are blocked for everyone, including maintainers.
 
-| Ruleset | Targets | Rules |
-|---|---|---|
+| Ruleset               | Targets           | Rules                                                                                                  |
+| --------------------- | ----------------- | ------------------------------------------------------------------------------------------------------ |
 | `Protect main branch` | `refs/heads/main` | require PR, block deletion, block force-push, require status checks (`Check source branch`, `CI Gate`) |
-| `Protect dev branch` | `refs/heads/dev` | require PR, block deletion, block force-push, require status checks (`CI Gate`) |
+| `Protect dev branch`  | `refs/heads/dev`  | require PR, block deletion, block force-push, require status checks (`CI Gate`)                        |
 
 `CI Gate` is the single aggregate check emitted by `ci.yml`. It passes only when the
 `verify` and `audit` jobs each succeeded or were intentionally skipped (docs-only change, or no
@@ -395,8 +395,9 @@ flowchart LR
     end
     subgraph AUTO ["Every release afterwards"]
         direction TB
-        R1["Release created"] --> R2["env:generate production.env"]
-        R2 --> R3["prepublishOnly:<br/>check, clean, build:prod"]
+        R1["Release created"] --> R2["env:generate production.env<br/>(URL defaults from Actions variables)"]
+        R2 --> R2b["build:prod + check-build-env<br/>(PROD URLs set, no secrets)"]
+        R2b --> R3["prepublishOnly:<br/>check, clean, build:prod"]
         R3 --> R4["npm stage publish --provenance<br/>(OIDC id-token)"]
         R4 --> R5["Maintainer approves staged<br/>version on npmjs.com"]
     end
@@ -433,5 +434,16 @@ gates once per change and removes the back-merge risk described above.
   `googleAnalyticsSecretKey` (and any other exposed keys) regardless of the untracking.
 - **Secrets must not be baked into the browser bundle.** `webpack.config.js` uses
   `dotenv-webpack`, which inlines every `process.env.*` referenced in `src/` into the
-  client-side bundle. Treat all `environments/*.env` values as public. The long-term fix
-  (move secret-bearing config to runtime host-provided config) is a tracked follow-up.
+  client-side bundle. Treat all `environments/*.env` values as public. The env schema
+  holds public keys only, workflows map no secrets, and `scripts/ci/check-build-env.mjs`
+  fails the build if a secret key has a value or appears in `dist/`.
+- **URL defaults come from GitHub Actions variables.** One build serves TEST and PROD; the
+  page picks the environment at runtime (see `USAGE.md`). The publish job fails if a PROD
+  URL default is empty. The variables are set at the organization level (organization
+  Settings → Secrets and variables → Actions → Variables) and shared with the Client
+  repo, which uses the same names. A repository variable with the same name overrides
+  the organization one. Variables: `BASE_PROD_URL`, `BASE_TEST_URL`, `TOKEN_PROD_URL`, `TOKEN_TEST_URL`,
+  `LLM_PROD_URL`, `LLM_TEST_URL`, `KEYCLOAK_PROD_URL`, `KEYCLOAK_TEST_URL`,
+  `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, and optionally `PROFANITY_URL`,
+  `PROFANITY_REGION`, `GOOGLE_TRANSLATE_URL`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`,
+  `ENABLE_GOOGLE_ANALYTICS`.
