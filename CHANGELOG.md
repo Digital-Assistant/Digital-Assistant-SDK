@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.10.2...v0.11.0) (2026-10-26)
+
+
+### Features
+
+* choose TEST or PROD at runtime and ship URL defaults ([b3c83b0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/b3c83b03285bf9115d37a151c37b5c50b55b5f0f))
+* choose TEST or PROD at runtime and ship URL defaults ([bc1f12b](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/bc1f12bb91455757f8a052e714161102ff5fb915))
+
 ## [0.10.2](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.10.1...v0.10.2) (2026-10-08)
 
 
