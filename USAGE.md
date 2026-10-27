@@ -36,6 +36,10 @@ fires a `UDAConfigUpdated` event on `window`.
 
 `realm`, `clientId` and `clientSecret` have no defaults. While one of them is missing or empty, every SDK request is rejected with `UDA is not configured: <missing keys> required`, and no call reaches the backend.
 
+There is no default realm, client ID or client secret. If one is missing, the SDK logs
+a `UDAConfigurationError` naming the missing keys and sends no request; the backend
+answers `400` to a request without `UDAN-Realm`.
+
 Feature flags (`enableRecording`, `enableOverlay`, `enableAISearch`, `udaDivId`, ...) are
 listed in `CustomConfig` (`src/config/CustomConfig.ts`).
 
@@ -95,6 +99,10 @@ A page that passes nothing uses the PROD defaults.
         })();
     </script>
     ```
+
+In the Chrome extension, the content script announces the SDK with a `UDASdkReady` window event. A host page that talks to the extension must call `UDAAuthDataConfig` and `UDAPluginSDK` after that event, not before.
+
+A runnable example is in [`sample/index.html`](sample/index.html).
 
 **Note on the client secret.** The token request needs the customer's client secret, so for now it is passed to `UDAPluginSDK`, and everything in a page is public (anyone who opens the page source can read it). This is accepted for the test phase only and will be replaced before production use (tracked in the project's security TODO). Pass no other secrets (API keys) to `UDAPluginSDK`.
 
