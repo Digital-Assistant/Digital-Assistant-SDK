@@ -83,7 +83,7 @@ sequenceDiagram
     RP->>Bot: release_created = true
     Bot->>GH: Open PR main into dev
     Mnt->>GH: Merge back-merge PR (do not forget)
-    Note over GH: publish job stages the npm release<br/>(maintainer approves on npmjs.com)
+    Note over GH: pack once, attach the tarball, stage it on npm as next<br/>(maintainer approves, latest moves after the Client TEST pass)
 ```
 
 ### Commit Messages and Version Bumps
@@ -117,6 +117,7 @@ All gates are blocking in CI:
 | `npm run lint`         | CI / `verify`                            | **Blocking** (legacy debt reported as warnings)               |
 | `npm test`             | CI / `verify`                            | **Blocking**                                                  |
 | `npm run build`        | CI / `verify` (after `env:generate`)     | **Blocking**                                                  |
+| `pack-check.sh`        | CI / `pack` (production build + tarball) | **Blocking** (artifact `sdk-tarball`, 30 days)                |
 | `npm run security`     | CI / `audit` (and weekly `security.yml`) | **Blocking** (production deps at `high`; `critical` anywhere) |
 
 How CI keeps runs short without dropping gates:
@@ -422,8 +423,10 @@ npm dist-tag add @udan/digital-assistant-sdk@<previous> latest
 The integrity shown by `npm view` must equal the integrity of the tarball attached to the
 GitHub release (both are printed in the release run summary). A dist-tag move is a
 maintainer action with 2FA, not a CI job; the trusted publisher's "Allow npm dist-tag"
-setting is therefore not needed. If it is enabled later, the same two commands can run from
-a `promote.yml` workflow deployed to the `production` environment.
+setting is therefore not needed. To run promotion from a workflow later, add a **separate**
+trusted publisher for a `promote.yml` (environment `production` with a required reviewer)
+with "Allow npm dist-tag" ticked; existing trusted publisher connections cannot be edited,
+and a new one must be used within 2 days or it expires.
 
 ### The tarball check
 
@@ -509,6 +512,6 @@ gates once per change and removes the back-merge risk described above.
   repo, which uses the same names. A repository variable with the same name overrides
   the organization one. Variables: `BASE_PROD_URL`, `BASE_TEST_URL`, `TOKEN_PROD_URL`, `TOKEN_TEST_URL`,
   `LLM_PROD_URL`, `LLM_TEST_URL`, `KEYCLOAK_PROD_URL`, `KEYCLOAK_TEST_URL`,
-  `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, and optionally `PROFANITY_URL`,
+  and optionally `PROFANITY_URL`,
   `PROFANITY_REGION`, `GOOGLE_TRANSLATE_URL`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`,
   `ENABLE_GOOGLE_ANALYTICS`.

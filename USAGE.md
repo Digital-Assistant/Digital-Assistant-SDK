@@ -30,8 +30,11 @@ fires a `UDAConfigUpdated` event on `window`.
 | `tokenUrl` | string | `''` | Token service base URL (token requests and remote error logging), with a trailing slash |
 | `llmUrl` | string | `''` | LLM search base URL (used when `enableAISearch` is on), with a trailing slash |
 | `keycloakUrl` | string | `''` | Keycloak server base URL |
-| `realm` | string | build default | Keycloak realm. A realm other than `UDAN` is sent to the backend as the `UDAN-Realm` header |
-| `clientId` | string | build default | Keycloak client ID |
+| `realm` | string | none (required) | Keycloak realm of the customer. Always sent to the backend as the `UDAN-Realm` header. There is no default realm |
+| `clientId` | string | none (required) | Keycloak client ID of the customer |
+| `clientSecret` | string | none (required) | Keycloak client secret of the customer (see the note below) |
+
+`realm`, `clientId` and `clientSecret` have no defaults. While one of them is missing or empty, every SDK request is rejected with `UDA is not configured: <missing keys> required`, and no call reaches the backend.
 
 Feature flags (`enableRecording`, `enableOverlay`, `enableAISearch`, `udaDivId`, ...) are
 listed in `CustomConfig` (`src/config/CustomConfig.ts`).
@@ -80,6 +83,7 @@ A page that passes nothing uses the PROD defaults.
                         // keycloakUrl: 'https://<keycloak-host>/',
                         realm: '<realm-name>',
                         clientId: '<client-id>',
+                        clientSecret: '<client-secret>', // required, see the note below
                         enableRecording: true,
                         enableOverlay: true,
                         enableUdaIcon: true,
@@ -92,8 +96,7 @@ A page that passes nothing uses the PROD defaults.
     </script>
     ```
 
-Never pass secrets (client secrets, API keys) to `UDAPluginSDK`: everything in a page
-is public.
+**Note on the client secret.** The token request needs the customer's client secret, so for now it is passed to `UDAPluginSDK`, and everything in a page is public (anyone who opens the page source can read it). This is accepted for the test phase only and will be replaced before production use (tracked in the project's security TODO). Pass no other secrets (API keys) to `UDAPluginSDK`.
 
 ### npm / bundler
 
