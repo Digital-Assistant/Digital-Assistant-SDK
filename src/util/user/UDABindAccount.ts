@@ -5,7 +5,11 @@ import { StorageUtil } from '../storage';
 import { getUDASessionName } from '../browser';
 import { UDASessionData } from '../../models/UDASessionData';
 import { apiClient } from '../../services';
-import { getRuntimeConfig, resolveTokenUrl } from '../../config/environment';
+import {
+    assertAuthConfig,
+    getRuntimeConfig,
+    resolveTokenUrl,
+} from '../../config/environment';
 
 /**
  * Binds the user account with UDASessionData.
@@ -20,6 +24,7 @@ export const UDABindAccount = async (
     renewToken: any,
 ) => {
     const globalConfig = getRuntimeConfig();
+    assertAuthConfig(globalConfig);
     const payLoad = {
         uid: UDASessionData.authData.id,
         email: UDASessionData.authData.email,

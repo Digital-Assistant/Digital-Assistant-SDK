@@ -8,10 +8,9 @@ import {
     setKeycloakSessionData,
     clearUserData,
 } from '../store/slices/userSlice';
-import { CustomConfig } from '../config/CustomConfig';
 import { StorageUtil } from '../util/storage';
 import { CONFIG } from '../config/constants';
-import { resolveKeycloakUrl } from '../config/environment';
+import { getRuntimeConfig, resolveKeycloakUrl } from '../config/environment';
 
 /**
  * Interface for AuthManager configuration
@@ -54,8 +53,9 @@ export class AuthManager {
     public async init(config?: AuthManagerConfig): Promise<boolean> {
         const keycloakConfig = {
             url: config?.url || resolveKeycloakUrl(),
-            realm: config?.realm || CustomConfig.realm || '',
-            clientId: config?.clientId || CustomConfig.clientId || '',
+            realm: config?.realm || String(getRuntimeConfig().realm || ''),
+            clientId:
+                config?.clientId || String(getRuntimeConfig().clientId || ''),
         };
 
         // Validate config

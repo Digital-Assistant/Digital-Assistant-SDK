@@ -25,10 +25,20 @@ describe('ApiClient without window (background worker)', () => {
             llmTestUrl: 'https://llm.test.example.com/',
             keycloakTestUrl: 'https://auth.test.example.com/',
         };
+        Object.assign(CustomConfig, {
+            realm: 'customer-realm',
+            clientId: 'customer-client',
+            clientSecret: 'customer-secret',
+        });
         (globalThis as any).UDAGlobalConfig = CustomConfig;
     });
 
     afterEach(() => {
+        Object.assign(CustomConfig, {
+            realm: '',
+            clientId: '',
+            clientSecret: '',
+        });
         process.env = originalEnv;
         delete (globalThis as any).UDAGlobalConfig;
     });

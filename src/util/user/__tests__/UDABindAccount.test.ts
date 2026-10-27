@@ -60,6 +60,18 @@ describe('UDABindAccount', () => {
         } as UDASessionData;
     });
 
+    it.each(['realm', 'clientId', 'clientSecret'])(
+        'should reject without calling the token service when %s is missing',
+        async (key) => {
+            (window as any).UDAGlobalConfig[key] = '';
+
+            await expect(
+                UDABindAccount(mockUserAuthData, mockUDASessionData, false),
+            ).rejects.toThrow(`UDA is not configured: ${key}`);
+            expect(apiClient.post).not.toHaveBeenCalled();
+        },
+    );
+
     it('should request a token with correct payload', async () => {
         (apiClient.post as jest.Mock)
             .mockResolvedValueOnce({ data: { token: 'new-token' } })

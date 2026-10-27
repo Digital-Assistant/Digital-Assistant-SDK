@@ -109,3 +109,42 @@ export const resolveRuntimeEnvironment = (
     llmUrl: resolveLlmUrl(config),
     keycloakUrl: resolveKeycloakUrl(config),
 });
+
+/**
+ * Authentication settings every call needs. There is no default realm, client id or
+ * client secret: the page (customer script) or the extension must set them.
+ */
+export const REQUIRED_AUTH_KEYS = [
+    'realm',
+    'clientId',
+    'clientSecret',
+] as const;
+
+export class UDAConfigurationError extends Error {
+    readonly missing: string[];
+    constructor(missing: string[]) {
+        super(
+            `UDA is not configured: ${missing.join(', ')} required (no default is used).`,
+        );
+        this.name = 'UDAConfigurationError';
+        this.missing = missing;
+    }
+}
+
+export const getMissingAuthConfig = (
+    config: RuntimeConfig = getRuntimeConfig(),
+): string[] =>
+    REQUIRED_AUTH_KEYS.filter((key) => {
+        const value = config?.[key];
+        return typeof value !== 'string' || value.trim() === '';
+    });
+
+/** Throws UDAConfigurationError when realm, clientId or clientSecret is missing or empty. */
+export const assertAuthConfig = (
+    config: RuntimeConfig = getRuntimeConfig(),
+): void => {
+    const missing = getMissingAuthConfig(config);
+    if (missing.length > 0) {
+        throw new UDAConfigurationError(missing);
+    }
+};

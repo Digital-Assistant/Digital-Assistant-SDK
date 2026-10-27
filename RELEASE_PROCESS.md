@@ -512,6 +512,6 @@ gates once per change and removes the back-merge risk described above.
   repo, which uses the same names. A repository variable with the same name overrides
   the organization one. Variables: `BASE_PROD_URL`, `BASE_TEST_URL`, `TOKEN_PROD_URL`, `TOKEN_TEST_URL`,
   `LLM_PROD_URL`, `LLM_TEST_URL`, `KEYCLOAK_PROD_URL`, `KEYCLOAK_TEST_URL`,
-  `KEYCLOAK_REALM`, `KEYCLOAK_CLIENT_ID`, and optionally `PROFANITY_URL`,
+  and optionally `PROFANITY_URL`,
   `PROFANITY_REGION`, `GOOGLE_TRANSLATE_URL`, `GOOGLE_ANALYTICS_MEASUREMENT_ID`,
   `ENABLE_GOOGLE_ANALYTICS`.
