@@ -11,12 +11,23 @@ import MockAdapter from 'axios-mock-adapter';
 import { AppConfig } from '../../config/AppConfig';
 import { CustomConfig } from '../../config/CustomConfig';
 
+const AUTH = {
+    realm: 'customer-realm',
+    clientId: 'customer-client',
+    clientSecret: 'customer-secret',
+};
+const NO_AUTH = { realm: '', clientId: '', clientSecret: '' };
+
+const setupGlobalConfig = (globalThis as any).UDAGlobalConfig;
+
 describe('ApiClient', () => {
     let client: ApiClient;
     let mockAxios: MockAdapter;
     let consoleWarnSpy: jest.SpyInstance;
 
     beforeEach(() => {
+        Object.assign(CustomConfig, AUTH);
+        (globalThis as any).UDAGlobalConfig = CustomConfig;
         // Clear store state
         store.dispatch(clearUserData());
 
@@ -35,6 +46,8 @@ describe('ApiClient', () => {
     });
 
     afterEach(() => {
+        Object.assign(CustomConfig, NO_AUTH);
+        (globalThis as any).UDAGlobalConfig = setupGlobalConfig;
         // Reset all mocks after each test
         mockAxios.reset();
         // Restore the original console.warn
@@ -478,7 +491,7 @@ describe('ApiClient', () => {
                 baseProdURL: PROD_BASE,
                 baseTestURL: TEST_BASE,
             };
-            Object.assign(CustomConfig, pristine);
+            Object.assign(CustomConfig, pristine, AUTH);
             (globalThis as any).UDAGlobalConfig = CustomConfig;
         });
 
@@ -563,12 +576,39 @@ describe('ApiClient', () => {
             adapter.restore();
         });
 
-        it('omits the UDAN-Realm header for the default realm', async () => {
+        it('always sends the UDAN-Realm header, also for realm UDAN', async () => {
             const adapter = echo(apiClient);
             AppConfig({ realm: 'UDAN' } as any);
 
             const response = await apiClient.get('/search');
-            expect(response.data.headers['UDAN-Realm']).toBeUndefined();
+            expect(response.data.headers['UDAN-Realm']).toBe('UDAN');
+            adapter.restore();
+        });
+
+        it.each(['realm', 'clientId', 'clientSecret'])(
+            'rejects the request when %s is missing (no default)',
+            async (key) => {
+                const adapter = echo(apiClient);
+                (CustomConfig as any)[key] = '';
+
+                await expect(apiClient.get('/search')).rejects.toMatchObject({
+                    message: expect.stringContaining(
+                        `UDA is not configured: ${key}`,
+                    ),
+                });
+                adapter.restore();
+            },
+        );
+
+        it('lists every missing key in one error', async () => {
+            const adapter = echo(apiClient);
+            Object.assign(CustomConfig, NO_AUTH);
+
+            await expect(apiClient.get('/search')).rejects.toMatchObject({
+                message: expect.stringContaining(
+                    'realm, clientId, clientSecret',
+                ),
+            });
             adapter.restore();
         });
     });

@@ -59,9 +59,9 @@ export const CustomConfig: CustomConfigPropTypes = {
     enableSlowReplay: true, // Flag to enable slow playback
     enableCustomIcon: false, // Flag to enable custom icon
     customIcon: 'https://udan.nistapp.com/uda-logo.jpg', // Custom icon URL
-    realm: process.env.keycloakRealm || '', // Realm name to be used for authentication
-    clientId: process.env.keycloakClientId || '', // Client ID to be used for authentication
-    clientSecret: '', // Kept for backward compatibility only; never set at build time
+    realm: '', // No default: set by the page or the extension (customer realm)
+    clientId: '', // No default: set by the page or the extension
+    clientSecret: '', // No default: set by the page or the extension; never set at build time
     keycloakUrl: '', // Explicit Keycloak URL override
     apiBaseUrl: '', // Explicit backend API base URL override
     tokenUrl: '', // Explicit token service URL override

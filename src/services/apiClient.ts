@@ -2,7 +2,11 @@ import axios from 'axios';
 import { store } from '../store';
 import type { RootState } from '../store';
 import { specialNodes, trigger } from '../util';
-import { getRuntimeConfig, resolveApiBaseUrl } from '../config/environment';
+import {
+    assertAuthConfig,
+    getRuntimeConfig,
+    resolveApiBaseUrl,
+} from '../config/environment';
 
 /**
  * Configuration options for the API client
@@ -133,11 +137,13 @@ export class ApiClient {
                     config.baseURL = resolveApiBaseUrl();
                 }
 
-                // Add UDAN-Realm header if realm is not default (matches original logic)
+                // No default realm: every request needs realm, clientId and clientSecret
+                // (rejects with UDAConfigurationError) and always names its realm.
                 const globalConfig = getRuntimeConfig();
-                if (globalConfig.realm && globalConfig.realm !== 'UDAN') {
-                    config.headers['UDAN-Realm'] = globalConfig.realm;
-                }
+                assertAuthConfig(globalConfig);
+                config.headers['UDAN-Realm'] = String(
+                    globalConfig.realm,
+                ).trim();
 
                 // Add SDK identifier header
                 config.headers['X-SDK-Client'] = '@digital-assistant/core';
