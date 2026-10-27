@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.11.0...v0.12.0) (2026-10-27)
+
+
+### Features
+
+* no default realm; realm, clientId and clientSecret are required ([abc55e5](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/abc55e52f5faa25c97da5b0558033dd727b059a9))
+* no default realm; realm, clientId and clientSecret are required ([71840c8](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/71840c85a7b69a524632326add8607cb1d58bd87))
+
 ## [0.11.0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.10.2...v0.11.0) (2026-10-26)
 
 
