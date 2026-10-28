@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  GITLEAKS_VERSION: "8.30.1"
+
 # Superseded PR runs are cancelled; pushes to protected branches always run to completion.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -274,11 +277,47 @@ jobs:
       - name: Audit Dependencies
         run: npm run security
 
+  # Always runs (secrets can hide in docs too). Scans only the commits of this push or
+  # pull request. gitleaks is downloaded from its release page and checked against the
+  # published checksums before it runs.
+  gitleaks:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Install gitleaks
+        run: |
+          set -euo pipefail
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          f="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSLO "$base/$f"
+          curl -fsSL -o checksums.txt "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          grep " $f\$" checksums.txt | sha256sum -c -
+          tar -xzf "$f" gitleaks
+
+      - name: Scan new commits
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$BASE" =~ ^0+$ ]]; then
+            ./gitleaks git --redact --verbose --log-opts="-1 $HEAD"
+          else
+            ./gitleaks git --redact --verbose --log-opts="$BASE..$HEAD"
+          fi
+
   # Single required status check for the rulesets. Skipped jobs (docs-only change, no
   # dependency change) count as success; failed or cancelled jobs fail the gate.
   gate:
     name: CI Gate
-    needs: [changes, verify, pack, audit]
+    needs: [changes, verify, pack, audit, gitleaks]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
