@@ -5,6 +5,9 @@ on:
     branches: ['main', 'dev']
   pull_request:
     branches: ['main', 'dev']
+  # The merge queue verifies PRs on a temporary merge-group ref: without this trigger the
+  # required `CI Gate` check never reports there and every queued merge times out.
+  merge_group:
 
 permissions:
   contents: read
@@ -40,6 +43,8 @@ jobs:
           EVENT: ${{ github.event_name }}
           PR_BASE: ${{ github.event.pull_request.base.sha }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          MG_BASE: ${{ github.event.merge_group.base_sha }}
+          MG_HEAD: ${{ github.event.merge_group.head_sha }}
           PUSH_BEFORE: ${{ github.event.before }}
           PUSH_AFTER: ${{ github.sha }}
         run: |
@@ -48,6 +53,8 @@ jobs:
           files=""
           if [[ "$EVENT" == "pull_request" ]]; then
             files=$(git diff --name-only "$PR_BASE...$PR_HEAD") || files=""
+          elif [[ "$EVENT" == "merge_group" ]]; then
+            files=$(git diff --name-only "$MG_BASE" "$MG_HEAD") || files=""
           elif [[ "$EVENT" == "push" ]] && [[ ! "$PUSH_BEFORE" =~ ^0+$ ]]; then
             files=$(git diff --name-only "$PUSH_BEFORE" "$PUSH_AFTER") || files=""
           fi
@@ -303,7 +310,7 @@ jobs:
 
       - name: Scan new commits
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
           HEAD: ${{ github.sha }}
         run: |
           set -euo pipefail
