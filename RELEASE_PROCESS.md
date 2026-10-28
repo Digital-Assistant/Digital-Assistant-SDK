@@ -406,6 +406,8 @@ merged into `main`.
 
 ### Promotion and rollback
 
+This flow (pack once, stage under `next`, promote after a Client TEST pass) has run for 0.11.0 and 0.12.0; on 2026-10-27 npm `latest` and `next` both point at 0.12.0.
+
 `latest` moves only after a Client TEST build with the exact SDK version passed:
 
 ```bash

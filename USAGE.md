@@ -100,7 +100,24 @@ A page that passes nothing uses the PROD defaults.
     </script>
     ```
 
-In the Chrome extension, the content script announces the SDK with a `UDASdkReady` window event. A host page that talks to the extension must call `UDAAuthDataConfig` and `UDAPluginSDK` after that event, not before.
+In the Chrome extension, the content script announces the SDK with a `UDASdkReady` window event. A host page that talks to the extension must call `UDAAuthDataConfig` and `UDAPluginSDK` after that event, not before: earlier calls reach a copy of the SDK that the extension replaces later, and are lost.
+
+```js
+function configure() {
+    UDAAuthDataConfig({ id: '<unique-user-id>' });
+    UDAPluginSDK({ realm: '<realm-name>', clientId: '<client-id>' /* , clientSecret, see the note below */ });
+}
+if (window.UDASdkIsReady) {
+    configure(); // the event already fired
+} else {
+    window.addEventListener('UDASdkReady', function (e) {
+        // e.detail = { environment: 'TEST' | 'PROD', source: 'page' | 'override' | 'install-type' | 'default' }
+        configure();
+    }, { once: true });
+}
+```
+
+`UDASdkIsReady` is `true` after the event. The extension picks TEST or PROD itself (unpacked install = TEST, otherwise PROD, or the options page); a page only passes `environment` to force one. When the page loads the SDK from a CDN script instead of the extension, there is no event and the `onload` pattern above applies.
 
 A runnable example is in [`sample/index.html`](sample/index.html).
 
