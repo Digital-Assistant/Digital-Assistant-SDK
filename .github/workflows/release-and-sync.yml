@@ -8,6 +8,12 @@ on:
 # No workflow-level permissions: each job asks for what it needs.
 permissions: {}
 
+# One release run at a time, and never cancel one halfway: a cancelled run could leave a
+# tag without its tarball or npm stage.
+concurrency:
+  group: release-and-sync
+  cancel-in-progress: false
+
 # PRs opened with GITHUB_TOKEN do not trigger workflows, so required checks never
 # report on them. Release PRs and back-merge PRs are therefore opened with a
 # GitHub App installation token (repo variable RELEASE_APP_ID, secret
@@ -78,12 +84,22 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh pr create \
+          # Skip only the two expected cases; any other gh failure fails the job.
+          ahead="$(gh api "repos/$GITHUB_REPOSITORY/compare/dev...main" --jq .ahead_by)"
+          if [[ "$ahead" == "0" ]]; then
+            echo "main has no commits that dev lacks; nothing to sync."
+            exit 0
+          fi
+          existing="$(gh pr list -R "$GITHUB_REPOSITORY" --base dev --head main --state open --json number --jq 'length')"
+          if [[ "$existing" != "0" ]]; then
+            echo "A back-merge PR from main to dev is already open."
+            exit 0
+          fi
+          gh pr create -R "$GITHUB_REPOSITORY" \
             --base dev \
             --head main \
             --title "chore: sync main back to dev after release" \
-            --body "Automated PR: syncs the updated package.json and CHANGELOG.md from main back to dev after a release. Merge this immediately to prevent future merge conflicts." \
-            || echo "Back-merge PR not created (already exists or nothing to sync)."
+            --body "Automated PR: syncs the updated package.json and CHANGELOG.md from main back to dev after a release. Merge this immediately to prevent future merge conflicts."
 
   # Builds the release tag once and packs it. Lifecycle scripts do not run for a
   # tarball publish, and `npm pack` skips prepublishOnly, so check and build run
@@ -203,7 +219,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write
+      contents: write # upload the tarball and SHA256SUMS to the GitHub release
       actions: read # download this run's sdk-release-tarball artifact
     steps:
       - name: Download tarball artifact
@@ -245,7 +261,7 @@ jobs:
     timeout-minutes: 15
     environment: production
     permissions:
-      id-token: write
+      id-token: write # npm Trusted Publishing (GitHub OIDC) and provenance
       contents: read
       actions: read # download this run's sdk-release-tarball artifact
     steps:

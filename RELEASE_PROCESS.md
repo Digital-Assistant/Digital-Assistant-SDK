@@ -449,8 +449,8 @@ and can be run locally on a release asset. It does not rebuild anything:
 2. `scripts/ci/check-build-env.mjs --dist=<unpacked dist>` with `environments/<name>.env`:
    URL defaults inlined, no secret key name or value (names only in logs).
 3. `publint` and `@arethetypeswrong/cli`, pinned in `scripts/ci/pack-tools` (own lockfile).
-   `attw` ignores only `unexpected-module-syntax` (the ESM bundle lives in a package without
-   `"type": "module"`, which Node resolves correctly and bundlers ignore).
+   publint runs with `--strict` (warnings fail) and attw ignores no rule. The ESM bundle is
+   `dist/index.esm.mjs` with `dist/index.d.mts` (re-exports `index.d.ts`), so Node reads it as ESM.
 4. A scratch project installs the tarball and loads it with ESM `import` and CJS `require`;
    the exports must match and PROD URL defaults must be present (R9), `clientSecret` empty.
 

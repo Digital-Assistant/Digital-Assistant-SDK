@@ -64,7 +64,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 
 ## 5. Build & Environment Matrix
 
-- Webpack config: `webpack.config.js` (single config, `--env build=<local|development|production|qa>`). Output goes to `dist/` (`index.cjs.js`, `index.esm.js`, `index.d.ts`).
+- Webpack config: `webpack.config.js` (single config, `--env build=<local|development|production|qa>`). Output goes to `dist/` (`index.cjs.js`, `index.esm.mjs`, `index.d.ts`, `index.d.mts`).
 - Environment variables are loaded per env via dotenv-webpack from `environments/<env>.env` (gitignored). `environments/local.env.example` is the committed schema; it activates dotenv-webpack `safe` mode, so every key it declares must be present in `<env>.env` (empty values are allowed). Local dev copies the example to `local.env`; CI generates `local.env` via `npm run env:generate` from environment variables.
 - **Runtime environment**: one build serves TEST and PROD. `src/config/environment.ts` reads `globalThis.UDAGlobalConfig` on every call (not `window`: the extension background worker has none). Per URL: explicit page key (`apiBaseUrl`, `tokenUrl`, `llmUrl`, `keycloakUrl`) → build default for `environment` (`baseProdURL`/`baseTestURL`, `tokenProdUrl`/`tokenTestUrl`, `llmProdUrl`/`llmTestUrl`, `keycloakProdUrl`/`keycloakTestUrl`); default `PROD`. `ApiClient({ baseURL })`/`updateBaseURL()` still win for API calls. Host-page guide: `USAGE.md`.
 - `scripts/ci/check-build-env.mjs` runs after the build in CI and before publish: it fails if a PROD URL default is empty or not inlined in `dist/`, or if a secret key has a value or appears in `dist/` (names only in logs). `--allow-empty-urls` turns empty URLs into warnings (PRs into `dev`).

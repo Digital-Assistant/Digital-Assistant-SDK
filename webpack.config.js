@@ -7,6 +7,7 @@
  * debugging experience.
  */
 
+const fs = require('fs');
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const webpack = require('webpack');
@@ -149,15 +150,16 @@ module.exports = (env, argv) => {
 
     /**
      * ESM Build Configuration
-     * Output: dist/index.esm.js
-     * Format: Module (ESM)
+     * Output: dist/index.esm.mjs (+ dist/index.d.mts)
+     * Format: Module (ESM). The .mjs extension makes Node and publint read the file as ESM
+     * without a "type" field; index.d.mts re-exports the CJS-typed index.d.ts so attw sees ESM types.
      */
     const esmConfig = {
         ...commonConfig,
         entry: './src/index.ts',
         output: {
             path: path.resolve(__dirname, 'dist'),
-            filename: 'index.esm.js',
+            filename: 'index.esm.mjs',
             module: true,
             library: { type: 'module' },
             // clean: false to prevent deleting CJS build if running in parallel/sequence
@@ -168,6 +170,16 @@ module.exports = (env, argv) => {
             },
         },
         experiments: { outputModule: true },
+        plugins: [
+            ...commonConfig.plugins,
+            {
+                apply: compiler => {
+                    compiler.hooks.afterEmit.tap('WriteEsmTypes', () => {
+                        fs.writeFileSync(path.resolve(__dirname, 'dist/index.d.mts'), 'export * from "./index.js";\n');
+                    });
+                },
+            },
+        ],
     };
 
     /**

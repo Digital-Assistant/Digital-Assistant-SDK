@@ -33,7 +33,7 @@ export const SECRET_KEYS = [
     'googleTranslateApiKey',
     'googleAnalyticsSecretKey',
 ];
-const BUNDLES = ['index.esm.js', 'index.cjs.js'];
+const BUNDLES = ['index.esm.mjs', 'index.cjs.js'];
 
 function parseArgs(argv) {
     const opts = {
