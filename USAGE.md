@@ -39,6 +39,10 @@ fires a `UDAConfigUpdated` event on `window`.
 There is no default realm, client ID or client secret. If one is missing, the SDK logs
 a `UDAConfigurationError` naming the missing keys and sends no request; the backend
 answers `400` to a request without `UDAN-Realm`.
+A backend that enforces this (the Server since its `RequireRealmFilter`) also rejects older SDKs and
+store builds that sent no realm header for the default realm: SDK 0.11.0 and earlier, and Client
+builds on them, stop working against it. Release the Client on the new SDK before such a backend
+is deployed. The browser must also be allowed to send the `udan-realm` header (backend CORS, see the Server README).
 
 Feature flags (`enableRecording`, `enableOverlay`, `enableAISearch`, `udaDivId`, ...) are
 listed in `CustomConfig` (`src/config/CustomConfig.ts`).
