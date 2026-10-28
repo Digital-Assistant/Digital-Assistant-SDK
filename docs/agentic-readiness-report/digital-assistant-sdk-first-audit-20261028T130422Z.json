@@ -300,7 +300,7 @@
       "searches": [],
       "data": {
         "kind": "harness_matrix",
-        "reached": 20,
+        "reached": 19,
         "reached_tools": [
           "Augment Code",
           "Bolt (StackBlitz)",
@@ -316,14 +316,13 @@
           "Kiro (AWS)",
           "OpenAI Codex CLI",
           "Roo Code",
-          "Sourcegraph Amp",
           "Trae",
           "Warp",
           "Windsurf / Devin Desktop",
           "Zed",
           "opencode"
         ],
-        "total": 28,
+        "total": 27,
         "unreached_tools": [
           "Aider",
           "Amazon Q Developer",
@@ -2498,7 +2497,7 @@
       "key": "AGT-08:harness-reach",
       "check": "AGT-08",
       "severity": "COSMETIC",
-      "statement": "An agent cannot assume every harness on the team sees the project rules because 20 of 28 known harnesses reach an instruction file; Aider, Amazon Q Developer, Anthropic Claude Code, Continue, Google Gemini CLI, Qwen Code, Replit Agent, Void reach nothing.",
+      "statement": "An agent cannot assume every harness on the team sees the project rules because 19 of 27 known harnesses reach an instruction file; Aider, Amazon Q Developer, Anthropic Claude Code, Continue, Google Gemini CLI, Qwen Code, Replit Agent, Void reach nothing.",
       "evidence": [],
       "searches": [],
       "remediation": {
