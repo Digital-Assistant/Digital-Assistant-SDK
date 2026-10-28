@@ -22,5 +22,21 @@ updates:
     open-pull-requests-limit: 0
     schedule:
       interval: monthly
+    groups:
+      npm:
+        patterns: ["*"]
+    commit-message:
+      prefix: "build"
+  # The pack-check tools (publint, attw) have their own lockfile. Security updates only,
+  # like the root package; grouped so a security batch is one PR.
+  - package-ecosystem: npm
+    directory: /scripts/ci/pack-tools
+    target-branch: dev
+    open-pull-requests-limit: 0
+    schedule:
+      interval: monthly
+    groups:
+      npm:
+        patterns: ["*"]
     commit-message:
       prefix: "build"
