@@ -1,6 +1,11 @@
 import {
     getBuildDefaults,
     getRuntimeConfig,
+    getMissingAuthConfig,
+    hasClientSecret,
+    isKeycloakSsoEnabled,
+    REQUIRED_AUTH_KEYS,
+    warnClientSecretDeprecated,
     resolveApiBaseUrl,
     resolveEnvironment,
     resolveKeycloakUrl,
@@ -178,5 +183,38 @@ describe('runtime environment resolver', () => {
             expect(CONFIG.UDA_API_URL).toBe(BUILD_ENV.baseProdURL);
             expect(CONFIG.UDA_DOMAIN).toBe('https://prod.example.com');
         });
+    });
+});
+
+describe('auth configuration', () => {
+    it('requires only realm and clientId', () => {
+        expect([...REQUIRED_AUTH_KEYS]).toEqual(['realm', 'clientId']);
+        expect(getMissingAuthConfig({})).toEqual(['realm', 'clientId']);
+        expect(getMissingAuthConfig({ realm: 'r', clientId: 'c' })).toEqual([]);
+    });
+
+    it('treats a blank clientSecret as not configured', () => {
+        expect(hasClientSecret({ clientSecret: '  ' })).toBe(false);
+        expect(hasClientSecret({})).toBe(false);
+        expect(hasClientSecret({ clientSecret: 's' })).toBe(true);
+    });
+
+    it('warns about the deprecated clientSecret only once', () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        warnClientSecretDeprecated();
+        warnClientSecretDeprecated();
+        const hits = warn.mock.calls.filter((call) =>
+            String(call[0]).includes('clientSecret is deprecated'),
+        );
+        expect(hits).toHaveLength(1);
+        warn.mockRestore();
+    });
+
+    it('enables check-sso only on opt-in with a Keycloak URL', () => {
+        const url = 'https://auth.example.com/';
+        expect(isKeycloakSsoEnabled({ keycloakUrl: url })).toBe(false);
+        expect(
+            isKeycloakSsoEnabled({ enableKeycloakSso: true, keycloakUrl: url }),
+        ).toBe(true);
     });
 });

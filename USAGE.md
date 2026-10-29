@@ -32,11 +32,12 @@ fires a `UDAConfigUpdated` event on `window`.
 | `keycloakUrl` | string | `''` | Keycloak server base URL |
 | `realm` | string | none (required) | Keycloak realm of the customer. Always sent to the backend as the `UDAN-Realm` header. There is no default realm |
 | `clientId` | string | none (required) | Keycloak client ID of the customer |
-| `clientSecret` | string | none (required) | Keycloak client secret of the customer (see the note below) |
+| `clientSecret` | string | none (optional, deprecated) | Keycloak client secret of the customer. Sent to the token service only when set; see the note below |
+| `enableKeycloakSso` | boolean | `false` | Run the keycloak-js `check-sso` in the host page when `DigitalAssistantCore` is created (needs a Keycloak URL). Off by default; never runs when the host passed a token with `setAuthToken` |
 
-`realm`, `clientId` and `clientSecret` have no defaults. While one of them is missing or empty, every SDK request is rejected with `UDA is not configured: <missing keys> required`, and no call reaches the backend.
+`realm` and `clientId` have no defaults. While one of them is missing or empty, every SDK request is rejected with `UDA is not configured: <missing keys> required`, and no call reaches the backend. `clientSecret` is not required.
 
-There is no default realm, client ID or client secret. If one is missing, the SDK logs
+There is no default realm or client ID. If one is missing, the SDK logs
 a `UDAConfigurationError` naming the missing keys and sends no request; the backend
 answers `400` to a request without `UDAN-Realm`.
 A backend that enforces this (the Server since its `RequireRealmFilter`) also rejects older SDKs and
@@ -91,7 +92,7 @@ A page that passes nothing uses the PROD defaults.
                         // keycloakUrl: 'https://<keycloak-host>/',
                         realm: '<realm-name>',
                         clientId: '<client-id>',
-                        clientSecret: '<client-secret>', // required, see the note below
+                        // clientSecret: '<client-secret>', // optional and deprecated, see the note below
                         enableRecording: true,
                         enableOverlay: true,
                         enableUdaIcon: true,
@@ -109,7 +110,7 @@ In the Chrome extension, the content script announces the SDK with a `UDASdkRead
 ```js
 function configure() {
     UDAAuthDataConfig({ id: '<unique-user-id>' });
-    UDAPluginSDK({ realm: '<realm-name>', clientId: '<client-id>' /* , clientSecret, see the note below */ });
+    UDAPluginSDK({ realm: '<realm-name>', clientId: '<client-id>' /* , clientSecret (optional, deprecated), see the note below */ });
 }
 if (window.UDASdkIsReady) {
     configure(); // the event already fired
@@ -125,7 +126,7 @@ if (window.UDASdkIsReady) {
 
 A runnable example is in [`sample/index.html`](sample/index.html).
 
-**Note on the client secret.** The token request needs the customer's client secret, so for now it is passed to `UDAPluginSDK`, and everything in a page is public (anyone who opens the page source can read it). This is accepted for the test phase only and will be replaced before production use (tracked in the project's security TODO). Pass no other secrets (API keys) to `UDAPluginSDK`.
+**Note on the client secret.** `clientSecret` is optional and deprecated. When it is set, the SDK sends it in the token request body and logs one console warning; when it is not set, the body has no `clientSecret` field. Everything in a page is public (anyone who opens the page source can read it), so a deployment that still needs the secret for the token request is a known weakness that is being replaced by a sign-in without a secret. Pass no other secrets (API keys) to `UDAPluginSDK`.
 
 ### npm / bundler
 
@@ -420,12 +421,12 @@ customClient.updateHeaders({ 'X-New-Header': 'new-value' });
 ### Authentication Token Management
 
 The API client automatically:
-- Reads JWT tokens from the Redux store's user state
 - Attaches `Authorization: Bearer <token>` header to all requests
 - Prioritizes tokens in this order:
-  1. `keycloakSessionData.token`
-  2. `userSessionData.authData.token`
-  3. `userData.token`
+  1. the token the host passed with `setAuthToken` (see below), while it is valid
+  2. `keycloakSessionData.token` in the Redux store's user state
+  3. `userSessionData.authData.token`
+  4. `userData.token`
 
 ```typescript
 import { setKeycloakSessionData } from '@udan/digital-assistant-sdk';
@@ -440,6 +441,41 @@ DigitalAssistantCore.dispatch(setKeycloakSessionData({
 // All subsequent API calls will be authenticated
 const userProfile = await apiClient.get('/api/user/profile');
 ```
+
+#### Host-provided token
+
+An embedding host (for example the extension's background worker) that runs its own sign-in hands the access token to the SDK. The SDK keeps it in memory only and never persists it.
+
+```typescript
+import {
+    setAuthToken,
+    setAuthTokenRenewer,
+    clearAuthToken,
+    getAuthToken,
+} from '@udan/digital-assistant-sdk';
+
+setAuthToken({
+    token: accessToken,
+    expiresAt: Date.now() + expiresInSeconds * 1000, // epoch milliseconds
+    authsource: 'keycloak',
+    sub: subjectFromToken,
+});
+
+// Optional: let the SDK ask for a new token when a request finds the old one expired
+setAuthTokenRenewer(async () => {
+    const next = await signInAgainOrRefresh(); // host code
+    return next ? { token: next.accessToken, expiresAt: next.expiresAt, sub: next.sub } : null;
+});
+
+clearAuthToken(); // on sign-out: forgets the token and the renewer
+```
+
+- A host renews the token either by calling `setAuthToken` again before `expiresAt`, or with the renewer above. A token within 10 seconds of `expiresAt` counts as expired. The renewer runs once for concurrent requests; if it returns nothing or fails, the request goes out without the host token (and the store tokens apply).
+- `expiresAt` is optional; without it the token is sent until the host replaces or clears it.
+- `setAuthToken` throws `TypeError` for an empty token or a non-numeric `expiresAt`.
+- `getAuthToken()` returns the stored object (expired or not), or `null`.
+- `realm` and `clientId` are still required on every request; the token only replaces the bearer.
+- The automatic `check-sso` is skipped when a host token was set before `DigitalAssistantCore` is created. Leave `enableKeycloakSso` off in a host that passes tokens.
 
 ### Error Handling
 

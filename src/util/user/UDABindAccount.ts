@@ -8,7 +8,9 @@ import { apiClient } from '../../services';
 import {
     assertAuthConfig,
     getRuntimeConfig,
+    hasClientSecret,
     resolveTokenUrl,
+    warnClientSecretDeprecated,
 } from '../../config/environment';
 
 /**
@@ -25,13 +27,16 @@ export const UDABindAccount = async (
 ) => {
     const globalConfig = getRuntimeConfig();
     assertAuthConfig(globalConfig);
-    const payLoad = {
+    const payLoad: Record<string, unknown> = {
         uid: UDASessionData.authData.id,
         email: UDASessionData.authData.email,
         realm: globalConfig.realm,
         clientId: globalConfig.clientId,
-        clientSecret: globalConfig.clientSecret,
     };
+    if (hasClientSecret(globalConfig)) {
+        warnClientSecretDeprecated();
+        payLoad.clientSecret = globalConfig.clientSecret;
+    }
     const authTokenResponse: any = await apiClient.post(
         resolveTokenUrl(globalConfig) + ENDPOINT.tokenUrl,
         payLoad,
