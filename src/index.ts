@@ -13,6 +13,8 @@ import { AuthConfig } from './util/user/UserAuthConfig';
 import { AppConfig } from './config/AppConfig';
 import { CustomConfig } from './config/CustomConfig';
 import { UDAConsoleLogger } from './util/error';
+import { isKeycloakSsoEnabled } from './config/environment';
+import { getAuthToken } from './services/hostAuthToken';
 
 // Export for module usage
 export { AuthDataConfig, AuthConfig, AppConfig, CustomConfig };
@@ -57,10 +59,13 @@ export class DigitalAssistantCore {
             config,
             this.errorLogger,
         );
-        // Initialize AuthManager
-        import('./services/AuthManager').then(({ authManager }) => {
-            authManager.init();
-        });
+        // Opt-in keycloak-js check-sso for customer pages (enableKeycloakSso); never
+        // when the host hands in its own token (setAuthToken)
+        if (isKeycloakSsoEnabled() && !getAuthToken()) {
+            import('./services/AuthManager').then(({ authManager }) => {
+                authManager.init();
+            });
+        }
 
         // Initialize PlaybackService
         import('./util/playback/PlaybackService').then(

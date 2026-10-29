@@ -7,6 +7,7 @@ import {
     getRuntimeConfig,
     resolveApiBaseUrl,
 } from '../config/environment';
+import { resolveHostBearer } from './hostAuthToken';
 
 /**
  * Configuration options for the API client
@@ -90,7 +91,7 @@ export class ApiClient {
      */
     private setupRequestInterceptor(): void {
         this.axiosInstance.interceptors.request.use(
-            (config: any) => {
+            async (config: any) => {
                 // Get current state from Redux store
                 const state: RootState = (store as any).getState();
                 const userState = state.user;
@@ -128,6 +129,12 @@ export class ApiClient {
                     token = userState.userData.token;
                 }
 
+                // A token handed in by the host (setAuthToken) beats every stored token
+                const hostToken = await resolveHostBearer();
+                if (hostToken) {
+                    token = hostToken;
+                }
+
                 // Attach Authorization header if token exists
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
@@ -137,7 +144,7 @@ export class ApiClient {
                     config.baseURL = resolveApiBaseUrl();
                 }
 
-                // No default realm: every request needs realm, clientId and clientSecret
+                // No default realm: every request needs realm and clientId
                 // (rejects with UDAConfigurationError) and always names its realm.
                 const globalConfig = getRuntimeConfig();
                 assertAuthConfig(globalConfig);

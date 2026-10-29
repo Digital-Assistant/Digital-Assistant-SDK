@@ -111,14 +111,11 @@ export const resolveRuntimeEnvironment = (
 });
 
 /**
- * Authentication settings every call needs. There is no default realm, client id or
- * client secret: the page (customer script) or the extension must set them.
+ * Authentication settings every call needs. There is no default realm or client id:
+ * the page (customer script) or the extension must set them. `clientSecret` is
+ * optional and deprecated; it is sent to the token service only when configured.
  */
-export const REQUIRED_AUTH_KEYS = [
-    'realm',
-    'clientId',
-    'clientSecret',
-] as const;
+export const REQUIRED_AUTH_KEYS = ['realm', 'clientId'] as const;
 
 export class UDAConfigurationError extends Error {
     readonly missing: string[];
@@ -139,7 +136,7 @@ export const getMissingAuthConfig = (
         return typeof value !== 'string' || value.trim() === '';
     });
 
-/** Throws UDAConfigurationError when realm, clientId or clientSecret is missing or empty. */
+/** Throws UDAConfigurationError when realm or clientId is missing or empty. */
 export const assertAuthConfig = (
     config: RuntimeConfig = getRuntimeConfig(),
 ): void => {
@@ -148,3 +145,30 @@ export const assertAuthConfig = (
         throw new UDAConfigurationError(missing);
     }
 };
+
+/** True when a non-empty `clientSecret` is configured (deprecated, optional). */
+export const hasClientSecret = (
+    config: RuntimeConfig = getRuntimeConfig(),
+): boolean => {
+    const value = config?.clientSecret;
+    return typeof value === 'string' && value.trim() !== '';
+};
+
+let warnedClientSecret = false;
+
+export const warnClientSecretDeprecated = (): void => {
+    if (warnedClientSecret) return;
+    warnedClientSecret = true;
+    console.warn(
+        'UDA: clientSecret is deprecated and will be removed; configure realm and clientId only.',
+    );
+};
+
+/**
+ * Whether the SDK should start the keycloak-js check-sso on construction: the page
+ * opted in with `enableKeycloakSso` and a Keycloak URL resolves.
+ */
+export const isKeycloakSsoEnabled = (
+    config: RuntimeConfig = getRuntimeConfig(),
+): boolean =>
+    config?.enableKeycloakSso === true && resolveKeycloakUrl(config) !== '';

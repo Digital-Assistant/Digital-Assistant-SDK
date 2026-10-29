@@ -2,6 +2,15 @@
 export { ApiClient, apiClient } from './apiClient';
 export type { ApiClientConfig, ApiResponse, ApiError } from './apiClient';
 
+// Export the host-provided token API
+export {
+    setAuthToken,
+    clearAuthToken,
+    setAuthTokenRenewer,
+    getAuthToken,
+} from './hostAuthToken';
+export type { HostAuthToken, HostAuthTokenRenewer } from './hostAuthToken';
+
 // Export SearchService functions (direct usage)
 export { TranslateService } from './TranslateService';
 export {

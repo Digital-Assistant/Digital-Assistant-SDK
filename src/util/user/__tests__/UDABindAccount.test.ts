@@ -60,7 +60,7 @@ describe('UDABindAccount', () => {
         } as UDASessionData;
     });
 
-    it.each(['realm', 'clientId', 'clientSecret'])(
+    it.each(['realm', 'clientId'])(
         'should reject without calling the token service when %s is missing',
         async (key) => {
             (window as any).UDAGlobalConfig[key] = '';
@@ -71,6 +71,36 @@ describe('UDABindAccount', () => {
             expect(apiClient.post).not.toHaveBeenCalled();
         },
     );
+
+    it('should leave clientSecret out of the body when it is not configured', async () => {
+        (window as any).UDAGlobalConfig.clientSecret = '';
+        (apiClient.post as jest.Mock)
+            .mockResolvedValueOnce({ data: { token: 'new-token' } })
+            .mockResolvedValueOnce({ data: { success: true } });
+
+        await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
+
+        const body = (apiClient.post as jest.Mock).mock.calls[0][1];
+        expect(body).toEqual({
+            uid: 'auth-id-789',
+            email: 'user@example.com',
+            realm: 'test-realm',
+            clientId: 'test-client-id',
+        });
+        expect('clientSecret' in body).toBe(false);
+    });
+
+    it('should still send clientSecret when it is configured (deprecated)', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        (apiClient.post as jest.Mock).mockResolvedValue({ data: {} });
+
+        await UDABindAccount(mockUserAuthData, mockUDASessionData, false);
+
+        expect(
+            (apiClient.post as jest.Mock).mock.calls[0][1].clientSecret,
+        ).toBe('test-client-secret');
+        warn.mockRestore();
+    });
 
     it('should request a token with correct payload', async () => {
         (apiClient.post as jest.Mock)
