@@ -1,9 +1,14 @@
 name: Enforce PR Source Branch
 
+# `dev` is listed as well as `main` because this job is a required status check in the ruleset.
+# `pull_request` workflows run the version of the file on the *base* branch: while this only ran for
+# `main`, a PR into `dev` never produced a result and kept the stale failure (or showed as expected),
+# so no Dependabot PR could merge into `dev`. The validation is a no-op unless the base is `main`.
 on:
   pull_request:
     branches:
       - main
+      - dev
 
 permissions:
   contents: read
