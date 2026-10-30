@@ -1,0 +1,16 @@
+# gitleaks 8.30.1, rule `sourcegraph-access-token`, regex alternative #3 is a bare
+# `[a-fA-F0-9]{40}` — so every 40-hex git SHA in any text or JSON file is a finding.
+# The first audit report stores `git_sha` and `framework_revision` values of exactly
+# that shape (commit 83ad528 on dev), which blocked every `dev -> main` promotion
+# with two false positives. A real Sourcegraph access token is `sgp_[a-fA-F0-9]{40}`
+# or `sgp_(local|<16 hex>)_[a-fA-F0-9]{40}`; `grep -r sgp_` finds none in this repo.
+#
+# The exception is the value shape only — a bare 40-hex string — so prefixed tokens
+# are still detected everywhere, and every other rule is untouched.
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "bare 40-hex values are git commit ids, not legacy unprefixed Sourcegraph tokens"
+rules = ["sourcegraph-access-token"]
+regexes = ['''^[a-fA-F0-9]{40}$''']
