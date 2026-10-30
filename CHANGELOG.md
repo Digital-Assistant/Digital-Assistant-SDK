@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.13.0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.12.0...v0.13.0) (2026-10-30)
+
+
+### Features
+
+* **auth:** optional clientSecret, host-provided token, opt-in check-sso ([f84ac65](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/f84ac651f9cd4aeb96d29c58804004d468ad84b7))
+* **auth:** optional clientSecret, host-provided token, opt-in check-sso ([d403545](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/d4035452fab8f9c6d600a0ec9dc69f84e0124d5c))
+
+
+### Bug Fixes
+
+* switch multilingual (Google Translate) off by default ([09188c8](https://github.com/Digital-Assistant/Digital-Assistant-SDK/commit/09188c813139c689909e27929746233ee11fc506))
+
 ## [0.12.0](https://github.com/Digital-Assistant/Digital-Assistant-SDK/compare/v0.11.0...v0.12.0) (2026-10-27)
 
 
