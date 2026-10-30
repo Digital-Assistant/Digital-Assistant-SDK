@@ -74,7 +74,7 @@ while IFS= read -r entry; do
     *) fail "unexpected file in tarball: $entry" ;;
   esac
 done < "$TMP/files.txt"
-for required in package/package.json package/dist/index.esm.js package/dist/index.cjs.js package/dist/index.d.ts; do
+for required in package/package.json package/dist/index.esm.mjs package/dist/index.cjs.js package/dist/index.d.ts package/dist/index.d.mts; do
   grep -qxF "$required" "$TMP/files.txt" || fail "missing from tarball: $required"
 done
 
@@ -106,17 +106,14 @@ if [[ ! -x "$TOOLS/node_modules/.bin/publint" || ! -x "$TOOLS/node_modules/.bin/
   npm ci --prefix "$TOOLS" --ignore-scripts --no-audit --no-fund --loglevel=error
 fi
 echo "==> publint $("$TOOLS/node_modules/.bin/publint" --version 2>/dev/null || true)"
-# Errors fail; warnings and suggestions are printed only.
-"$TOOLS/node_modules/.bin/publint" run "$TGZ" || fail "publint reported errors"
+# Errors and warnings fail (--strict); suggestions are printed only.
+"$TOOLS/node_modules/.bin/publint" run "$TGZ" --strict || fail "publint reported errors or warnings"
 
 echo "==> attw $("$TOOLS/node_modules/.bin/attw" --version)"
-# unexpected-module-syntax: dist/index.esm.js is ESM in a package without
-# "type": "module" (Node loads it through syntax detection; bundlers are fine).
-# Known since 0.10.x; fixing it changes the package layout (logged in the C05
-# output). Every other rule fails the check.
+# Every rule fails the check (the ESM bundle is index.esm.mjs with index.d.mts, so
+# unexpected-module-syntax no longer applies).
 (cd "$TMP" && FORCE_COLOR=0 "$TOOLS/node_modules/.bin/attw" "$TGZ" \
-  --no-definitely-typed --no-emoji --no-color --format table-flipped \
-  --ignore-rules unexpected-module-syntax) || fail "attw reported problems"
+  --no-definitely-typed --no-emoji --no-color --format table-flipped) || fail "attw reported problems"
 
 # --- 4. Scratch project: ESM import, CJS require, URL defaults -----------------
 echo "==> scratch project install"

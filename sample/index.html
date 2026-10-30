@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UDAN SDK sample host page</title>
+    <!-- 1. Headers script: must be the first script. Build the SDK first (npm run build), then
+         serve the repo root (for example: npx http-server . -p 8080) and open /sample/index.html -->
+    <script src="../dist/assets/UDAHeaders.js"></script>
+  </head>
+  <body>
+    <h1>UDAN SDK sample host page</h1>
+    <p>Edit the placeholders in the script below. The realm, client ID and client secret come from your
+       UDAN account; there are no defaults, and the SDK sends no request without them.</p>
+    <button id="uda-nistapp-logo" type="button">Open the assistant</button>
+
+    <!-- 2. Load the SDK at the bottom and configure it in onload -->
+    <script type="text/javascript">
+      (function () {
+        var uda = document.createElement('script');
+        uda.type = 'text/javascript';
+        uda.src = '../dist/assets/UDALoad.js';
+        uda.onload = function () {
+          if (typeof UDAAuthDataConfig === 'undefined') return;
+          UDAAuthDataConfig({
+            id: 'sample-user-1', // unique id of the user in your application
+            email: 'user@example.com', // optional
+          });
+          UDAPluginSDK({
+            environment: 'TEST', // 'TEST' or 'PROD'
+            realm: '<realm-name>',
+            clientId: '<client-id>',
+            clientSecret: '<client-secret>',
+            enableRecording: true,
+            enableOverlay: true,
+            enableUdaIcon: true,
+            udaDivId: 'uda-nistapp-logo',
+          });
+        };
+        document.body.appendChild(uda);
+      })();
+    </script>
+  </body>
+</html>

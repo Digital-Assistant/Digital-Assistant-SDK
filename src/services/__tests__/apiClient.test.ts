@@ -10,6 +10,11 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { AppConfig } from '../../config/AppConfig';
 import { CustomConfig } from '../../config/CustomConfig';
+import {
+    clearAuthToken,
+    setAuthToken,
+    setAuthTokenRenewer,
+} from '../hostAuthToken';
 
 const AUTH = {
     realm: 'customer-realm',
@@ -17,6 +22,17 @@ const AUTH = {
     clientSecret: 'customer-secret',
 };
 const NO_AUTH = { realm: '', clientId: '', clientSecret: '' };
+
+const echo = (target: ApiClient) => {
+    const adapter = new MockAdapter(target.getAxiosInstance());
+    adapter
+        .onAny()
+        .reply((cfg: any) => [
+            200,
+            { baseURL: cfg.baseURL, headers: cfg.headers },
+        ]);
+    return adapter;
+};
 
 const setupGlobalConfig = (globalThis as any).UDAGlobalConfig;
 
@@ -474,17 +490,6 @@ describe('ApiClient', () => {
         const PROD_BASE = 'https://prod.example.com/api';
         const TEST_BASE = 'https://test.example.com/api';
 
-        const echo = (target: ApiClient) => {
-            const adapter = new MockAdapter(target.getAxiosInstance());
-            adapter
-                .onAny()
-                .reply((cfg: any) => [
-                    200,
-                    { baseURL: cfg.baseURL, headers: cfg.headers },
-                ]);
-            return adapter;
-        };
-
         beforeEach(() => {
             process.env = {
                 ...originalEnv,
@@ -585,7 +590,7 @@ describe('ApiClient', () => {
             adapter.restore();
         });
 
-        it.each(['realm', 'clientId', 'clientSecret'])(
+        it.each(['realm', 'clientId'])(
             'rejects the request when %s is missing (no default)',
             async (key) => {
                 const adapter = echo(apiClient);
@@ -605,11 +610,123 @@ describe('ApiClient', () => {
             Object.assign(CustomConfig, NO_AUTH);
 
             await expect(apiClient.get('/search')).rejects.toMatchObject({
-                message: expect.stringContaining(
-                    'realm, clientId, clientSecret',
-                ),
+                message: expect.stringContaining('realm, clientId required'),
             });
             adapter.restore();
+        });
+
+        it('sends the request when clientSecret is not configured', async () => {
+            const adapter = echo(apiClient);
+            (CustomConfig as any).clientSecret = '';
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers['UDAN-Realm']).toBe('customer-realm');
+            adapter.restore();
+        });
+    });
+
+    describe('Host-provided token', () => {
+        let adapter: MockAdapter;
+
+        beforeEach(() => {
+            adapter = echo(apiClient);
+        });
+
+        afterEach(() => {
+            clearAuthToken();
+            adapter.restore();
+        });
+
+        it('sends the host token as bearer', async () => {
+            setAuthToken({
+                token: 'host-token',
+                expiresAt: Date.now() + 60_000,
+                authsource: 'keycloak',
+                sub: 'user-1',
+            });
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers.Authorization).toBe(
+                'Bearer host-token',
+            );
+        });
+
+        it('prefers the host token over a stored Keycloak token', async () => {
+            store.dispatch(setKeycloakSessionData({ token: 'store-token' }));
+            setAuthToken({ token: 'host-token' });
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers.Authorization).toBe(
+                'Bearer host-token',
+            );
+        });
+
+        it('stops sending the token after clearAuthToken', async () => {
+            setAuthToken({ token: 'host-token' });
+            clearAuthToken();
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers.Authorization).toBeUndefined();
+        });
+
+        it('calls the renewer when the token is expired and sends the new token', async () => {
+            const renewer = jest.fn().mockResolvedValue({
+                token: 'renewed-token',
+                expiresAt: Date.now() + 60_000,
+            });
+            setAuthToken({ token: 'old-token', expiresAt: Date.now() - 1000 });
+            setAuthTokenRenewer(renewer);
+
+            const response = await apiClient.get('/search');
+            expect(renewer).toHaveBeenCalledTimes(1);
+            expect(response.data.headers.Authorization).toBe(
+                'Bearer renewed-token',
+            );
+        });
+
+        it('renews once for concurrent requests', async () => {
+            const renewer = jest.fn().mockResolvedValue({
+                token: 'renewed-token',
+                expiresAt: Date.now() + 60_000,
+            });
+            setAuthToken({ token: 'old-token', expiresAt: Date.now() - 1000 });
+            setAuthTokenRenewer(renewer);
+
+            await Promise.all([
+                apiClient.get('/search'),
+                apiClient.get('/search'),
+                apiClient.get('/search'),
+            ]);
+            expect(renewer).toHaveBeenCalledTimes(1);
+        });
+
+        it('does not send an expired token that cannot be renewed', async () => {
+            setAuthToken({ token: 'old-token', expiresAt: Date.now() - 1000 });
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers.Authorization).toBeUndefined();
+        });
+
+        it('does not send the token when the renewer fails', async () => {
+            setAuthToken({ token: 'old-token', expiresAt: Date.now() - 1000 });
+            setAuthTokenRenewer(jest.fn().mockRejectedValue(new Error('no')));
+            jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            const response = await apiClient.get('/search');
+            expect(response.data.headers.Authorization).toBeUndefined();
+        });
+
+        it('rejects an empty token', () => {
+            expect(() => setAuthToken({ token: ' ' })).toThrow(TypeError);
+        });
+
+        it('still requires realm and clientId when a host token is set', async () => {
+            setAuthToken({ token: 'host-token' });
+            Object.assign(CustomConfig, NO_AUTH);
+
+            await expect(apiClient.get('/search')).rejects.toMatchObject({
+                message: expect.stringContaining('UDA is not configured'),
+            });
         });
     });
 });

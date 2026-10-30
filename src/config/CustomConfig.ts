@@ -27,7 +27,8 @@ export interface CustomConfigPropTypes {
     customIcon: string;
     realm: string | undefined;
     clientId: string | undefined;
-    clientSecret: string | undefined;
+    clientSecret: string | undefined; // Deprecated: optional; sent to the token service only when set
+    enableKeycloakSso: boolean; // Run the keycloak-js check-sso in the host page when the SDK starts
     keycloakUrl: string; // Keycloak base URL; empty = build default for the environment
     apiBaseUrl: string; // Backend API base URL (including /api); empty = build default for the environment
     tokenUrl: string; // Token service base URL; empty = build default for the environment
@@ -44,7 +45,7 @@ export const CustomConfig: CustomConfigPropTypes = {
     enableEditClickedName: true, // Flag for editing the clicked element
     enableSkipDuringPlay: true, // Flag for enabling skip functionality
     enableTooltipAddition: true, // Flag for adding custom tooltip information
-    enableMultilingual: true, // Flag for enabling multilingual search with speech
+    enableMultilingual: false, // Flag for enabling multilingual search with speech. Off while translate is being redesigned (Google Translate key removed)
     enableNodeTypeSelection: true, // Flag for enabling node type selection
     enablePermissions: false, // Flag for enabling permissions addition
     permissions: { test: true }, // Object where the permissions can be passed
@@ -61,7 +62,8 @@ export const CustomConfig: CustomConfigPropTypes = {
     customIcon: 'https://udan.nistapp.com/uda-logo.jpg', // Custom icon URL
     realm: '', // No default: set by the page or the extension (customer realm)
     clientId: '', // No default: set by the page or the extension
-    clientSecret: '', // No default: set by the page or the extension; never set at build time
+    clientSecret: '', // Deprecated and optional: set by the page or the extension; never set at build time
+    enableKeycloakSso: false, // Off by default: the SDK does not touch the host page's Keycloak session unless asked
     keycloakUrl: '', // Explicit Keycloak URL override
     apiBaseUrl: '', // Explicit backend API base URL override
     tokenUrl: '', // Explicit token service URL override

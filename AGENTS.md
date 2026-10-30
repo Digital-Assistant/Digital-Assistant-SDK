@@ -52,7 +52,7 @@ Entry point `src/index.ts` bootstraps everything and exposes the public surface:
 
 | Directory | Responsibility |
 |---|---|
-| `src/services/` | API layer + business logic: `apiClient` (axios + Keycloak interceptors), `RecordService`, `SearchService`, `StepEditingService`, `AuthManager`, `TranslateService`, `ErrorLoggerService`, `trackingService`, `userService`, `UserVote` |
+| `src/services/` | API layer + business logic: `apiClient` (axios + Keycloak interceptors), `hostAuthToken` (host-provided bearer: `setAuthToken`/`clearAuthToken`/`setAuthTokenRenewer`), `RecordService`, `SearchService`, `StepEditingService`, `AuthManager`, `TranslateService`, `ErrorLoggerService`, `trackingService`, `userService`, `UserVote` |
 | `src/store/` | Redux store + slices (`flow`, `recording`, `editableStepForm`, `editing`, `user`, `validation`, `notification`) + selectors. Single exported `store` instance |
 | `src/util/` | Framework-agnostic helpers. Core DOM-matching engine under `util/node/` (`checkNode`, `searchNodes`, `isClickableNode`, `getClickedInputLabels`, `events`, `getNodeInfo`, …); `util/browser/`, `util/screen/`, `util/storage.ts`, `util/translate/` (i18n), `util/playback/` (PlaybackService), `util/recording/`, `util/validation/` |
 | `src/config/` | `AppConfig`, `CustomConfig`, `environment.ts` (runtime TEST/PROD resolver for the backend, token, LLM and Keycloak URLs), `constants.ts` (incl. `Environment`, `enableNodeTypeSelection`), `endpoints.ts` |
@@ -64,7 +64,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 
 ## 5. Build & Environment Matrix
 
-- Webpack config: `webpack.config.js` (single config, `--env build=<local|development|production|qa>`). Output goes to `dist/` (`index.cjs.js`, `index.esm.js`, `index.d.ts`).
+- Webpack config: `webpack.config.js` (single config, `--env build=<local|development|production|qa>`). Output goes to `dist/` (`index.cjs.js`, `index.esm.mjs`, `index.d.ts`, `index.d.mts`).
 - Environment variables are loaded per env via dotenv-webpack from `environments/<env>.env` (gitignored). `environments/local.env.example` is the committed schema; it activates dotenv-webpack `safe` mode, so every key it declares must be present in `<env>.env` (empty values are allowed). Local dev copies the example to `local.env`; CI generates `local.env` via `npm run env:generate` from environment variables.
 - **Runtime environment**: one build serves TEST and PROD. `src/config/environment.ts` reads `globalThis.UDAGlobalConfig` on every call (not `window`: the extension background worker has none). Per URL: explicit page key (`apiBaseUrl`, `tokenUrl`, `llmUrl`, `keycloakUrl`) → build default for `environment` (`baseProdURL`/`baseTestURL`, `tokenProdUrl`/`tokenTestUrl`, `llmProdUrl`/`llmTestUrl`, `keycloakProdUrl`/`keycloakTestUrl`); default `PROD`. `ApiClient({ baseURL })`/`updateBaseURL()` still win for API calls. Host-page guide: `USAGE.md`.
 - `scripts/ci/check-build-env.mjs` runs after the build in CI and before publish: it fails if a PROD URL default is empty or not inlined in `dist/`, or if a secret key has a value or appears in `dist/` (names only in logs). `--allow-empty-urls` turns empty URLs into warnings (PRs into `dev`).
@@ -99,7 +99,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 - Never log, print, or commit secrets: `.env`, `local.env`, API keys, access tokens, session keys, or Keycloak credentials.
 - All `environments/*.env` files and the root `.env` are gitignored; `environments/local.env.example` is the only committed env file and must contain no real values.
 - **Rotate credentials that were previously committed** (the old `environments/local.env` is in git history). Untracking a file does not remove it from history, so exposed values must be rotated.
-- **Build-time leakage**: `process.env.*` values referenced in `src/` are inlined into the browser bundle by dotenv-webpack. Treat every value in `environments/*.env` (and every CI-provided value) as public. The env schema holds public keys only; secret keys (`keycloakClientSecret`, `profanityKey`, `googleTranslateApiKey`, `googleAnalyticsSecretKey`) are not referenced in `src/`, not mapped in workflows, and `check-build-env.mjs` fails the build if one has a value. `CustomConfig.clientSecret` stays only for backward compatibility; do not document it.
+- **Build-time leakage**: `process.env.*` values referenced in `src/` are inlined into the browser bundle by dotenv-webpack. Treat every value in `environments/*.env` (and every CI-provided value) as public. The env schema holds public keys only; secret keys (`keycloakClientSecret`, `profanityKey`, `googleTranslateApiKey`, `googleAnalyticsSecretKey`) are not referenced in `src/`, not mapped in workflows, and `check-build-env.mjs` fails the build if one has a value. `CustomConfig.clientSecret` is optional and deprecated: the token request body carries it only when set, with one console warning. Never put a value in a build env or an example.
 - `.env` exists in the repo root — do not add it to `package.json` `files` or the webpack bundle. Verify no secrets are bundled into `dist/`.
 - Auth flows (Keycloak, `jwt-decode`, `AuthManager`) carry bearer tokens through `apiClient` interceptors. Interceptor logic (401 handling, logout) is security-sensitive — changes require review.
 - Sanitize user-generated content: recording payloads and step metadata are validated (profanity check via `profanityCheck`) before persistence. Preserve that boundary.
@@ -175,5 +175,5 @@ staged on npm as **`next`** (Trusted Publishing, maintainer approval on npmjs.co
 `latest` moves only after a Client TEST pass (`npm dist-tag add ... latest`; rollback is the
 same command with the previous version).
 Release Please and the back-merge job open PRs with a GitHub App token
-(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. **See `RELEASE_PROCESS.md` for the full step-by-step
+(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. Merge method is a merge commit; default branch is `main`. Dependabot is security-only for npm and quarterly for GitHub Actions (lessons in `RELEASE_PROCESS.md`, "Merge method and Dependabot"). **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**

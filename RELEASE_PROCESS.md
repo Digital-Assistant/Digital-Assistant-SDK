@@ -404,7 +404,18 @@ merged into `main`.
 - The domjson patch runs from the `prepare` script, so consumer installs don't run it, and
   `tsconfig.build.json` keeps test files out of the emitted declarations.
 
+### Merge method and Dependabot
+
+- Merge commits are used for PRs into `dev` and `main` (the repository also allows squash and rebase; the history shows merge commits). Commits and PR titles must be Conventional Commits.
+- Dependabot (`.github/dependabot.yml`) targets `dev`. GitHub Actions updates are quarterly and grouped into one PR. npm is monitored monthly with `open-pull-requests-limit: 0`, so routine version PRs are off; security updates still arrive (they need "Dependabot security updates" on in the repo settings). Versions are otherwise bumped by hand in a planned window every 3 to 6 months.
+- If a Dependabot PR does touch `package-lock.json` and conflicts, take the branch's lock and run `npm install --package-lock-only` (Dependabot cannot rebase a lock that predates a `package.json` change). Merge only when `mergeStateStatus` is `CLEAN`.
+- Default branch is `main`; `workflow_dispatch`-only workflows register from the default branch only.
+
 ### Promotion and rollback
+
+This flow (pack once, stage under `next`, promote after a Client TEST pass) has run for 0.11.0 and 0.12.0; on 2026-10-27 npm `latest` and `next` both point at 0.12.0.
+
+Version note: 0.12.0 is the first release that requires `realm`, `clientId` and `clientSecret`; a backend that rejects requests without `UDAN-Realm` works with 0.12.0 but not with 0.11.0 or earlier.
 
 `latest` moves only after a Client TEST build with the exact SDK version passed:
 
@@ -438,8 +449,8 @@ and can be run locally on a release asset. It does not rebuild anything:
 2. `scripts/ci/check-build-env.mjs --dist=<unpacked dist>` with `environments/<name>.env`:
    URL defaults inlined, no secret key name or value (names only in logs).
 3. `publint` and `@arethetypeswrong/cli`, pinned in `scripts/ci/pack-tools` (own lockfile).
-   `attw` ignores only `unexpected-module-syntax` (the ESM bundle lives in a package without
-   `"type": "module"`, which Node resolves correctly and bundlers ignore).
+   publint runs with `--strict` (warnings fail) and attw ignores no rule. The ESM bundle is
+   `dist/index.esm.mjs` with `dist/index.d.mts` (re-exports `index.d.ts`), so Node reads it as ESM.
 4. A scratch project installs the tarball and loads it with ESM `import` and CJS `require`;
    the exports must match and PROD URL defaults must be present (R9), `clientSecret` empty.
 

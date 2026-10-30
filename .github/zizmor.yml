@@ -1,0 +1,7 @@
+rules:
+  secrets-outside-env:
+    ignore:
+      # The release-please and back-merge jobs need the GitHub App key to mint a token that
+      # triggers workflows. Moving it into a protected environment is an owner decision
+      # (GitHub settings); see RELEASE_PROCESS.md. Only the npm publish job uses `production`.
+      - release-and-sync.yml

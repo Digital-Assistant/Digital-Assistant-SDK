@@ -8,6 +8,12 @@ on:
 # No workflow-level permissions: each job asks for what it needs.
 permissions: {}
 
+# One release run at a time, and never cancel one halfway: a cancelled run could leave a
+# tag without its tarball or npm stage.
+concurrency:
+  group: release-and-sync
+  cancel-in-progress: false
+
 # PRs opened with GITHUB_TOKEN do not trigger workflows, so required checks never
 # report on them. Release PRs and back-merge PRs are therefore opened with a
 # GitHub App installation token (repo variable RELEASE_APP_ID, secret
@@ -34,7 +40,7 @@ jobs:
       # Release PR (pull-requests) and manages the autorelease labels (issues).
       - name: Generate App Token
         id: app-token
-        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -43,7 +49,7 @@ jobs:
           permission-issues: write
 
       - id: release
-        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.app-token.outputs.token }}
           config-file: release-please-config.json
@@ -61,7 +67,7 @@ jobs:
     steps:
       - name: Generate App Token
         id: app-token
-        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           app-id: ${{ vars.RELEASE_APP_ID }}
           private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
@@ -69,7 +75,7 @@ jobs:
           permission-pull-requests: write
 
       - name: Checkout Repository
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -78,12 +84,22 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh pr create \
+          # Skip only the two expected cases; any other gh failure fails the job.
+          ahead="$(gh api "repos/$GITHUB_REPOSITORY/compare/dev...main" --jq .ahead_by)"
+          if [[ "$ahead" == "0" ]]; then
+            echo "main has no commits that dev lacks; nothing to sync."
+            exit 0
+          fi
+          existing="$(gh pr list -R "$GITHUB_REPOSITORY" --base dev --head main --state open --json number --jq 'length')"
+          if [[ "$existing" != "0" ]]; then
+            echo "A back-merge PR from main to dev is already open."
+            exit 0
+          fi
+          gh pr create -R "$GITHUB_REPOSITORY" \
             --base dev \
             --head main \
             --title "chore: sync main back to dev after release" \
-            --body "Automated PR: syncs the updated package.json and CHANGELOG.md from main back to dev after a release. Merge this immediately to prevent future merge conflicts." \
-            || echo "Back-merge PR not created (already exists or nothing to sync)."
+            --body "Automated PR: syncs the updated package.json and CHANGELOG.md from main back to dev after a release. Merge this immediately to prevent future merge conflicts."
 
   # Builds the release tag once and packs it. Lifecycle scripts do not run for a
   # tarball publish, and `npm pack` skips prepublishOnly, so check and build run
@@ -104,13 +120,13 @@ jobs:
       tarball: ${{ steps.pack.outputs.tarball }}
     steps:
       - name: Checkout Release Tag
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
           persist-credentials: false
 
       - name: Setup Node.js 24
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
 
@@ -203,7 +219,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
-      contents: write
+      contents: write # upload the tarball and SHA256SUMS to the GitHub release
       actions: read # download this run's sdk-release-tarball artifact
     steps:
       - name: Download tarball artifact
@@ -245,7 +261,7 @@ jobs:
     timeout-minutes: 15
     environment: production
     permissions:
-      id-token: write
+      id-token: write # npm Trusted Publishing (GitHub OIDC) and provenance
       contents: read
       actions: read # download this run's sdk-release-tarball artifact
     steps:
@@ -267,7 +283,7 @@ jobs:
           cmp SHA256SUMS release-asset.sha256
 
       - name: Setup Node.js 24
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org/
