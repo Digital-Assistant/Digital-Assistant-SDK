@@ -63,7 +63,7 @@
     "prepare": "node ./scripts/postinstall.js"
   },
   "author": "Yureswar Ravuri <yureshwar@gmail.com>",
-  "license": "ISC",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.7",
     "detect-browser": "^5.3.0",
