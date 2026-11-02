@@ -175,5 +175,5 @@ staged on npm as **`next`** (Trusted Publishing, maintainer approval on npmjs.co
 `latest` moves only after a Client TEST pass (`npm dist-tag add ... latest`; rollback is the
 same command with the previous version).
 Release Please and the back-merge job open PRs with a GitHub App token
-(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. Merge method is a merge commit; default branch is `main`. Dependabot is security-only for npm and quarterly for GitHub Actions (lessons in `RELEASE_PROCESS.md`, "Merge method and Dependabot"). **See `RELEASE_PROCESS.md` for the full step-by-step
+(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. Merge method into `dev` is squash (ruleset `Protect dev branch`, since 2026-11-02; PR title becomes the commit), `dev` to `main` is a merge commit; default branch is `main`. Dependabot is security-only for npm and quarterly for GitHub Actions (lessons in `RELEASE_PROCESS.md`, "Merge method and Dependabot"). **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**
