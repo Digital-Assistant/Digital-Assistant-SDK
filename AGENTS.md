@@ -115,6 +115,14 @@ Standard change loop:
 2. Implement the change following section 6 conventions.
 3. Run `npm run check` (format + typecheck + tests); fix any regressions.
 4. Add/update colocated unit tests; run `npm test` (targeted: `npm test -- path/to/__tests__`).
+
+   Run a single test or a single file:
+
+   ```bash
+   npx jest -t '<test name>'                            # one test by name
+   npx jest src/config/__tests__/environment.test.ts    # one test file
+   ```
+
 5. Run `npm run build` to confirm the bundle compiles.
 6. Public API changes ship through the release pipeline — `dist/` is built in CI and never committed (see § 7).
 
