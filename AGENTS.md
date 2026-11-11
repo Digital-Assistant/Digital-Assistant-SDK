@@ -10,7 +10,7 @@ Stack: TypeScript 4.9 (strict, `allowJs`), Redux Toolkit + redux-thunk, webpack 
 
 ## 2. Codebase-Memory-MCP Integration
 
-This repo is indexed with codebase-memory-mcp (project: `home-kc-Projects-UDAN-Digital-Assistant-SDK`). ALWAYS prefer graph tools over grep for structural discovery:
+This repo is indexed with codebase-memory-mcp (project: `home-kc-Projects-UDAN-Digital-Assistant-SDK`). The server is registered in `.mcp.json` (Claude Code and VS Code read it); tools that read another file copy the `codebase-memory-mcp` entry from `.mcp.json`. The `codebase-memory-mcp` binary must be on `PATH`. Re-index after you pull or switch branches (`index_repository`), and check `index_status` before you trust a result. ALWAYS prefer graph tools over grep for structural discovery:
 
 1. `search_graph` — find functions, classes, routes, variables by pattern
 2. `trace_path` — trace callers/callees (use `direction=inbound` for impact analysis)

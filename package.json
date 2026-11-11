@@ -53,7 +53,7 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint --max-warnings 686 \"{src,test,scripts}/**/*.{ts,js,mjs}\"",
     "lint:workflows": "actionlint && zizmor --offline .github",
-    "docs:lint": "markdownlint-cli2 README.md docs/README.md docs/STYLE_GUIDE.md docs/ADR_POLICY.md \"docs/adr/*.md\" \"docs/architecture/*.md\" docs/agentic-readiness/README.md",
+    "docs:lint": "markdownlint-cli2 README.md CONTRIBUTING.md SECURITY.md \".github/*.md\" \".github/ISSUE_TEMPLATE/*.md\" docs/README.md docs/STYLE_GUIDE.md docs/ADR_POLICY.md docs/branch-protection.md \"docs/adr/*.md\" \"docs/architecture/*.md\" docs/agentic-readiness/README.md",
     "docs:lint:all": "markdownlint-cli2 \"**/*.md\" || true",
     "format": "prettier --write .",
     "format:check": "prettier --check . && npm run lint",

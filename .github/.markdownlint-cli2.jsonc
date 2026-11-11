@@ -1,0 +1,6 @@
+// GitHub templates start with a section heading or front matter, not a title (MD041).
+{
+    "config": {
+        "MD041": false,
+    },
+}
