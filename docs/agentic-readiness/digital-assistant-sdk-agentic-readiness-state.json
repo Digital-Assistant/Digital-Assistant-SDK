@@ -74,15 +74,15 @@
     },
     {
       "key": "extra.reformat",
-      "value": "one Prettier reformat of the whole tree, its own PR before T4",
-      "reason": "owner: extra a",
+      "value": "done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded",
+      "reason": "owner: extra a; Markdown left to the T6 linter",
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
     },
     {
       "key": "extra.lint-scope",
-      "value": "format, format:check and lint also cover test/ and scripts/; new debt baselined in T5",
+      "value": "done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5",
       "reason": "owner: extra b",
       "by": "owner",
       "date": "2026-11-11",
@@ -821,6 +821,16 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "F-002 note added by agent: Engine re-check still reads EXEC-04 FAIL: it reads only root-level example files, not environments/local.env.example (framework issue #52, engine limit). Both keys are declared."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference extra.reformat changed from one Prettier reformat of the whole tree, its own PR before T4 to done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded: owner: extra a; Markdown left to the T6 linter"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference extra.lint-scope changed from format, format:check and lint also cover test/ and scripts/; new debt baselined in T5 to done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5: owner: extra b"
     }
   ]
 }

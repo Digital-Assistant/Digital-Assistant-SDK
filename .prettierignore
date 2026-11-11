@@ -5,3 +5,13 @@ coverage/
 .jest-cache/
 artefacts/
 package-lock.json
+
+# Markdown is linted by its own rules, not formatted by Prettier.
+*.md
+
+# Written by tools, not by hand: release-please, npm and the agentic-readiness
+# recipe (the audit reports are a permanent record).
+.release-please-manifest.json
+package.json
+docs/agentic-readiness-report/
+docs/agentic-readiness/

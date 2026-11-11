@@ -36,8 +36,8 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `ci.edits_authorised` | package.json scripts, .github/workflows/*, new config files | owner: 2a | owner | 2026-11-11 | s1 |
 | `ci.pr_by_agent` | no | owner: 1b, agent stops at the local branch | owner | 2026-11-11 | s1 |
 | `env.log_level_defaults` | UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema | owner: set log-level defaults; info, not 1 (Winston name) | owner | 2026-11-11 | s1 |
-| `extra.lint-scope` | format, format:check and lint also cover test/ and scripts/; new debt baselined in T5 | owner: extra b | owner | 2026-11-11 | s1 |
-| `extra.reformat` | one Prettier reformat of the whole tree, its own PR before T4 | owner: extra a | owner | 2026-11-11 | s1 |
+| `extra.lint-scope` | done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5 | owner: extra b | owner | 2026-11-11 | s1 |
+| `extra.reformat` | done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded | owner: extra a; Markdown left to the T6 linter | owner | 2026-11-11 | s1 |
 | `format.mass_reformat` | yes | owner: 3b; a reformat is its own PR | owner | 2026-11-11 | s1 |
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
 | `layout.env_example` | environments/local.env.example | existing schema file, extended not replaced | owner | 2026-11-11 | s1 |
@@ -189,3 +189,5 @@ None recorded.
 | 2026-11-11 | s1 | F-004 in_progress to done by agent |
 | 2026-11-11 | s1 | F-021 in_progress to done by agent |
 | 2026-11-11 | s1 | F-002 note added by agent: Engine re-check still reads EXEC-04 FAIL: it reads only root-level example files, not environments/local.env.example (framework issue #52, engine limit). Both keys are declared. |
+| 2026-11-11 | s1 | preference extra.reformat changed from one Prettier reformat of the whole tree, its own PR before T4 to done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded: owner: extra a; Markdown left to the T6 linter |
+| 2026-11-11 | s1 | preference extra.lint-scope changed from format, format:check and lint also cover test/ and scripts/; new debt baselined in T5 to done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5: owner: extra b |

@@ -19,7 +19,9 @@ module.exports = (env, argv) => {
     const isProduction = argv.mode === 'production';
 
     // Determine environment file path based on build environment
-    const envFile = './environments/' + (env && env.build ? `${env.build}.env` : 'local.env');
+    const envFile =
+        './environments/' +
+        (env && env.build ? `${env.build}.env` : 'local.env');
 
     /**
      * Externals Configuration
@@ -29,12 +31,13 @@ module.exports = (env, argv) => {
      * to ensure the library works "out of the box" in browser environments without
      * requiring the host application to provide node polyfills.
      */
-    const externals = [
-        ...Object.keys(pkg.peerDependencies || {}),
-    ].reduce((acc, key) => {
-        acc[key] = key;
-        return acc;
-    }, {});
+    const externals = [...Object.keys(pkg.peerDependencies || {})].reduce(
+        (acc, key) => {
+            acc[key] = key;
+            return acc;
+        },
+        {},
+    );
 
     /**
      * Common Configuration
@@ -50,15 +53,15 @@ module.exports = (env, argv) => {
             // Polyfills for Node.js core modules required by some dependencies
             fallback: {
                 fs: false,
-                http: require.resolve("stream-http"),
-                https: require.resolve("https-browserify"),
-                stream: require.resolve("stream-browserify"),
-                zlib: require.resolve("browserify-zlib"),
-                buffer: require.resolve("buffer/"),
-                path: require.resolve("path-browserify"),
-                os: require.resolve("os-browserify/browser"),
-                assert: require.resolve("assert/"),
-                "process/browser": require.resolve("process/browser")
+                http: require.resolve('stream-http'),
+                https: require.resolve('https-browserify'),
+                stream: require.resolve('stream-browserify'),
+                zlib: require.resolve('browserify-zlib'),
+                buffer: require.resolve('buffer/'),
+                path: require.resolve('path-browserify'),
+                os: require.resolve('os-browserify/browser'),
+                assert: require.resolve('assert/'),
+                'process/browser': require.resolve('process/browser'),
             },
         },
         module: {
@@ -77,7 +80,7 @@ module.exports = (env, argv) => {
                                 configFile: 'tsconfig.build.json',
                                 compilerOptions: {
                                     sourceMap: true,
-                                }
+                                },
                             },
                         },
                     ],
@@ -108,7 +111,9 @@ module.exports = (env, argv) => {
                 process: 'process/browser',
             }),
             // Run type checking in a separate process for faster builds
-            new ForkTsCheckerWebpackPlugin({ typescript: { configFile: 'tsconfig.build.json' } }),
+            new ForkTsCheckerWebpackPlugin({
+                typescript: { configFile: 'tsconfig.build.json' },
+            }),
             // Load environment variables from .env files
             new Dotenv({
                 path: `${envFile}`,
@@ -124,14 +129,14 @@ module.exports = (env, argv) => {
                 maxChunks: 1,
             }),
             // Restrict dynamic import contexts to .js files to prevent .d.ts bundling issues in consumers
-            new webpack.ContextReplacementPlugin(
-                /./,
-                (context) => {
-                    if (context.regExp && context.regExp.toString().includes('^\\.\\/.*$')) {
-                        context.regExp = /^\.\/.*\.js$/;
-                    }
+            new webpack.ContextReplacementPlugin(/./, (context) => {
+                if (
+                    context.regExp &&
+                    context.regExp.toString().includes('^\\.\\/.*$')
+                ) {
+                    context.regExp = /^\.\/.*\.js$/;
                 }
-            )
+            }),
         ],
         optimization: {
             minimize: isProduction,
@@ -165,7 +170,7 @@ module.exports = (env, argv) => {
             // clean: false to prevent deleting CJS build if running in parallel/sequence
             clean: false,
             // Ensure unique file paths in debugger (e.g. webpack://@udan/digital-assistant-sdk/src/index.ts)
-            devtoolModuleFilenameTemplate: info => {
+            devtoolModuleFilenameTemplate: (info) => {
                 return `webpack://@udan/digital-assistant-sdk/${info.resourcePath.replace(/^\.\//, '')}`;
             },
         },
@@ -173,9 +178,12 @@ module.exports = (env, argv) => {
         plugins: [
             ...commonConfig.plugins,
             {
-                apply: compiler => {
+                apply: (compiler) => {
                     compiler.hooks.afterEmit.tap('WriteEsmTypes', () => {
-                        fs.writeFileSync(path.resolve(__dirname, 'dist/index.d.mts'), 'export * from "./index.js";\n');
+                        fs.writeFileSync(
+                            path.resolve(__dirname, 'dist/index.d.mts'),
+                            'export * from "./index.js";\n',
+                        );
                     });
                 },
             },
@@ -195,7 +203,7 @@ module.exports = (env, argv) => {
             filename: 'index.cjs.js',
             library: { type: 'commonjs' },
             clean: false,
-            devtoolModuleFilenameTemplate: info => {
+            devtoolModuleFilenameTemplate: (info) => {
                 return `webpack://@udan/digital-assistant-sdk/${info.resourcePath.replace(/^\.\//, '')}`;
             },
         },

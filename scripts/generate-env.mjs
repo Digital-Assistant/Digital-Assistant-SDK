@@ -16,7 +16,8 @@ function parseArgs(argv) {
     };
     for (const arg of argv) {
         if (arg.startsWith('--env=')) opts.env = arg.slice('--env='.length);
-        else if (arg.startsWith('--build=')) opts.env = arg.slice('--build='.length);
+        else if (arg.startsWith('--build='))
+            opts.env = arg.slice('--build='.length);
         else if (arg === '--force' || arg === '-f') opts.force = true;
         else if (arg === '--strict') opts.strict = true;
         else if (arg === '--quiet' || arg === '-q') opts.quiet = true;
@@ -103,13 +104,18 @@ export function main(argv = process.argv.slice(2)) {
     }
 
     if (opts.strict && missing.length > 0) {
-        console.error(`error: --strict set and ${missing.length} key(s) missing.`);
+        console.error(
+            `error: --strict set and ${missing.length} key(s) missing.`,
+        );
         return 1;
     }
 
     return 0;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+    process.argv[1] &&
+    import.meta.url === pathToFileURL(process.argv[1]).href
+) {
     process.exitCode = main();
 }
