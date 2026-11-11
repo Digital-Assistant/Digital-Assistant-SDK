@@ -1,0 +1,35 @@
+# Local git hooks (lefthook). `npm install` installs them; run `npx lefthook install`
+# if a clone has none. They are a fast convenience: CI is the gate.
+# Never skip them with --no-verify; fix the cause instead.
+pre-commit:
+  parallel: true
+  commands:
+    protected-branch:
+      run: >-
+        branch="$(git branch --show-current)";
+        case "$branch" in main|dev)
+        echo "Do not commit on '$branch'. Run: git switch -c <type>/<topic>, then commit again." >&2; exit 1;;
+        esac
+    format:
+      # Staged files only; Prettier skips unknown types and .prettierignore.
+      run: npx --no-install prettier --check --ignore-unknown {staged_files}
+    secrets:
+      # The staged change only. CI scans every pushed commit with the pinned gitleaks.
+      run: >-
+        if ! command -v gitleaks >/dev/null 2>&1; then
+        echo "gitleaks is not installed; skipped (CI scans every commit)."; exit 0; fi;
+        gitleaks git --pre-commit --staged --redact --no-banner
+    workflows:
+      # actionlint and zizmor, when a GitHub workflow or config file is staged.
+      glob:
+        - '.github/*.{yml,yaml}'
+        - '.github/**/*.{yml,yaml}'
+      run: >-
+        if ! command -v actionlint >/dev/null 2>&1 || ! command -v zizmor >/dev/null 2>&1; then
+        echo "actionlint or zizmor is not installed; skipped (CI lints every workflow)."; exit 0; fi;
+        npm run --silent lint:workflows
+
+commit-msg:
+  commands:
+    commitlint:
+      run: npx --no-install commitlint --edit {1}

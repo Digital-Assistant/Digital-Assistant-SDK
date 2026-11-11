@@ -17,9 +17,9 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Status | Items |
 |---|---|
-| queued | 27 |
+| queued | 24 |
 | in_progress | 0 |
-| done | 3 |
+| done | 6 |
 | partial | 0 |
 | failed | 0 |
 | blocked | 0 |
@@ -35,10 +35,16 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `branch.base` | stack theme branches on the unmerged agentic-readiness/s1-triage | owner: continue next theme right here; will not push now | owner | 2026-11-11 | s1 |
 | `ci.edits_authorised` | package.json scripts, .github/workflows/*, new config files | owner: 2a | owner | 2026-11-11 | s1 |
 | `ci.pr_by_agent` | no | owner: 1b, agent stops at the local branch | owner | 2026-11-11 | s1 |
+| `ci.workflow_linter` | actionlint 1.7.12 + zizmor 1.32.0, both blocking | owner: 2a | owner | 2026-11-11 | s1 |
+| `commit.option` | C | owner: both (recommended) | owner | 2026-11-11 | s1 |
+| `commit.tool` | commitlint | owner: both, title check plus commitlint | owner | 2026-11-11 | s1 |
+| `deps.policy` | Dependabot security updates only; no major bumps | owner: prevent code breaking | owner | 2026-11-11 | s1 |
 | `env.log_level_defaults` | UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema | owner: set log-level defaults; info, not 1 (Winston name) | owner | 2026-11-11 | s1 |
 | `extra.lint-scope` | done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5 | owner: extra b | owner | 2026-11-11 | s1 |
 | `extra.reformat` | done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded | owner: extra a; Markdown left to the T6 linter | owner | 2026-11-11 | s1 |
 | `format.mass_reformat` | yes | owner: 3b; a reformat is its own PR | owner | 2026-11-11 | s1 |
+| `hooks.manager` | lefthook | owner: go with lefthook for T4 | owner | 2026-11-11 | s1 |
+| `hooks.protected_branches` | dev,main | owner: 1a | owner | 2026-11-11 | s1 |
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
 | `layout.env_example` | environments/local.env.example | existing schema file, extended not replaced | owner | 2026-11-11 | s1 |
 | `tests.stack_dependent` | no | owner: 5a, Jest on jsdom | owner | 2026-11-11 | s1 |
@@ -51,7 +57,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T1 | Command surface and quality tools | not_started | 0 | 0 | - | - | - | - |
 | T2 | Execution determinism | not_started | 0 | 0 | - | - | - | - |
 | T3 | Secrets and env | branch_open | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | - | - |
-| T4 | CI parity, hooks, commits | not_started | 3 | 3 | - | - | - | - |
+| T4 | CI parity, hooks, commits | branch_open | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | - | - |
 | T5 | Tests and baselines | not_started | 4 | 4 | - | - | - | - |
 | T6 | Docs and navigation | not_started | 5 | 5 | - | - | - | - |
 | T7 | AGENTS.md and governance | not_started | 6 | 6 | - | - | - | - |
@@ -89,9 +95,21 @@ No items.
 
 | Finding | Check | Severity | Status | By | Date | Statement |
 |---|---|---|---|---|---|---|
-| F-019 | CI-05 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot check a workflow change before it is pushed because no linter for the github workflow files runs locally or in CI. |
-| F-022 | TOOL-05 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot rely on local hooks to run before a commit because no hook manager is configured. |
-| F-038 | TOOL-06 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot learn a bad commit subject before it pushes because the Conventional Commits rule is enforced only on the pull-request title in CI, and no local commit-message rule exists. |
+| F-019 | CI-05 | DEGRADER | done | agent | 2026-11-11 | An agent cannot check a workflow change before it is pushed because no linter for the github workflow files runs locally or in CI. |
+| F-022 | TOOL-05 | DEGRADER | done | agent | 2026-11-11 | An agent cannot rely on local hooks to run before a commit because no hook manager is configured. |
+| F-038 | TOOL-06 | COSMETIC | done | agent | 2026-11-11 | An agent cannot learn a bad commit subject before it pushes because the Conventional Commits rule is enforced only on the pull-request title in CI, and no local commit-message rule exists. |
+
+- **F-019**: notes: Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is
+  npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018).; commits:
+  `f0bb57ff5`, `a5b354683`, `31f6f047e`; verification: `npm run lint:workflows (actionlint 1.7.12 + zizmor
+  1.32.0); lefthook run pre-commit with a script-injection workflow` gave clean on all workflows (3
+  dependabot-cooldown findings fixed); injection refused locally
+- **F-022**: commits: `3514ee585`; verification: `lefthook run pre-commit in a scratch clone: on dev;
+  unformatted file + fake ghp_ token; clean change` gave dev refused; format and secrets refused; clean change
+  passes in 0.36 s
+- **F-038**: commits: `f73c2e225`, `2b4d209d2`; verification: `lefthook run commit-msg (bad/good message); npx
+  commitlint --from <base> --to HEAD; commitlint over 60 dev commits` gave bad refused, good passes; T4 range
+  passes; dev: only the one non-conventional commit fails
 
 ### T5 Tests and baselines
 
@@ -191,3 +209,17 @@ None recorded.
 | 2026-11-11 | s1 | F-002 note added by agent: Engine re-check still reads EXEC-04 FAIL: it reads only root-level example files, not environments/local.env.example (framework issue #52, engine limit). Both keys are declared. |
 | 2026-11-11 | s1 | preference extra.reformat changed from one Prettier reformat of the whole tree, its own PR before T4 to done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded: owner: extra a; Markdown left to the T6 linter |
 | 2026-11-11 | s1 | preference extra.lint-scope changed from format, format:check and lint also cover test/ and scripts/; new debt baselined in T5 to done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5: owner: extra b |
+| 2026-11-11 | s1 | preference hooks.manager set to lefthook: owner: go with lefthook for T4 |
+| 2026-11-11 | s1 | preference hooks.protected_branches set to dev,main: owner: 1a |
+| 2026-11-11 | s1 | preference commit.tool set to commitlint: owner: both, title check plus commitlint |
+| 2026-11-11 | s1 | preference commit.option set to C: owner: both (recommended) |
+| 2026-11-11 | s1 | preference ci.workflow_linter set to actionlint 1.7.12 + zizmor 1.32.0, both blocking: owner: 2a |
+| 2026-11-11 | s1 | preference deps.policy set to Dependabot security updates only; no major bumps: owner: prevent code breaking |
+| 2026-11-11 | s1 | theme T4 not_started to branch_open: branch agentic-readiness/s1-ci-hooks |
+| 2026-11-11 | s1 | F-022 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-022 in_progress to done by agent |
+| 2026-11-11 | s1 | F-038 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-038 in_progress to done by agent |
+| 2026-11-11 | s1 | F-019 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-019 in_progress to done by agent |
+| 2026-11-11 | s1 | F-019 note added by agent: Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018). |

@@ -407,7 +407,7 @@ merged into `main`.
 ### Merge method and Dependabot
 
 - PRs into `dev` are squash-merged (ruleset `Protect dev branch`, merge queue `merge_method` SQUASH, since 2026-11-02), so the PR title becomes the commit on `dev`. `dev` to `main` stays a merge commit, because Release Please needs the individual conventional commits. Commits and PR titles must be Conventional Commits.
-- Dependabot (`.github/dependabot.yml`) targets `dev`. GitHub Actions updates are quarterly and grouped into one PR. npm is monitored monthly with `open-pull-requests-limit: 0`, so routine version PRs are off; security updates still arrive (they need "Dependabot security updates" on in the repo settings). Versions are otherwise bumped by hand in a planned window every 3 to 6 months.
+- Dependabot (`.github/dependabot.yml`) targets `dev`. GitHub Actions and npm both have `open-pull-requests-limit: 0`, so routine version PRs are off (a 7-day `cooldown` satisfies zizmor and never delays a security update); security updates still arrive (they need "Dependabot security updates" on in the repo settings). Versions are otherwise bumped by hand in a planned window every 3 to 6 months.
 - If a Dependabot PR does touch `package-lock.json` and conflicts, take the branch's lock and run `npm install --package-lock-only` (Dependabot cannot rebase a lock that predates a `package.json` change). Merge only when `mergeStateStatus` is `CLEAN`.
 - Default branch is `main`; `workflow_dispatch`-only workflows register from the default branch only.
 

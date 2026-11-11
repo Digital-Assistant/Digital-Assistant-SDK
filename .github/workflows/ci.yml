@@ -14,6 +14,11 @@ permissions:
 
 env:
   GITLEAKS_VERSION: '8.30.1'
+  ACTIONLINT_VERSION: '1.7.12'
+  # zizmor publishes no checksums file: this is the SHA-256 GitHub records for the
+  # release asset zizmor-x86_64-unknown-linux-gnu.tar.gz. Change both together.
+  ZIZMOR_VERSION: '1.32.0'
+  ZIZMOR_SHA256: 'bb110cc765eca9cd7efb2e284a956be5974c60027b0970f16397d86208a9957b'
 
 # Superseded PR runs are cancelled; pushes to protected branches always run to completion.
 concurrency:
@@ -320,11 +325,77 @@ jobs:
             ./gitleaks git --redact --verbose --log-opts="$BASE..$HEAD"
           fi
 
+  # Always runs. Every non-merge commit this push or pull request adds must be a
+  # Conventional Commits subject (commitlint.config.mjs, the same rule as the commit-msg
+  # hook). A new branch has no base commit, so there is nothing to compare with.
+  commits:
+    name: Commit Subjects
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Check the commit subjects
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$BASE" || "$BASE" =~ ^0+$ ]] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            echo "No base commit to compare with (a new branch); nothing to check."
+            exit 0
+          fi
+          npx --no-install commitlint --from "$BASE" --to "$HEAD_SHA" --verbose
+
+  # Always runs: `npm run lint:workflows` (actionlint and zizmor) over .github/. Both
+  # tools are downloaded from their release pages and checked before they run.
+  workflow-lint:
+    name: Workflow Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install actionlint and zizmor
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          base="https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}"
+          f="actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz"
+          curl -fsSLO "$base/$f"
+          curl -fsSL -o actionlint-checksums.txt "$base/actionlint_${ACTIONLINT_VERSION}_checksums.txt"
+          grep " $f\$" actionlint-checksums.txt | sha256sum -c -
+          tar -xzf "$f" -C "$RUNNER_TEMP/bin" actionlint
+          z="zizmor-x86_64-unknown-linux-gnu.tar.gz"
+          curl -fsSLO "https://github.com/zizmorcore/zizmor/releases/download/v${ZIZMOR_VERSION}/$z"
+          echo "${ZIZMOR_SHA256}  $z" | sha256sum -c -
+          tar -xzf "$z" -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Lint workflows
+        run: npm run lint:workflows
+
   # Single required status check for the rulesets. Skipped jobs (docs-only change, no
   # dependency change) count as success; failed or cancelled jobs fail the gate.
   gate:
     name: CI Gate
-    needs: [changes, verify, pack, audit, gitleaks]
+    needs: [changes, verify, pack, audit, gitleaks, commits, workflow-lint]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5

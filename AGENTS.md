@@ -34,6 +34,7 @@ Run from repo root.
 - `npm run test:watch` — Jest watch mode
 - `npm test:coverage` — Jest with coverage (text, lcov, json, html)
 - `npm run lint` — ESLint over `src/`, `test/` and `scripts/` (`.ts`, `.js`, `.mjs`)
+- `npm run lint:workflows` — actionlint and zizmor (offline) over `.github/`; needs both binaries (versions in `ci.yml` `env`)
 - `npm run format` — Prettier write over the whole tree, minus `.prettierignore` (Markdown and tool-written files)
 - `npm run format:check` — Prettier check (verify only, no writes)
 - `npm run typecheck` — `tsc --noEmit`
@@ -137,6 +138,18 @@ from these prefixes:
 - `feat!:` / `fix!:` → MAJOR bump (breaking change)
 - `chore:`, `docs:`, `test:`, `refactor:` → no bump, still recorded
 
+Allowed types: `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`, `revert` (no `style`).
+One rule checks them in three places: the PR title (`pr-title.yml`), each commit locally (lefthook
+`commit-msg`, `commitlint.config.mjs`) and each pushed commit in CI (`Commit Subjects`). Change the
+type list in `pr-title.yml` and `commitlint.config.mjs` together.
+
+**Local hooks (lefthook, `lefthook.yml`):** `npm install` installs them; run `npx lefthook install` if a
+clone has none. `pre-commit` refuses a commit on `dev` or `main`, and checks the staged files with
+Prettier, gitleaks and (for `.github/` YAML) `npm run lint:workflows`. `commit-msg` runs commitlint.
+Install gitleaks, actionlint and zizmor at the versions pinned in `ci.yml` `env` to get those checks
+locally; a hook skips a missing binary and says so. CI is the gate. Never commit with `--no-verify`:
+fix what the hook reports.
+
 **Branch strategy** (`feature → dev → main`):
 - All work happens on feature branches and is PR'd into `dev`. Never commit directly to `dev` or `main`.
 - `dev` is the integration branch — all feature/fix work lands here first.
@@ -158,6 +171,8 @@ from these prefixes:
 | `check-build-env.mjs` | CI / `verify` (after build); Release / `pack` (before pack) | **Blocking** for secrets; empty PROD URLs block PRs into `main`, pushes to `main` and publish, warn elsewhere |
 | `scripts/ci/pack-check.sh` | CI / `pack` (artifact `sdk-tarball`); Release / `pack` (before attach and stage) | **Blocking**; same URL strictness as `check-build-env.mjs` |
 | `npm run security` | CI / `audit` (+ weekly Security Audit) | **Blocking** (production deps at `high`; `critical` anywhere) |
+| `npm run lint:workflows` | CI / `workflow-lint` | **Blocking** |
+| `commitlint` over the pushed commits | CI / `commits` | **Blocking** |
 
 **Known lint debt:** the ESLint config downgrades `no-explicit-any`,
 `no-unused-vars`, `ban-ts-comment`, `ban-types`, `no-var-requires`, `no-var`, and
@@ -177,5 +192,5 @@ staged on npm as **`next`** (Trusted Publishing, maintainer approval on npmjs.co
 `latest` moves only after a Client TEST pass (`npm dist-tag add ... latest`; rollback is the
 same command with the previous version).
 Release Please and the back-merge job open PRs with a GitHub App token
-(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. Merge method into `dev` is squash (ruleset `Protect dev branch`, since 2026-11-02; PR title becomes the commit), `dev` to `main` is a merge commit; default branch is `main`. Dependabot is security-only for npm and quarterly for GitHub Actions (lessons in `RELEASE_PROCESS.md`, "Merge method and Dependabot"). **See `RELEASE_PROCESS.md` for the full step-by-step
+(`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. Merge method into `dev` is squash (ruleset `Protect dev branch`, since 2026-11-02; PR title becomes the commit), `dev` to `main` is a merge commit; default branch is `main`. Dependabot is security-only for npm and GitHub Actions (lessons in `RELEASE_PROCESS.md`, "Merge method and Dependabot"). **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**
