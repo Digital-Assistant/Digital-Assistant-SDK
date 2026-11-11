@@ -43,6 +43,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `ci.pr_by_agent` | yes | owner: push all branches, raise PRs, monitor CI | owner | 2026-11-11 | s1 |
 | `ci.queue_by_agent` | yes | owner: add to merge queue after CI green | owner | 2026-11-11 | s1 |
 | `ci.workflow_linter` | actionlint 1.7.12 + zizmor 1.32.0, both blocking | owner: 2a | owner | 2026-11-11 | s1 |
+| `closeout.report` | docs/agentic-readiness-report/digital-assistant-sdk.audit-report.20261111T151647Z.json: score 0.9... | Stage 5 close-out | owner | 2026-11-11 | s1 |
 | `commit.option` | C | owner: both (recommended) | owner | 2026-11-11 | s1 |
 | `commit.tool` | commitlint | owner: both, title check plus commitlint | owner | 2026-11-11 | s1 |
 | `deps.policy` | Dependabot security updates only; no major bumps | owner: prevent code breaking | owner | 2026-11-11 | s1 |
@@ -73,6 +74,10 @@ A skipped finding is final until the owner unskips it, and every preference bind
 - `baseline.form`: value: eslint --max-warnings budget + counts file
   docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json; reason: ESLint 8 has no suppressions
   file
+- `closeout.report`: value:
+  docs/agentic-readiness-report/digital-assistant-sdk.audit-report.20261111T151647Z.json: score 0.9925, 0
+  blockers; compare: 26 checks improved, 28 findings closed, TOOL-07 closed by the #247 branch guard; reason:
+  Stage 5 close-out
 - `extra.reformat`: value: done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:);
   Markdown and tool-written files excluded; reason: owner: extra a; reworded by owner approval
 
@@ -87,7 +92,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T5 | Tests and baselines | merged | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | #249 | `5378f0266cfa` |
 | T6 | Docs and navigation | merged | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | `bb3cef79242f` |
 | T7 | AGENTS.md and governance | merged | 6 | 0 | s1 | `agentic-readiness/s1-agents-md` | #251 | `a283164a7119` |
-| T8 | Hygiene and index | pr_open | 9 | 0 | s1 | `agentic-readiness/s1-hygiene` | #252 | - |
+| T8 | Hygiene and index | merged | 9 | 0 | s1 | `agentic-readiness/s1-hygiene` | #252 | `4738ce533b8e` |
 
 ## Items by theme
 
@@ -401,3 +406,5 @@ None.
 | 2026-11-11 | s1 | F-031 in_progress to done by agent |
 | 2026-11-11 | s1 | F-035 in_progress to done by agent |
 | 2026-11-11 | s1 | theme T8 branch_open to pr_open: branch agentic-readiness/s1-hygiene, PR #252 |
+| 2026-11-11 | s1 | theme T8 pr_open to merged: branch agentic-readiness/s1-hygiene, PR #252, merged as 4738ce533b8e |
+| 2026-11-11 | s1 | preference closeout.report set to docs/agentic-readiness-report/digital-assistant-sdk.audit-report.20261111T151647Z.json: score 0.9925, 0 blockers; compare: 26 checks improved, 28 findings closed, TOOL-07 closed by the #247 branch ...: Stage 5 close-out |
