@@ -87,7 +87,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T5 | Tests and baselines | merged | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | #249 | `5378f0266cfa` |
 | T6 | Docs and navigation | merged | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | `bb3cef79242f` |
 | T7 | AGENTS.md and governance | merged | 6 | 0 | s1 | `agentic-readiness/s1-agents-md` | #251 | `a283164a7119` |
-| T8 | Hygiene and index | branch_open | 9 | 0 | s1 | `agentic-readiness/s1-hygiene` | - | - |
+| T8 | Hygiene and index | pr_open | 9 | 0 | s1 | `agentic-readiness/s1-hygiene` | #252 | - |
 
 ## Items by theme
 
@@ -400,3 +400,4 @@ None.
 | 2026-11-11 | s1 | F-030 in_progress to done by agent |
 | 2026-11-11 | s1 | F-031 in_progress to done by agent |
 | 2026-11-11 | s1 | F-035 in_progress to done by agent |
+| 2026-11-11 | s1 | theme T8 branch_open to pr_open: branch agentic-readiness/s1-hygiene, PR #252 |

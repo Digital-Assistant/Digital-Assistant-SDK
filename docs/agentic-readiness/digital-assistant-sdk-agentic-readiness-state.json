@@ -388,10 +388,10 @@
     {
       "id": "T8",
       "title": "Hygiene and index",
-      "status": "branch_open",
+      "status": "pr_open",
       "phase": "s1",
       "branch": "agentic-readiness/s1-hygiene",
-      "pr": null,
+      "pr": 252,
       "merged_sha": null
     }
   ],
@@ -1722,6 +1722,11 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "F-035 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T8 branch_open to pr_open: branch agentic-readiness/s1-hygiene, PR #252"
     }
   ]
 }
