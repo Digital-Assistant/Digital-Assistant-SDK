@@ -19,7 +19,6 @@ This repo is indexed with codebase-memory-mcp (project: `home-kc-Projects-UDAN-D
 5. `get_architecture` — high-level orientation (packages, hotspots, clusters)
 
 Coverage notes (best-effort, from `index_status`):
-- `.env` is `parse_partial` (lines 1–4 may be missing from graph) — grep it for truth.
 - `dist/`, `environments/`, `node_modules/`, `.git` are excluded by design — not indexed.
 - Fall back to grep for string literals, error messages, config values, and non-code files.
 - Absence from index warnings is NOT a completeness guarantee; grep inside flagged ranges when uncertain.
@@ -104,7 +103,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 - All `environments/*.env` files and the root `.env` are gitignored; `environments/local.env.example` is the only committed env file and must contain no real values.
 - **Rotate credentials that were previously committed** (the old `environments/local.env` is in git history). Untracking a file does not remove it from history, so exposed values must be rotated.
 - **Build-time leakage**: `process.env.*` values referenced in `src/` are inlined into the browser bundle by dotenv-webpack. Treat every value in `environments/*.env` (and every CI-provided value) as public. The env schema holds public keys only; secret keys (`keycloakClientSecret`, `profanityKey`, `googleTranslateApiKey`, `googleAnalyticsSecretKey`) are not referenced in `src/`, not mapped in workflows, and `check-build-env.mjs` fails the build if one has a value. `CustomConfig.clientSecret` is optional and deprecated: the token request body carries it only when set, with one console warning. Never put a value in a build env or an example.
-- `.env` exists in the repo root — do not add it to `package.json` `files` or the webpack bundle. Verify no secrets are bundled into `dist/`.
+- A root `.env`, if you create one, is git-ignored: never add it to `package.json` `files` or the webpack bundle. Verify no secrets are bundled into `dist/`.
 - Auth flows (Keycloak, `jwt-decode`, `AuthManager`) carry bearer tokens through `apiClient` interceptors. Interceptor logic (401 handling, logout) is security-sensitive — changes require review.
 - Sanitize user-generated content: recording payloads and step metadata are validated (profanity check via `profanityCheck`) before persistence. Preserve that boundary.
 
@@ -130,7 +129,7 @@ Docs: follow `docs/STYLE_GUIDE.md`; decisions of record are in `docs/adr/` (rule
 - **Discovery**: `testMatch` = `**/src/**/__tests__/**/*.[jt]s?(x)` and `**/src/**/?(*.)+(spec|test).[jt]s?(x)`. Tests live next to the code they cover, inside `__tests__/`.
 - **Environment**: `testEnvironment: 'jsdom'`. DOM APIs (`window`, `document`, `Element`) are available but minimal — polyfill in tests when needed.
 - **Setup**: `test/setup.ts` runs before all suites. It globally mocks `winston` (prevents ESM/CJS parsing errors + keeps output clean) and `parse-domain` (ESM-only), seeds `window.UDAGlobalConfig`/`udaSpecialNodes`, and polyfills `Element.prototype.scrollTo`. Do not remove these mocks — they are load-bearing.
-- **External mocks**: `__mocks__/sweetAlert2.ts` stubs browser alert UI for tests.
+- **External mocks**: `__mocks__/sweetalert2.ts` stubs browser alert UI for tests.
 - **Mocking libraries**: use `axios-mock-adapter` for `apiClient`/axios HTTP, `redux-mock-store` for testing thunks and slice flows without a real store.
 - **Pattern**: one `describe` block per unit, focused `it` cases with arrange/act/assert; export-only functions (RecordService, StepEditingService) are tested via their public names — use the aliased exports where they differ from action names.
 - **Coverage**: default off; run `npm run test:coverage` for reports (text/lcov/json/html).
