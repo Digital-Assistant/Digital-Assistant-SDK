@@ -33,8 +33,8 @@ Run from repo root.
 - `npm test` — Jest (jsdom)
 - `npm run test:watch` — Jest watch mode
 - `npm test:coverage` — Jest with coverage (text, lcov, json, html)
-- `npm run lint` — ESLint over `src/**/*.ts`
-- `npm run format` — Prettier write over `src/**/*.ts`
+- `npm run lint` — ESLint over `src/`, `test/` and `scripts/` (`.ts`, `.js`, `.mjs`)
+- `npm run format` — Prettier write over the whole tree, minus `.prettierignore` (Markdown and tool-written files)
 - `npm run format:check` — Prettier check (verify only, no writes)
 - `npm run typecheck` — `tsc --noEmit`
 - `npm run check` — `format:check` → `typecheck` → `test` (full local gate)
@@ -75,7 +75,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 
 ## 6. Conventions
 
-- **Code style**: Prettier + ESLint (`eslint-plugin-prettier`) over `src/**/*.ts` only. 4-space indentation. No comments unless they explain non-obvious logic — prefer self-documenting code.
+- **Code style**: Prettier + ESLint (`eslint-plugin-prettier`) over the whole tree (Prettier) and `src/`, `test/`, `scripts/` (ESLint). 4-space indentation in code; 2 in YAML and JSON. No comments unless they explain non-obvious logic — prefer self-documenting code.
 - **TypeScript**: `strict: true`. Prefer interfaces; `allowJs` is on, so some `.js` exists. Avoid `any` except at deliberate boundaries (DOM/extension interop, e.g. `(window as any)`).
 - **Testing**: unit tests colocated in `src/**/__tests__/*.test.ts` (see Testing Conventions).
 - **Redux**: per-domain slices in `src/store/slices/`, exported barrel `index.ts`, colocated selectors. Async via redux-thunk. Slice state persisted via `saveStateToStorage`/load helpers in `util/storage`.
