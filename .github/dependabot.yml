@@ -2,7 +2,8 @@ version: 2
 # Versions are locked (lockfiles). Routine version PRs are off for every ecosystem
 # (open-pull-requests-limit: 0); security updates still arrive (they need "Dependabot
 # security updates" on in the repo settings) and use the commit prefix below so the PR
-# title passes pr-title. Bump everything
+# title passes pr-title. No entry sets target-branch: security updates always go to the
+# default branch (dev), and a target-branch would make them ignore these options. Bump everything
 # by hand in a planned window every 3 to 6 months: update everything, run scripts/ci locally,
 # then Deploy to TEST.
 updates:
@@ -10,7 +11,6 @@ updates:
   # the planned window.
   - package-ecosystem: github-actions
     directory: /
-    target-branch: dev
     open-pull-requests-limit: 0
     schedule:
       interval: quarterly
@@ -25,7 +25,6 @@ updates:
       prefix: 'ci'
   - package-ecosystem: npm
     directory: /
-    target-branch: dev
     open-pull-requests-limit: 0
     schedule:
       interval: monthly
@@ -40,7 +39,6 @@ updates:
   # like the root package; grouped so a security batch is one PR.
   - package-ecosystem: npm
     directory: /scripts/ci/pack-tools
-    target-branch: dev
     open-pull-requests-limit: 0
     schedule:
       interval: monthly
