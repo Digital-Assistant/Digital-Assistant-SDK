@@ -56,7 +56,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check . && npm run lint",
     "typecheck": "tsc --noEmit",
-    "check": "npm run format:check && npm run typecheck && npm test",
+    "check": "npm run format:check && npm run typecheck && npm run test:coverage",
     "security": "npm audit --omit=dev --audit-level=high && npm audit --audit-level=critical",
     "git:clean:dry": "node scripts/git-branch-janitor.mjs",
     "git:clean": "node scripts/git-branch-janitor.mjs --apply",

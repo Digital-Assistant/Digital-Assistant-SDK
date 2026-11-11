@@ -132,8 +132,9 @@ jobs:
           wait "$p_lint" || { echo "::error::lint failed"; rc=1; }
           exit "$rc"
 
+      # test:coverage enforces the coverage floor in jest.config.ts.
       - name: Tests
-        run: npm test -- --ci --maxWorkers=100%
+        run: npm run test:coverage -- --ci --maxWorkers=100%
 
       # Generate environments/local.env from repository variables. Every value is
       # inlined into the public browser bundle, so only public keys are mapped and
