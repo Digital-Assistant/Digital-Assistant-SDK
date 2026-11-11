@@ -119,7 +119,7 @@ Standard change loop:
 
 Definition of done: when a change alters a public interface, observable behaviour, the architecture or a decision, update the affected documentation (`docs/`, `USAGE.md`, this file) and the decision records in `docs/adr/` in the same change set.
 
-Before you change tooling, CI, docs or this file, read `docs/agentic-readiness/digital-assistant-sdk-agentic-readiness-STATE.md`; skipped findings in it are final.
+The agentic-readiness state is `docs/agentic-readiness/digital-assistant-sdk-agentic-readiness-STATE.md`: check it when you change tooling, CI, docs or this file. Skipped findings in it are final.
 
 Docs: follow `docs/STYLE_GUIDE.md`; decisions of record are in `docs/adr/` (rules: `docs/ADR_POLICY.md`); the architecture map is `docs/architecture/overview.md`; the index is `docs/README.md`.
 
