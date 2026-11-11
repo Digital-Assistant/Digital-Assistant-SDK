@@ -48,6 +48,18 @@ const config: Config = {
         '/__mocks__/',
     ],
 
+    // Measure every source file, not only the ones a test imports.
+    collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
+
+    // Coverage floor: today's line coverage (80.09% on 2026-11-11), rounded down.
+    // It only goes up; lowering it needs the owner. Enforced by test:coverage,
+    // which npm run check and CI run.
+    coverageThreshold: {
+        global: {
+            lines: 80,
+        },
+    },
+
     // --- Setup Files ---
     // Run setup file after test environment is set up
     setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
