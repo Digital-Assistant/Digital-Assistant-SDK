@@ -117,6 +117,8 @@ Standard change loop:
 5. Run `npm run build` to confirm the bundle compiles.
 6. Public API changes ship through the release pipeline — `dist/` is built in CI and never committed (see § 7).
 
+Definition of done: when a change alters a public interface, observable behaviour, the architecture or a decision, update the affected documentation (`docs/`, `USAGE.md`, this file) and the decision records in `docs/adr/` in the same change set.
+
 Before you change tooling, CI, docs or this file, read `docs/agentic-readiness/digital-assistant-sdk-agentic-readiness-STATE.md`; skipped findings in it are final.
 
 Docs: follow `docs/STYLE_GUIDE.md`; decisions of record are in `docs/adr/` (rules: `docs/ADR_POLICY.md`); the architecture map is `docs/architecture/overview.md`; the index is `docs/README.md`.
