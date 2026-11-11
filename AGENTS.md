@@ -118,6 +118,8 @@ Standard change loop:
 
 Before you change tooling, CI, docs or this file, read `docs/agentic-readiness/digital-assistant-sdk-agentic-readiness-STATE.md`; skipped findings in it are final.
 
+Docs: follow `docs/STYLE_GUIDE.md`; decisions of record are in `docs/adr/` (rules: `docs/ADR_POLICY.md`); the architecture map is `docs/architecture/overview.md`; the index is `docs/README.md`.
+
 ## 10. Testing Conventions
 
 - **Discovery**: `testMatch` = `**/src/**/__tests__/**/*.[jt]s?(x)` and `**/src/**/?(*.)+(spec|test).[jt]s?(x)`. Tests live next to the code they cover, inside `__tests__/`.
