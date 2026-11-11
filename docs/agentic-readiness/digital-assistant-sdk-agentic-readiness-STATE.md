@@ -17,10 +17,10 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Status | Items |
 |---|---|
-| queued | 17 |
+| queued | 12 |
 | in_progress | 0 |
-| done | 9 |
-| partial | 4 |
+| done | 13 |
+| partial | 5 |
 | failed | 0 |
 | blocked | 0 |
 | deferred | 0 |
@@ -42,6 +42,10 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `commit.option` | C | owner: both (recommended) | owner | 2026-11-11 | s1 |
 | `commit.tool` | commitlint | owner: both, title check plus commitlint | owner | 2026-11-11 | s1 |
 | `deps.policy` | Dependabot security updates only; no major bumps | owner: prevent code breaking | owner | 2026-11-11 | s1 |
+| `docs.adrs` | public build-time config; branch and release model; authentication; dist built in CI only | owner: all four | owner | 2026-11-11 | s1 |
+| `docs.ci_gate` | advisory | owner: advisory, not in CI Gate | owner | 2026-11-11 | s1 |
+| `docs.lint_ratchet` | 15 | markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1 | owner | 2026-11-11 | s1 |
+| `docs.prose_check` | skip | owner: skip | owner | 2026-11-11 | s1 |
 | `env.log_level_defaults` | UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema | owner: set log-level defaults; info, not 1 (Winston name) | owner | 2026-11-11 | s1 |
 | `extra.lint-scope` | done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5 | owner: extra b | owner | 2026-11-11 | s1 |
 | `extra.reformat` | done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:); Markdown and t... | owner: extra a; reworded by owner approval | owner | 2026-11-11 | s1 |
@@ -50,6 +54,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `hooks.protected_branches` | dev,main | owner: 1a | owner | 2026-11-11 | s1 |
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
 | `layout.env_example` | environments/local.env.example | existing schema file, extended not replaced | owner | 2026-11-11 | s1 |
+| `nav.doc_comments` | record-only | owner: record only | owner | 2026-11-11 | s1 |
 | `repo.default_branch` | dev | owner: set default branch to dev | owner | 2026-11-11 | s1 |
 | `tests.coverage_gate` | check | owner: check and CI | owner | 2026-11-11 | s1 |
 | `tests.coverage_metrics` | lines | owner: lines only | owner | 2026-11-11 | s1 |
@@ -68,10 +73,10 @@ A skipped finding is final until the owner unskips it, and every preference bind
 |---|---|---|---|---|---|---|---|---|
 | T1 | Command surface and quality tools | not_started | 0 | 0 | - | - | - | - |
 | T2 | Execution determinism | not_started | 0 | 0 | - | - | - | - |
-| T3 | Secrets and env | pr_open | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | #245 | - |
-| T4 | CI parity, hooks, commits | pr_open | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | #247 | - |
-| T5 | Tests and baselines | branch_open | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | - | - |
-| T6 | Docs and navigation | not_started | 5 | 5 | - | - | - | - |
+| T3 | Secrets and env | merged | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | #245 | `8b9c9f9f3359` |
+| T4 | CI parity, hooks, commits | merged | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | #247 | `5fd22b39918b` |
+| T5 | Tests and baselines | merged | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | #249 | `5378f0266cfa` |
+| T6 | Docs and navigation | pr_open | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | - |
 | T7 | AGENTS.md and governance | not_started | 6 | 6 | - | - | - | - |
 | T8 | Hygiene and index | not_started | 9 | 6 | - | - | - | - |
 
@@ -147,11 +152,21 @@ No items.
 
 | Finding | Check | Severity | Status | By | Date | Statement |
 |---|---|---|---|---|---|---|
-| F-020 | DOC-02 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot find the canonical authoring rules for documentation because docs/STYLE_GUIDE.md does not exist. |
-| F-026 | DOC-04 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot find the decisions of record because no ADR directory (docs/architecture/adrs/ or docs/adr/) exists. |
-| F-027 | DOC-05 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot rely on the documentation reading clearly to a new engineer because 13.5% of sentences are over 25 words (pass: at most 10%). |
-| F-037 | NAV-04 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot orient itself from a map instead of exploring blindly because no docs/architecture/, ADR directory or diagram exists. |
-| F-040 | NAV-05 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot read intent from the source of every exported symbol because 89 of 266 exported TypeScript declarations (33%) have no doc comment. |
+| F-020 | DOC-02 | DEGRADER | done | agent | 2026-11-11 | An agent cannot find the canonical authoring rules for documentation because docs/STYLE_GUIDE.md does not exist. |
+| F-026 | DOC-04 | COSMETIC | done | agent | 2026-11-11 | An agent cannot find the decisions of record because no ADR directory (docs/architecture/adrs/ or docs/adr/) exists. |
+| F-027 | DOC-05 | COSMETIC | done | agent | 2026-11-11 | An agent cannot rely on the documentation reading clearly to a new engineer because 13.5% of sentences are over 25 words (pass: at most 10%). |
+| F-037 | NAV-04 | COSMETIC | done | agent | 2026-11-11 | An agent cannot orient itself from a map instead of exploring blindly because no docs/architecture/, ADR directory or diagram exists. |
+| F-040 | NAV-05 | COSMETIC | partial | agent | 2026-11-11 | An agent cannot read intent from the source of every exported symbol because 89 of 266 exported TypeScript declarations (33%) have no doc comment. |
+
+- **F-020**: commits: `e0d712383`, `bd6f3cc02`; verification: `engine DOC-02; grep STYLE_GUIDE.md AGENTS.md`
+  gave DOC-02 PASS: docs/STYLE_GUIDE.md present and named in AGENTS.md
+- **F-026**: commits: `5d7bd7227`; verification: `engine DOC-04; read docs/adr/README.md` gave DOC-04 PASS: 4
+  ADRs plus template indexed; ADR policy named in AGENTS.md
+- **F-027**: commits: `e0d712383`; verification: `engine DOC-05` gave DOC-05 PASS: 25/386 sentences over 25
+  words (6.5%), none on pages T6 wrote; 0 vague words
+- **F-037**: commits: `c3ae6d906`; verification: `engine NAV-04; mermaid-cli 12.2.0 render` gave NAV-04 PASS;
+  the overview's sequence diagram renders
+- **F-040**: verification: `engine NAV-05` gave NAV-05 PARTIAL 177/266 (67%); recorded only, owner choice
 
 ### T7 AGENTS.md and governance
 
@@ -207,6 +222,7 @@ None.
 | F-012 | BASE-02 | ESLint warnings (src, test, scripts) | 686 | `docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json` |
 | F-013 | BASE-03 | ESLint warnings (src, test, scripts) | 686 | `docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json` |
 | F-014 | BASE-04 | coverage floor (line %) | 80 | `jest.config.ts` |
+| F-040 | NAV-05 | exported TypeScript declarations without a doc comment | 89 | - |
 
 ## Not queued
 
@@ -293,3 +309,24 @@ None.
 | 2026-11-11 | s1 | F-039 note added by agent: T5 fixed one of the three lines: npm test:coverage is now npm run test:coverage (be2cb94d7). |
 | 2026-11-11 | s1 | theme T3 branch_open to pr_open: branch agentic-readiness/s1-secrets-env, PR #245 |
 | 2026-11-11 | s1 | theme T4 branch_open to pr_open: branch agentic-readiness/s1-ci-hooks, PR #247 |
+| 2026-11-11 | s1 | theme T3 pr_open to merged: branch agentic-readiness/s1-secrets-env, PR #245, merged as 8b9c9f9f3359 |
+| 2026-11-11 | s1 | theme T4 pr_open to merged: branch agentic-readiness/s1-ci-hooks, PR #247, merged as 5fd22b39918b |
+| 2026-11-11 | s1 | theme T5 branch_open to pr_open: branch agentic-readiness/s1-baselines, PR #249 |
+| 2026-11-11 | s1 | theme T5 pr_open to merged: branch agentic-readiness/s1-baselines, PR #249, merged as 5378f0266cfa |
+| 2026-11-11 | s1 | preference docs.adrs set to public build-time config; branch and release model; authentication; dist built in CI only: owner: all four |
+| 2026-11-11 | s1 | preference docs.prose_check set to skip: owner: skip |
+| 2026-11-11 | s1 | preference docs.ci_gate set to advisory: owner: advisory, not in CI Gate |
+| 2026-11-11 | s1 | preference nav.doc_comments set to record-only: owner: record only |
+| 2026-11-11 | s1 | theme T6 not_started to branch_open: branch agentic-readiness/s1-docs |
+| 2026-11-11 | s1 | F-020 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-026 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-027 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-037 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-040 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-020 in_progress to done by agent |
+| 2026-11-11 | s1 | F-026 in_progress to done by agent |
+| 2026-11-11 | s1 | F-027 in_progress to done by agent |
+| 2026-11-11 | s1 | F-037 in_progress to done by agent |
+| 2026-11-11 | s1 | F-040 in_progress to partial by agent |
+| 2026-11-11 | s1 | preference docs.lint_ratchet set to 15: markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1 |
+| 2026-11-11 | s1 | theme T6 branch_open to pr_open: branch agentic-readiness/s1-docs, PR #250 |

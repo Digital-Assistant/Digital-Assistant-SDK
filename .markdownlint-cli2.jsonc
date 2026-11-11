@@ -1,0 +1,21 @@
+// markdownlint-cli2 0.24.0. Rules follow how this repository already writes Markdown:
+// long lines and compact `|---|` tables are its style, so MD013 and MD060 are off.
+// `npm run docs:lint` gates the clean pages listed in package.json; `docs:lint:all` reports on
+// every page and never fails (baseline: 15 violations in USAGE.md, AGENTS.md and
+// RELEASE_PROCESS.md on 2026-11-11). A page joins the gated list once it is clean.
+{
+    "config": {
+        "default": true,
+        "MD013": false,
+        "MD060": false,
+    },
+    "ignores": [
+        "node_modules/**",
+        "dist/**",
+        "coverage/**",
+        "artefacts/**",
+        "CHANGELOG.md",
+        "docs/agentic-readiness-report/**",
+        "docs/agentic-readiness/*-STATE.md",
+    ],
+}

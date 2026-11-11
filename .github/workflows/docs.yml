@@ -1,0 +1,57 @@
+name: Docs
+
+# Advisory: not part of CI Gate (owner choice), so it has no merge_group run. Runs only on
+# pull requests that change Markdown or the lint config. Gates the clean pages with markdownlint-cli2 (the version pinned in
+# package.json), reports on every page, and renders every Mermaid block.
+on:
+  pull_request:
+    branches: ['main', 'dev']
+    paths: ['**/*.md', '.markdownlint-cli2.jsonc', '.github/workflows/docs.yml']
+
+permissions:
+  contents: read
+
+env:
+  MERMAID_CLI_VERSION: '12.2.0'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Docs Lint and Diagrams
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint the gated pages
+        run: npm run docs:lint
+
+      - name: Report on every page (report-only)
+        run: npm run docs:lint:all
+
+      - name: Render every Mermaid block
+        run: |
+          set -euo pipefail
+          echo '{"args":["--no-sandbox"]}' > "$RUNNER_TEMP/puppeteer.json"
+          rc=0
+          while IFS= read -r f; do
+            echo "==> $f"
+            npx --yes "@mermaid-js/mermaid-cli@${MERMAID_CLI_VERSION}" -q \
+              -p "$RUNNER_TEMP/puppeteer.json" -i "$f" -o "$RUNNER_TEMP/out.md" || { echo "::error file=$f::a Mermaid block does not render"; rc=1; }
+          done < <(git grep -l '```mermaid' -- '*.md' ':!docs/agentic-readiness-report/**')
+          exit "$rc"
