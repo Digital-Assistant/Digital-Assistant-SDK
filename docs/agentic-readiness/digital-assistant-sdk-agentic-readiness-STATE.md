@@ -17,9 +17,9 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Status | Items |
 |---|---|
-| queued | 30 |
+| queued | 27 |
 | in_progress | 0 |
-| done | 0 |
+| done | 3 |
 | partial | 0 |
 | failed | 0 |
 | blocked | 0 |
@@ -32,12 +32,15 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Key | Value | Reason | By | Date | Phase |
 |---|---|---|---|---|---|
+| `branch.base` | stack theme branches on the unmerged agentic-readiness/s1-triage | owner: continue next theme right here; will not push now | owner | 2026-11-11 | s1 |
 | `ci.edits_authorised` | package.json scripts, .github/workflows/*, new config files | owner: 2a | owner | 2026-11-11 | s1 |
 | `ci.pr_by_agent` | no | owner: 1b, agent stops at the local branch | owner | 2026-11-11 | s1 |
+| `env.log_level_defaults` | UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema | owner: set log-level defaults; info, not 1 (Winston name) | owner | 2026-11-11 | s1 |
 | `extra.lint-scope` | format, format:check and lint also cover test/ and scripts/; new debt baselined in T5 | owner: extra b | owner | 2026-11-11 | s1 |
 | `extra.reformat` | one Prettier reformat of the whole tree, its own PR before T4 | owner: extra a | owner | 2026-11-11 | s1 |
 | `format.mass_reformat` | yes | owner: 3b; a reformat is its own PR | owner | 2026-11-11 | s1 |
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
+| `layout.env_example` | environments/local.env.example | existing schema file, extended not replaced | owner | 2026-11-11 | s1 |
 | `tests.stack_dependent` | no | owner: 5a, Jest on jsdom | owner | 2026-11-11 | s1 |
 | `tools.choice` | recommended | owner: install the linters and tools you require, as recommended | owner | 2026-11-11 | s1 |
 
@@ -47,7 +50,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 |---|---|---|---|---|---|---|---|---|
 | T1 | Command surface and quality tools | not_started | 0 | 0 | - | - | - | - |
 | T2 | Execution determinism | not_started | 0 | 0 | - | - | - | - |
-| T3 | Secrets and env | not_started | 3 | 3 | - | - | - | - |
+| T3 | Secrets and env | branch_open | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | - | - |
 | T4 | CI parity, hooks, commits | not_started | 3 | 3 | - | - | - | - |
 | T5 | Tests and baselines | not_started | 4 | 4 | - | - | - | - |
 | T6 | Docs and navigation | not_started | 5 | 5 | - | - | - | - |
@@ -68,9 +71,19 @@ No items.
 
 | Finding | Check | Severity | Status | By | Date | Statement |
 |---|---|---|---|---|---|---|
-| F-002 | EXEC-04 | BLOCKER | queued | agent | 2026-11-11 | An agent cannot know every variable the code needs before running it because 2 referenced key(s) are absent from any committed example file: UDA_LOG_LEVEL, UDA_LOG_LEVELNumber. |
-| F-004 | SEC-01 | BLOCKER | queued | agent | 2026-11-11 | An agent cannot trust that a future .env stays out of history because ignore rules are incomplete (missing: dotenv variant). |
-| F-021 | SEC-03 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot trust that secret shapes cannot be committed because ignore rules are incomplete (missing: dotenv variant, ssh private key, PEM, key, PKCS#12, PFX, keystore, certificate (.crt), certificate (.cer), AWS credentials). |
+| F-002 | EXEC-04 | BLOCKER | done | agent | 2026-11-11 | An agent cannot know every variable the code needs before running it because 2 referenced key(s) are absent from any committed example file: UDA_LOG_LEVEL, UDA_LOG_LEVELNumber. |
+| F-004 | SEC-01 | BLOCKER | done | agent | 2026-11-11 | An agent cannot trust that a future .env stays out of history because ignore rules are incomplete (missing: dotenv variant). |
+| F-021 | SEC-03 | DEGRADER | done | agent | 2026-11-11 | An agent cannot trust that secret shapes cannot be committed because ignore rules are incomplete (missing: dotenv variant, ssh private key, PEM, key, PKCS#12, PFX, keystore, certificate (.crt), certificate (.cer), AWS credentials). |
+
+- **F-002**: notes: Engine re-check still reads EXEC-04 FAIL: it reads only root-level example files, not
+  environments/local.env.example (framework issue #52, engine limit). Both keys are declared.; commits:
+  `d7b12baa8`; verification: `node scripts/generate-env.mjs --env=t3check; npm run check` gave 15/15 schema
+  keys written incl. UDA_LOG_LEVEL, UDA_LOG_LEVELNumber; check green, 846 tests
+- **F-004**: commits: `82debaf4a`; verification: `git check-ignore on the engine's 11 sample paths + nested;
+  git ls-files -ci --exclude-standard` gave .env and .env.local ignored at root and nested; .env.example kept;
+  ls-files -ci empty
+- **F-021**: commits: `82debaf4a`; verification: `git check-ignore on the engine's 11 sample paths + nested;
+  git ls-files -ci --exclude-standard` gave all 11 shapes ignored; ls-files -ci empty
 
 ### T4 CI parity, hooks, commits
 
@@ -165,3 +178,14 @@ None recorded.
 | 2026-11-11 | s1 | preference extra.reformat set to one Prettier reformat of the whole tree, its own PR before T4: owner: extra a |
 | 2026-11-11 | s1 | preference extra.lint-scope set to format, format:check and lint also cover test/ and scripts/; new debt baselined in T5: owner: extra b |
 | 2026-11-11 | s1 | preference tools.choice changed from ask-per-theme to recommended: owner: install the linters and tools you require, as recommended |
+| 2026-11-11 | s1 | preference branch.base set to stack theme branches on the unmerged agentic-readiness/s1-triage: owner: continue next theme right here; will not push now |
+| 2026-11-11 | s1 | preference layout.env_example set to environments/local.env.example: existing schema file, extended not replaced |
+| 2026-11-11 | s1 | preference env.log_level_defaults set to UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema: owner: set log-level defaults; info, not 1 (Winston name) |
+| 2026-11-11 | s1 | theme T3 not_started to branch_open: branch agentic-readiness/s1-secrets-env |
+| 2026-11-11 | s1 | F-002 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-002 in_progress to done by agent |
+| 2026-11-11 | s1 | F-004 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-021 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-004 in_progress to done by agent |
+| 2026-11-11 | s1 | F-021 in_progress to done by agent |
+| 2026-11-11 | s1 | F-002 note added by agent: Engine re-check still reads EXEC-04 FAIL: it reads only root-level example files, not environments/local.env.example (framework issue #52, engine limit). Both keys are declared. |

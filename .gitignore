@@ -7,8 +7,21 @@ build/
 
 # Environment files (secrets — never commit)
 .env
+.env.*
+!.env.example
 environments/*
 !environments/local.env.example
+
+# Secret and certificate files (keys, keystores, cloud credentials)
+id_rsa*
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.crt
+*.cer
+.aws/
 
 # Test
 coverage/

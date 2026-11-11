@@ -87,6 +87,30 @@
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
+    },
+    {
+      "key": "branch.base",
+      "value": "stack theme branches on the unmerged agentic-readiness/s1-triage",
+      "reason": "owner: continue next theme right here; will not push now",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "layout.env_example",
+      "value": "environments/local.env.example",
+      "reason": "existing schema file, extended not replaced",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "env.log_level_defaults",
+      "value": "UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema",
+      "reason": "owner: set log-level defaults; info, not 1 (Winston name)",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
     }
   ],
   "themes": [
@@ -111,9 +135,9 @@
     {
       "id": "T3",
       "title": "Secrets and env",
-      "status": "not_started",
-      "phase": null,
-      "branch": null,
+      "status": "branch_open",
+      "phase": "s1",
+      "branch": "agentic-readiness/s1-secrets-env",
       "pr": null,
       "merged_sha": null
     },
@@ -185,14 +209,19 @@
       "severity": "BLOCKER",
       "theme": "T3",
       "statement": "An agent cannot know every variable the code needs before running it because 2 referenced key(s) are absent from any committed example file: UDA_LOG_LEVEL, UDA_LOG_LEVELNumber.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "d7b12baa8"
+      ],
+      "verification": {
+        "command": "node scripts/generate-env.mjs --env=t3check; npm run check",
+        "result": "15/15 schema keys written incl. UDA_LOG_LEVEL, UDA_LOG_LEVELNumber; check green, 846 tests"
+      },
       "debt": [],
-      "notes": ""
+      "notes": "Engine re-check still reads EXEC-04 FAIL: it reads only root-level example files, not environments/local.env.example (framework issue #52, engine limit). Both keys are declared."
     },
     {
       "finding": "F-003",
@@ -215,12 +244,17 @@
       "severity": "BLOCKER",
       "theme": "T3",
       "statement": "An agent cannot trust that a future .env stays out of history because ignore rules are incomplete (missing: dotenv variant).",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "82debaf4a"
+      ],
+      "verification": {
+        "command": "git check-ignore on the engine's 11 sample paths + nested; git ls-files -ci --exclude-standard",
+        "result": ".env and .env.local ignored at root and nested; .env.example kept; ls-files -ci empty"
+      },
       "debt": [],
       "notes": ""
     },
@@ -350,12 +384,17 @@
       "severity": "DEGRADER",
       "theme": "T3",
       "statement": "An agent cannot trust that secret shapes cannot be committed because ignore rules are incomplete (missing: dotenv variant, ssh private key, PEM, key, PKCS#12, PFX, keystore, certificate (.crt), certificate (.cer), AWS credentials).",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "82debaf4a"
+      ],
+      "verification": {
+        "command": "git check-ignore on the engine's 11 sample paths + nested; git ls-files -ci --exclude-standard",
+        "result": "all 11 shapes ignored; ls-files -ci empty"
+      },
       "debt": [],
       "notes": ""
     },
@@ -727,6 +766,61 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "preference tools.choice changed from ask-per-theme to recommended: owner: install the linters and tools you require, as recommended"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference branch.base set to stack theme branches on the unmerged agentic-readiness/s1-triage: owner: continue next theme right here; will not push now"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference layout.env_example set to environments/local.env.example: existing schema file, extended not replaced"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference env.log_level_defaults set to UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema: owner: set log-level defaults; info, not 1 (Winston name)"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T3 not_started to branch_open: branch agentic-readiness/s1-secrets-env"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-002 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-002 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-004 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-021 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-004 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-021 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-002 note added by agent: Engine re-check still reads EXEC-04 FAIL: it reads only root-level example files, not environments/local.env.example (framework issue #52, engine limit). Both keys are declared."
     }
   ]
 }
