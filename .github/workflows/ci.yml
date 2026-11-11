@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 env:
-  GITLEAKS_VERSION: "8.30.1"
+  GITLEAKS_VERSION: '8.30.1'
 
 # Superseded PR runs are cancelled; pushes to protected branches always run to completion.
 concurrency:

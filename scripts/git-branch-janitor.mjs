@@ -41,7 +41,8 @@ export function parseTrackedBranches(raw) {
  * @returns {string[]}
  */
 export function selectStaleBranches(branches, options = {}) {
-    const protectedBranches = options.protectedBranches ?? DEFAULT_PROTECTED_BRANCHES;
+    const protectedBranches =
+        options.protectedBranches ?? DEFAULT_PROTECTED_BRANCHES;
     const currentBranch = options.currentBranch ?? null;
     const protectedSet = new Set(protectedBranches);
     const stale = [];
@@ -106,7 +107,11 @@ export function main(argv = process.argv.slice(2)) {
         }
     }
 
-    const raw = runGit(['for-each-ref', '--format=%(refname:short)%00%(upstream:track)', 'refs/heads']);
+    const raw = runGit([
+        'for-each-ref',
+        '--format=%(refname:short)%00%(upstream:track)',
+        'refs/heads',
+    ]);
     const branches = parseTrackedBranches(raw);
     const stale = selectStaleBranches(branches, {
         protectedBranches,
@@ -119,11 +124,15 @@ export function main(argv = process.argv.slice(2)) {
     }
 
     const suffix = stale.length === 1 ? '' : 'es';
-    console.log(`${apply ? 'Deleting' : 'Would delete'} ${stale.length} stale branch${suffix}:`);
+    console.log(
+        `${apply ? 'Deleting' : 'Would delete'} ${stale.length} stale branch${suffix}:`,
+    );
     for (const name of stale) console.log(`  - ${name}`);
 
     if (!apply) {
-        console.log('\nDry run - no branches deleted. Re-run with --apply to delete.');
+        console.log(
+            '\nDry run - no branches deleted. Re-run with --apply to delete.',
+        );
         return 0;
     }
 
@@ -132,7 +141,10 @@ export function main(argv = process.argv.slice(2)) {
     return 0;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+    process.argv[1] &&
+    import.meta.url === pathToFileURL(process.argv[1]).href
+) {
     try {
         process.exitCode = main();
     } catch (err) {

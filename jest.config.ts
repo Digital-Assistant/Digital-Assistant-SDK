@@ -1,6 +1,6 @@
 /**
  * Jest Configuration for @udan/digital-assistant-sdk
- * 
+ *
  * This configuration sets up Jest for testing TypeScript code in a browser-like environment.
  * It includes optimizations for performance and proper handling of ES modules.
  */
@@ -19,15 +19,15 @@ const config: Config = {
     // --- Transformers ---
     // How to transform files before running tests
     transform: {
-        '^.+\\.(ts|tsx)$': 'ts-jest',    // Use ts-jest for TypeScript files
+        '^.+\\.(ts|tsx)$': 'ts-jest', // Use ts-jest for TypeScript files
         '^.+\\.(js|jsx)$': 'babel-jest', // Use babel-jest for JavaScript files
     },
 
     // --- Test Discovery ---
     // Patterns to find test files
     testMatch: [
-        '**/src/**/__tests__/**/*.[jt]s?(x)',      // Files in __tests__ directories
-        '**/src/**/?(*.)+(spec|test).[jt]s?(x)',   // Files ending with .spec or .test
+        '**/src/**/__tests__/**/*.[jt]s?(x)', // Files in __tests__ directories
+        '**/src/**/?(*.)+(spec|test).[jt]s?(x)', // Files ending with .spec or .test
     ],
 
     // --- Coverage Configuration ---
@@ -55,7 +55,7 @@ const config: Config = {
     // --- Module Mocking ---
     // Map module imports to mock implementations
     moduleNameMapper: {
-        'sweetalert2': '<rootDir>/__mocks__/sweetalert2.ts',
+        sweetalert2: '<rootDir>/__mocks__/sweetalert2.ts',
     },
 
     // --- TypeScript Configuration ---
@@ -69,7 +69,7 @@ const config: Config = {
     // --- Transform Ignore Patterns ---
     // Force Jest to transform certain node_modules packages (ESM modules)
     transformIgnorePatterns: [
-        '/node_modules/(?!(@so-ric/colorspace|color)/)' // Transform these packages
+        '/node_modules/(?!(@so-ric/colorspace|color)/)', // Transform these packages
     ],
 
     // --- Performance Optimizations ---
@@ -82,11 +82,7 @@ const config: Config = {
 
     // --- Watch Mode Settings ---
     // Only run tests related to changed files in watch mode
-    watchPathIgnorePatterns: [
-        '/node_modules/',
-        '/dist/',
-        '/coverage/',
-    ],
+    watchPathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
 
     // --- Error Handling ---
     // Stop running tests after first failure (useful for debugging)

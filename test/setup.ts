@@ -1,9 +1,9 @@
 /**
  * Jest Test Setup Configuration
- * 
+ *
  * This file runs before all tests and sets up the global test environment.
  * It configures mocks, polyfills, and global variables needed for testing.
- * 
+ *
  * @see https://jestjs.io/docs/configuration#setupfilesafterenv-array
  */
 
@@ -13,7 +13,7 @@
 
 /**
  * Mock Winston Logger
- * 
+ *
  * Winston is mocked globally to:
  * 1. Avoid ESM/CJS parsing issues in Jest's CommonJS environment
  * 2. Keep test output clean (no actual logging)
@@ -45,7 +45,7 @@ jest.mock('winston', () => ({
 
 /**
  * Mock parse-domain Package
- * 
+ *
  * parse-domain is an ESM-only package that causes import errors in Jest's
  * CommonJS environment. We provide a minimal mock implementation that
  * satisfies the API surface used by our code.
@@ -80,7 +80,7 @@ jest.mock('parse-domain', () => {
 
 /**
  * UDA Global Configuration
- * 
+ *
  * Set up minimal global configuration expected by browser utilities.
  * These are typically set by the host application but need to be
  * initialized in the test environment.
@@ -89,7 +89,7 @@ jest.mock('parse-domain', () => {
 // simulates the extension's background service worker.
 if (typeof window !== 'undefined') {
     (window as any).UDAGlobalConfig = (window as any).UDAGlobalConfig || {
-        enableOverlay: false
+        enableOverlay: false,
     };
 
     (window as any).udaSpecialNodes = (window as any).udaSpecialNodes || {};
@@ -101,14 +101,15 @@ if (typeof window !== 'undefined') {
 
 /**
  * Element.scrollTo Polyfill
- * 
+ *
  * jsdom doesn't implement scrollTo, but some tests may call it.
  * Provide a no-op mock to avoid errors.
  */
 if (typeof Element !== 'undefined') {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (Element.prototype as any).scrollTo = (Element.prototype as any).scrollTo || jest.fn();
+    (Element.prototype as any).scrollTo =
+        (Element.prototype as any).scrollTo || jest.fn();
 }
 
 // Export empty object to make this a module
-export { };
+export {};

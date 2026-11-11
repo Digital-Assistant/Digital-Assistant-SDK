@@ -13,9 +13,9 @@ updates:
       interval: quarterly
     groups:
       actions:
-        patterns: ["*"]
+        patterns: ['*']
     commit-message:
-      prefix: "ci"
+      prefix: 'ci'
   - package-ecosystem: npm
     directory: /
     target-branch: dev
@@ -24,9 +24,9 @@ updates:
       interval: monthly
     groups:
       npm:
-        patterns: ["*"]
+        patterns: ['*']
     commit-message:
-      prefix: "build"
+      prefix: 'build'
   # The pack-check tools (publint, attw) have their own lockfile. Security updates only,
   # like the root package; grouped so a security batch is one PR.
   - package-ecosystem: npm
@@ -37,6 +37,6 @@ updates:
       interval: monthly
     groups:
       npm:
-        patterns: ["*"]
+        patterns: ['*']
     commit-message:
-      prefix: "build"
+      prefix: 'build'
