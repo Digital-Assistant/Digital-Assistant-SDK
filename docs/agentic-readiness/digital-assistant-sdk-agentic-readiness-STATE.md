@@ -17,9 +17,9 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Status | Items |
 |---|---|
-| queued | 24 |
+| queued | 21 |
 | in_progress | 0 |
-| done | 6 |
+| done | 9 |
 | partial | 0 |
 | failed | 0 |
 | blocked | 0 |
@@ -34,21 +34,26 @@ A skipped finding is final until the owner unskips it, and every preference bind
 |---|---|---|---|---|---|
 | `branch.base` | stack theme branches on the unmerged agentic-readiness/s1-triage | owner: continue next theme right here; will not push now | owner | 2026-11-11 | s1 |
 | `ci.edits_authorised` | package.json scripts, .github/workflows/*, new config files | owner: 2a | owner | 2026-11-11 | s1 |
-| `ci.pr_by_agent` | no | owner: 1b, agent stops at the local branch | owner | 2026-11-11 | s1 |
+| `ci.pr_by_agent` | yes | owner: push all branches, raise PRs, monitor CI | owner | 2026-11-11 | s1 |
+| `ci.queue_by_agent` | yes | owner: add to merge queue after CI green | owner | 2026-11-11 | s1 |
 | `ci.workflow_linter` | actionlint 1.7.12 + zizmor 1.32.0, both blocking | owner: 2a | owner | 2026-11-11 | s1 |
 | `commit.option` | C | owner: both (recommended) | owner | 2026-11-11 | s1 |
 | `commit.tool` | commitlint | owner: both, title check plus commitlint | owner | 2026-11-11 | s1 |
 | `deps.policy` | Dependabot security updates only; no major bumps | owner: prevent code breaking | owner | 2026-11-11 | s1 |
 | `env.log_level_defaults` | UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema | owner: set log-level defaults; info, not 1 (Winston name) | owner | 2026-11-11 | s1 |
 | `extra.lint-scope` | done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5 | owner: extra b | owner | 2026-11-11 | s1 |
-| `extra.reformat` | done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded | owner: extra a; Markdown left to the T6 linter | owner | 2026-11-11 | s1 |
+| `extra.reformat` | done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:); Markdown and t... | owner: extra a; reworded by owner approval | owner | 2026-11-11 | s1 |
 | `format.mass_reformat` | yes | owner: 3b; a reformat is its own PR | owner | 2026-11-11 | s1 |
 | `hooks.manager` | lefthook | owner: go with lefthook for T4 | owner | 2026-11-11 | s1 |
 | `hooks.protected_branches` | dev,main | owner: 1a | owner | 2026-11-11 | s1 |
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
 | `layout.env_example` | environments/local.env.example | existing schema file, extended not replaced | owner | 2026-11-11 | s1 |
+| `repo.default_branch` | dev | owner: set default branch to dev | owner | 2026-11-11 | s1 |
 | `tests.stack_dependent` | no | owner: 5a, Jest on jsdom | owner | 2026-11-11 | s1 |
 | `tools.choice` | recommended | owner: install the linters and tools you require, as recommended | owner | 2026-11-11 | s1 |
+
+- `extra.reformat`: value: done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:);
+  Markdown and tool-written files excluded; reason: owner: extra a; reworded by owner approval
 
 ## Themes
 
@@ -61,7 +66,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T5 | Tests and baselines | not_started | 4 | 4 | - | - | - | - |
 | T6 | Docs and navigation | not_started | 5 | 5 | - | - | - | - |
 | T7 | AGENTS.md and governance | not_started | 6 | 6 | - | - | - | - |
-| T8 | Hygiene and index | not_started | 9 | 9 | - | - | - | - |
+| T8 | Hygiene and index | not_started | 9 | 6 | - | - | - | - |
 
 ## Items by theme
 
@@ -100,16 +105,18 @@ No items.
 | F-038 | TOOL-06 | COSMETIC | done | agent | 2026-11-11 | An agent cannot learn a bad commit subject before it pushes because the Conventional Commits rule is enforced only on the pull-request title in CI, and no local commit-message rule exists. |
 
 - **F-019**: notes: Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is
-  npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018).; commits:
-  `f0bb57ff5`, `a5b354683`, `31f6f047e`; verification: `npm run lint:workflows (actionlint 1.7.12 + zizmor
-  1.32.0); lefthook run pre-commit with a script-injection workflow` gave clean on all workflows (3
-  dependabot-cooldown findings fixed); injection refused locally
-- **F-022**: commits: `3514ee585`; verification: `lefthook run pre-commit in a scratch clone: on dev;
-  unformatted file + fake ghp_ token; clean change` gave dev refused; format and secrets refused; clean change
-  passes in 0.36 s
-- **F-038**: commits: `f73c2e225`, `2b4d209d2`; verification: `lefthook run commit-msg (bad/good message); npx
-  commitlint --from <base> --to HEAD; commitlint over 60 dev commits` gave bad refused, good passes; T4 range
-  passes; dev: only the one non-conventional commit fails
+  npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018). After the
+  reword: f0bb57ff5 is 473c34f4c, a5b354683 is 7067f9fc1, 31f6f047e is 881c0acf4.; commits: `f0bb57ff5`,
+  `a5b354683`, `31f6f047e`; verification: `npm run lint:workflows (actionlint 1.7.12 + zizmor 1.32.0);
+  lefthook run pre-commit with a script-injection workflow` gave clean on all workflows (3 dependabot-cooldown
+  findings fixed); injection refused locally
+- **F-022**: notes: Branch rebased to reword a0e2c3b60 (owner approved): commit 3514ee585 is now 5542f1a9d.;
+  commits: `3514ee585`; verification: `lefthook run pre-commit in a scratch clone: on dev; unformatted file +
+  fake ghp_ token; clean change` gave dev refused; format and secrets refused; clean change passes in 0.36 s
+- **F-038**: notes: After the reword: f73c2e225 is eb52c226e, 2b4d209d2 is 544b682f2.; commits: `f73c2e225`,
+  `2b4d209d2`; verification: `lefthook run commit-msg (bad/good message); npx commitlint --from <base> --to
+  HEAD; commitlint over 60 dev commits` gave bad refused, good passes; T4 range passes; dev: only the one
+  non-conventional commit fails
 
 ### T5 Tests and baselines
 
@@ -150,10 +157,20 @@ No items.
 | F-029 | HYG-04 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot report a bug or request in a structured way because no .github/ISSUE_TEMPLATE entry exists. |
 | F-030 | HYG-05 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot contribute without reverse-engineering the process because no CONTRIBUTING document exists. |
 | F-031 | HYG-06 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot report a vulnerability responsibly because no SECURITY document exists at the root, under .github/, .gitlab/ or docs/. |
-| F-032 | HYG-09 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `github-actions` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
-| F-033 | HYG-09 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
-| F-034 | HYG-09 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
+| F-032 | HYG-09 | COSMETIC | done | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `github-actions` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
+| F-033 | HYG-09 | COSMETIC | done | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
+| F-034 | HYG-09 | COSMETIC | done | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
 | F-035 | HYG-11 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot reproduce the protected-branch rules as code because the github provider is detected but no branch-protection configuration exists. |
+
+- **F-032**: commits: `805422bce`; verification: `gh api repos/<repo> --jq .default_branch; grep -c
+  target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot` gave default branch dev; 0
+  target-branch lines; schema valid; zizmor clean
+- **F-033**: commits: `805422bce`; verification: `gh api repos/<repo> --jq .default_branch; grep -c
+  target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot` gave default branch dev; 0
+  target-branch lines; schema valid; zizmor clean
+- **F-034**: commits: `805422bce`; verification: `gh api repos/<repo> --jq .default_branch; grep -c
+  target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot` gave default branch dev; 0
+  target-branch lines; schema valid; zizmor clean
 
 ## Skipped
 
@@ -223,3 +240,16 @@ None recorded.
 | 2026-11-11 | s1 | F-019 queued to in_progress by agent |
 | 2026-11-11 | s1 | F-019 in_progress to done by agent |
 | 2026-11-11 | s1 | F-019 note added by agent: Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018). |
+| 2026-11-11 | s1 | F-032 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-033 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-034 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-032 in_progress to done by agent |
+| 2026-11-11 | s1 | F-033 in_progress to done by agent |
+| 2026-11-11 | s1 | F-034 in_progress to done by agent |
+| 2026-11-11 | s1 | preference repo.default_branch set to dev: owner: set default branch to dev |
+| 2026-11-11 | s1 | preference ci.pr_by_agent changed from no to yes: owner: push all branches, raise PRs, monitor CI |
+| 2026-11-11 | s1 | preference ci.queue_by_agent set to yes: owner: add to merge queue after CI green |
+| 2026-11-11 | s1 | preference extra.reformat changed from done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded to done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:); Markdown and tool-written files excluded: owner: extra a; reworded by owner approval |
+| 2026-11-11 | s1 | F-022 note added by agent: Branch rebased to reword a0e2c3b60 (owner approved): commit 3514ee585 is now 5542f1a9d. |
+| 2026-11-11 | s1 | F-038 note added by agent: After the reword: f73c2e225 is eb52c226e, 2b4d209d2 is 544b682f2. |
+| 2026-11-11 | s1 | F-019 note added by agent: After the reword: f0bb57ff5 is 473c34f4c, a5b354683 is 7067f9fc1, 31f6f047e is 881c0acf4. |

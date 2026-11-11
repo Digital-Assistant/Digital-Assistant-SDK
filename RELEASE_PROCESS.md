@@ -32,8 +32,8 @@ flowchart LR
 
 `dev` and `main` (highlighted) are protected by rulesets; nothing is pushed to them directly.
 
-> **One-time prerequisite:** set the repository **default branch to `main`** (it was previously
-> `dev`). See [Repository Setup](#repository-setup) below.
+> **One-time prerequisite:** the repository **default branch is `dev`** (set back from `main` on
+> 2026-11-11). See [Repository Setup](#repository-setup) below.
 
 ## The Step-by-Step Release Process
 
@@ -167,9 +167,10 @@ flowchart TD
 One-time settings, applied via `gh api` (or the GitHub UI):
 
 ```bash
-# Use 'main' as the default branch (it was previously 'dev').
+# Use 'dev' as the default branch: clones, new PRs and Dependabot security updates
+# start from the integration branch.
 gh api -X PATCH repos/Digital-Assistant/Digital-Assistant-SDK \
-  -f default_branch=main
+  -f default_branch=dev
 
 # Delete PR head branches automatically once merged.
 gh api -X PATCH repos/Digital-Assistant/Digital-Assistant-SDK \
@@ -293,7 +294,7 @@ gh api -X PATCH repos/Digital-Assistant/Digital-Assistant-SDK \
 
 GitHub then deletes a PR's head branch the moment it is merged. Release Please PRs
 (`release-please--...`) are covered by this; the back-merge PR uses `main` as its head, so it
-creates no transient branch to delete (`main` is never deleted — it is the default branch).
+creates no transient branch to delete (`main` is never deleted: the `Protect main branch` ruleset forbids deletion).
 
 ### 2. Prune remote-tracking references locally
 
@@ -407,9 +408,9 @@ merged into `main`.
 ### Merge method and Dependabot
 
 - PRs into `dev` are squash-merged (ruleset `Protect dev branch`, merge queue `merge_method` SQUASH, since 2026-11-02), so the PR title becomes the commit on `dev`. `dev` to `main` stays a merge commit, because Release Please needs the individual conventional commits. Commits and PR titles must be Conventional Commits.
-- Dependabot (`.github/dependabot.yml`) targets `dev`. GitHub Actions and npm both have `open-pull-requests-limit: 0`, so routine version PRs are off (a 7-day `cooldown` satisfies zizmor and never delays a security update); security updates still arrive (they need "Dependabot security updates" on in the repo settings). Versions are otherwise bumped by hand in a planned window every 3 to 6 months.
+- Dependabot (`.github/dependabot.yml`) uses the default branch, `dev`; no entry sets `target-branch`, because security updates ignore an entry's options when it does. GitHub Actions and npm both have `open-pull-requests-limit: 0`, so routine version PRs are off (a 7-day `cooldown` satisfies zizmor and never delays a security update); security updates still arrive (they need "Dependabot security updates" on in the repo settings). Versions are otherwise bumped by hand in a planned window every 3 to 6 months.
 - If a Dependabot PR does touch `package-lock.json` and conflicts, take the branch's lock and run `npm install --package-lock-only` (Dependabot cannot rebase a lock that predates a `package.json` change). Merge only when `mergeStateStatus` is `CLEAN`.
-- Default branch is `main`; `workflow_dispatch`-only workflows register from the default branch only.
+- Default branch is `dev`; `workflow_dispatch`-only workflows and scheduled runs use the default branch.
 
 ### Promotion and rollback
 

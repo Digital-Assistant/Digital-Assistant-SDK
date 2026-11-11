@@ -26,8 +26,8 @@
   "preferences": [
     {
       "key": "ci.pr_by_agent",
-      "value": "no",
-      "reason": "owner: 1b, agent stops at the local branch",
+      "value": "yes",
+      "reason": "owner: push all branches, raise PRs, monitor CI",
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
@@ -74,8 +74,8 @@
     },
     {
       "key": "extra.reformat",
-      "value": "done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded",
-      "reason": "owner: extra a; Markdown left to the T6 linter",
+      "value": "done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:); Markdown and tool-written files excluded",
+      "reason": "owner: extra a; reworded by owner approval",
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
@@ -156,6 +156,22 @@
       "key": "deps.policy",
       "value": "Dependabot security updates only; no major bumps",
       "reason": "owner: prevent code breaking",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "repo.default_branch",
+      "value": "dev",
+      "reason": "owner: set default branch to dev",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "ci.queue_by_agent",
+      "value": "yes",
+      "reason": "owner: add to merge queue after CI green",
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
@@ -416,7 +432,7 @@
         "result": "clean on all workflows (3 dependabot-cooldown findings fixed); injection refused locally"
       },
       "debt": [],
-      "notes": "Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018)."
+      "notes": "Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018). After the reword: f0bb57ff5 is 473c34f4c, a5b354683 is 7067f9fc1, 31f6f047e is 881c0acf4."
     },
     {
       "finding": "F-020",
@@ -471,7 +487,7 @@
         "result": "dev refused; format and secrets refused; clean change passes in 0.36 s"
       },
       "debt": [],
-      "notes": ""
+      "notes": "Branch rebased to reword a0e2c3b60 (owner approved): commit 3514ee585 is now 5542f1a9d."
     },
     {
       "finding": "F-024",
@@ -599,12 +615,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot rely on the update policy reaching security updates because the `github-actions` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "805422bce"
+      ],
+      "verification": {
+        "command": "gh api repos/<repo> --jq .default_branch; grep -c target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot",
+        "result": "default branch dev; 0 target-branch lines; schema valid; zizmor clean"
+      },
       "debt": [],
       "notes": ""
     },
@@ -614,12 +635,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "805422bce"
+      ],
+      "verification": {
+        "command": "gh api repos/<repo> --jq .default_branch; grep -c target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot",
+        "result": "default branch dev; 0 target-branch lines; schema valid; zizmor clean"
+      },
       "debt": [],
       "notes": ""
     },
@@ -629,12 +655,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "805422bce"
+      ],
+      "verification": {
+        "command": "gh api repos/<repo> --jq .default_branch; grep -c target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot",
+        "result": "default branch dev; 0 target-branch lines; schema valid; zizmor clean"
+      },
       "debt": [],
       "notes": ""
     },
@@ -687,7 +718,7 @@
         "result": "bad refused, good passes; T4 range passes; dev: only the one non-conventional commit fails"
       },
       "debt": [],
-      "notes": ""
+      "notes": "After the reword: f73c2e225 is eb52c226e, 2b4d209d2 is 544b682f2."
     },
     {
       "finding": "F-039",
@@ -967,6 +998,71 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "F-019 note added by agent: Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018)."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-032 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-033 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-034 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-032 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-033 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-034 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference repo.default_branch set to dev: owner: set default branch to dev"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference ci.pr_by_agent changed from no to yes: owner: push all branches, raise PRs, monitor CI"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference ci.queue_by_agent set to yes: owner: add to merge queue after CI green"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference extra.reformat changed from done on agentic-readiness/s1-reformat (1f2e2d779); Markdown and tool-written files excluded to done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:); Markdown and tool-written files excluded: owner: extra a; reworded by owner approval"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-022 note added by agent: Branch rebased to reword a0e2c3b60 (owner approved): commit 3514ee585 is now 5542f1a9d."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-038 note added by agent: After the reword: f73c2e225 is eb52c226e, 2b4d209d2 is 544b682f2."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-019 note added by agent: After the reword: f0bb57ff5 is 473c34f4c, a5b354683 is 7067f9fc1, 31f6f047e is 881c0acf4."
     }
   ]
 }
