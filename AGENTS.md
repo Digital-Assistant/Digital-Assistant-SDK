@@ -204,3 +204,13 @@ same command with the previous version).
 Release Please and the back-merge job open PRs with a GitHub App token
 (`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. Merge method into `dev` is squash (ruleset `Protect dev branch`, since 2026-11-02; PR title becomes the commit), `dev` to `main` is a merge commit; default branch is `dev` (since 2026-11-11). Dependabot is security-only for npm and GitHub Actions (lessons in `RELEASE_PROCESS.md`, "Merge method and Dependabot"). **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**
+
+## 12. How to write for people
+
+These rules apply to chat replies, plans, reports, commit messages, pull request descriptions and docs. The full docs rules are in `docs/STYLE_GUIDE.md`.
+
+- **The reader:** write for a new engineer who does not know this SDK or its terms.
+- **Bottom line first:** put the answer, the result or the decision you need in the first two lines.
+- **Plain language:** short sentences (at most 25 words), active voice, one term per meaning.
+- **Reports:** a status report says what is done, what is not done, what is blocked and what comes next. A done report and a pull request description say what changed, how it was checked and what was not done.
+- **Decisions:** give the context, two to four options with pros and cons, your recommendation and the default.
