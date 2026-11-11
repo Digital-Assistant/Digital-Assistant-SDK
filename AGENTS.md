@@ -97,6 +97,7 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 
 ## 8. Security
 
+- Never edit, skip or delete a test in `src/**/__tests__/` or the shared setup in `test/` to make a failing test pass; change a test only together with the code change that needs it. This covers every `*.test.ts` and `*.spec.ts` file.
 - Never log, print, or commit secrets: `.env`, `local.env`, API keys, access tokens, session keys, or Keycloak credentials.
 - All `environments/*.env` files and the root `.env` are gitignored; `environments/local.env.example` is the only committed env file and must contain no real values.
 - **Rotate credentials that were previously committed** (the old `environments/local.env` is in git history). Untracking a file does not remove it from history, so exposed values must be rotated.
