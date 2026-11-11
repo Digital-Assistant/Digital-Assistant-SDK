@@ -52,6 +52,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint \"{src,test,scripts}/**/*.{ts,js,mjs}\"",
+    "lint:workflows": "actionlint && zizmor --offline .github",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
