@@ -10,6 +10,7 @@ of record. Start with the page that matches your question.
 | [`adr/README.md`](adr/README.md) | The index of architecture decision records |
 | [`ADR_POLICY.md`](ADR_POLICY.md) | How to add, change or delete an ADR |
 | [`branch-protection.md`](branch-protection.md) | The rulesets on `dev` and `main`, and how to re-export them |
+| [`agentic-readiness-history.md`](agentic-readiness-history.md) | How the SDK went from the first audit to the close-out audit, with dates |
 | [`agentic-readiness/README.md`](agentic-readiness/README.md) | The state of the agentic-readiness work |
 | [`agentic-readiness-report/`](agentic-readiness-report/README.md) | The audit reports: a frozen record, never edited |
 
