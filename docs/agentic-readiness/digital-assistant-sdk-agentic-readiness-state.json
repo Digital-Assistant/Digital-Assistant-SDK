@@ -287,6 +287,38 @@
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
+    },
+    {
+      "key": "security.contact",
+      "value": "GitHub private vulnerability reporting (enabled 2026-11-11 by the agent at the owner's request)",
+      "reason": "owner: use gh and turn it on in the settings",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "ci.branch_protection",
+      "value": "export the live dev and main rulesets as is to .github/rulesets/",
+      "reason": "owner: export as is",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "index.registration",
+      "value": "project-file",
+      "reason": "owner: .mcp.json",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "index.first_run_offer",
+      "value": "no",
+      "reason": "owner: no",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
     }
   ],
   "themes": [
@@ -347,18 +379,18 @@
     {
       "id": "T7",
       "title": "AGENTS.md and governance",
-      "status": "pr_open",
+      "status": "merged",
       "phase": "s1",
       "branch": "agentic-readiness/s1-agents-md",
       "pr": 251,
-      "merged_sha": null
+      "merged_sha": "a283164a7119"
     },
     {
       "id": "T8",
       "title": "Hygiene and index",
-      "status": "not_started",
-      "phase": null,
-      "branch": null,
+      "status": "branch_open",
+      "phase": "s1",
+      "branch": "agentic-readiness/s1-hygiene",
       "pr": null,
       "merged_sha": null
     }
@@ -410,12 +442,17 @@
       "severity": "BLOCKER",
       "theme": "T8",
       "statement": "An agent cannot discover the codebase through an MCP index because no MCP configuration names codebase-memory-mcp for this repository.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "4df751ec2"
+      ],
+      "verification": {
+        "command": "engine --no-user-config IDX-01",
+        "result": "IDX-01 PASS: registered in .mcp.json (project)"
+      },
       "debt": [],
       "notes": ""
     },
@@ -753,12 +790,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot file a change with the information reviewers need because no .github/pull_request_template file exists.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "7b1865c75"
+      ],
+      "verification": {
+        "command": "engine HYG-03",
+        "result": "HYG-03 PASS"
+      },
       "debt": [],
       "notes": ""
     },
@@ -768,12 +810,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot report a bug or request in a structured way because no .github/ISSUE_TEMPLATE entry exists.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "7bd565c73"
+      ],
+      "verification": {
+        "command": "engine HYG-04",
+        "result": "HYG-04 PASS: 2 issue templates"
+      },
       "debt": [],
       "notes": ""
     },
@@ -783,12 +830,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot contribute without reverse-engineering the process because no CONTRIBUTING document exists.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "599550f8a"
+      ],
+      "verification": {
+        "command": "engine HYG-05",
+        "result": "HYG-05 PASS"
+      },
       "debt": [],
       "notes": ""
     },
@@ -798,12 +850,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot report a vulnerability responsibly because no SECURITY document exists at the root, under .github/, .gitlab/ or docs/.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "22344c3e1"
+      ],
+      "verification": {
+        "command": "engine HYG-06; gh api .../private-vulnerability-reporting",
+        "result": "HYG-06 PASS; private vulnerability reporting enabled (owner asked the agent to turn it on)"
+      },
       "debt": [],
       "notes": ""
     },
@@ -873,12 +930,17 @@
       "severity": "COSMETIC",
       "theme": "T8",
       "statement": "An agent cannot reproduce the protected-branch rules as code because the github provider is detected but no branch-protection configuration exists.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "cb1a3ea20"
+      ],
+      "verification": {
+        "command": "engine HYG-11; diff against gh api rulesets",
+        "result": "HYG-11 PASS: dev and main rulesets declared as code, exported unchanged"
+      },
       "debt": [],
       "notes": ""
     },
@@ -1570,6 +1632,96 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "theme T7 branch_open to pr_open: branch agentic-readiness/s1-agents-md, PR #251"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T7 pr_open to merged: branch agentic-readiness/s1-agents-md, PR #251, merged as a283164a7119"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference security.contact set to GitHub private vulnerability reporting (enabled 2026-11-11 by the agent at the owner's request): owner: use gh and turn it on in the settings"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference ci.branch_protection set to export the live dev and main rulesets as is to .github/rulesets/: owner: export as is"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference index.registration set to project-file: owner: .mcp.json"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference index.first_run_offer set to no: owner: no"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T8 not_started to branch_open: branch agentic-readiness/s1-hygiene"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-003 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-028 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-029 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-030 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-031 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-035 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-003 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-028 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-029 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-030 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-031 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-035 in_progress to done by agent"
     }
   ]
 }

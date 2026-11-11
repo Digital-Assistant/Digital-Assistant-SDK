@@ -17,9 +17,9 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Status | Items |
 |---|---|
-| queued | 6 |
+| queued | 0 |
 | in_progress | 0 |
-| done | 19 |
+| done | 25 |
 | partial | 5 |
 | failed | 0 |
 | blocked | 0 |
@@ -38,6 +38,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `baseline.audit_dev` | record-only | owner: record only; prod gate stays blocking | owner | 2026-11-11 | s1 |
 | `baseline.form` | eslint --max-warnings budget + counts file docs/agentic-readiness/digital-assistant-sdk-quality-b... | ESLint 8 has no suppressions file | owner | 2026-11-11 | s1 |
 | `branch.base` | stack theme branches on the unmerged agentic-readiness/s1-triage | owner: continue next theme right here; will not push now | owner | 2026-11-11 | s1 |
+| `ci.branch_protection` | export the live dev and main rulesets as is to .github/rulesets/ | owner: export as is | owner | 2026-11-11 | s1 |
 | `ci.edits_authorised` | package.json scripts, .github/workflows/*, new config files | owner: 2a | owner | 2026-11-11 | s1 |
 | `ci.pr_by_agent` | yes | owner: push all branches, raise PRs, monitor CI | owner | 2026-11-11 | s1 |
 | `ci.queue_by_agent` | yes | owner: add to merge queue after CI green | owner | 2026-11-11 | s1 |
@@ -57,10 +58,13 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `format.mass_reformat` | yes | owner: 3b; a reformat is its own PR | owner | 2026-11-11 | s1 |
 | `hooks.manager` | lefthook | owner: go with lefthook for T4 | owner | 2026-11-11 | s1 |
 | `hooks.protected_branches` | dev,main | owner: 1a | owner | 2026-11-11 | s1 |
+| `index.first_run_offer` | no | owner: no | owner | 2026-11-11 | s1 |
+| `index.registration` | project-file | owner: .mcp.json | owner | 2026-11-11 | s1 |
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
 | `layout.env_example` | environments/local.env.example | existing schema file, extended not replaced | owner | 2026-11-11 | s1 |
 | `nav.doc_comments` | record-only | owner: record only | owner | 2026-11-11 | s1 |
 | `repo.default_branch` | dev | owner: set default branch to dev | owner | 2026-11-11 | s1 |
+| `security.contact` | GitHub private vulnerability reporting (enabled 2026-11-11 by the agent at the owner's request) | owner: use gh and turn it on in the settings | owner | 2026-11-11 | s1 |
 | `tests.coverage_gate` | check | owner: check and CI | owner | 2026-11-11 | s1 |
 | `tests.coverage_metrics` | lines | owner: lines only | owner | 2026-11-11 | s1 |
 | `tests.stack_dependent` | no | owner: 5a, Jest on jsdom | owner | 2026-11-11 | s1 |
@@ -82,8 +86,8 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T4 | CI parity, hooks, commits | merged | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | #247 | `5fd22b39918b` |
 | T5 | Tests and baselines | merged | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | #249 | `5378f0266cfa` |
 | T6 | Docs and navigation | merged | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | `bb3cef79242f` |
-| T7 | AGENTS.md and governance | pr_open | 6 | 0 | s1 | `agentic-readiness/s1-agents-md` | #251 | - |
-| T8 | Hygiene and index | not_started | 9 | 6 | - | - | - | - |
+| T7 | AGENTS.md and governance | merged | 6 | 0 | s1 | `agentic-readiness/s1-agents-md` | #251 | `a283164a7119` |
+| T8 | Hygiene and index | branch_open | 9 | 0 | s1 | `agentic-readiness/s1-hygiene` | - | - |
 
 ## Items by theme
 
@@ -204,16 +208,23 @@ No items.
 
 | Finding | Check | Severity | Status | By | Date | Statement |
 |---|---|---|---|---|---|---|
-| F-003 | IDX-01 | BLOCKER | queued | agent | 2026-11-11 | An agent cannot discover the codebase through an MCP index because no MCP configuration names codebase-memory-mcp for this repository. |
-| F-028 | HYG-03 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot file a change with the information reviewers need because no .github/pull_request_template file exists. |
-| F-029 | HYG-04 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot report a bug or request in a structured way because no .github/ISSUE_TEMPLATE entry exists. |
-| F-030 | HYG-05 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot contribute without reverse-engineering the process because no CONTRIBUTING document exists. |
-| F-031 | HYG-06 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot report a vulnerability responsibly because no SECURITY document exists at the root, under .github/, .gitlab/ or docs/. |
+| F-003 | IDX-01 | BLOCKER | done | agent | 2026-11-11 | An agent cannot discover the codebase through an MCP index because no MCP configuration names codebase-memory-mcp for this repository. |
+| F-028 | HYG-03 | COSMETIC | done | agent | 2026-11-11 | An agent cannot file a change with the information reviewers need because no .github/pull_request_template file exists. |
+| F-029 | HYG-04 | COSMETIC | done | agent | 2026-11-11 | An agent cannot report a bug or request in a structured way because no .github/ISSUE_TEMPLATE entry exists. |
+| F-030 | HYG-05 | COSMETIC | done | agent | 2026-11-11 | An agent cannot contribute without reverse-engineering the process because no CONTRIBUTING document exists. |
+| F-031 | HYG-06 | COSMETIC | done | agent | 2026-11-11 | An agent cannot report a vulnerability responsibly because no SECURITY document exists at the root, under .github/, .gitlab/ or docs/. |
 | F-032 | HYG-09 | COSMETIC | done | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `github-actions` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
 | F-033 | HYG-09 | COSMETIC | done | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
 | F-034 | HYG-09 | COSMETIC | done | agent | 2026-11-11 | An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch. |
-| F-035 | HYG-11 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot reproduce the protected-branch rules as code because the github provider is detected but no branch-protection configuration exists. |
+| F-035 | HYG-11 | COSMETIC | done | agent | 2026-11-11 | An agent cannot reproduce the protected-branch rules as code because the github provider is detected but no branch-protection configuration exists. |
 
+- **F-003**: commits: `4df751ec2`; verification: `engine --no-user-config IDX-01` gave IDX-01 PASS: registered
+  in .mcp.json (project)
+- **F-028**: commits: `7b1865c75`; verification: `engine HYG-03` gave HYG-03 PASS
+- **F-029**: commits: `7bd565c73`; verification: `engine HYG-04` gave HYG-04 PASS: 2 issue templates
+- **F-030**: commits: `599550f8a`; verification: `engine HYG-05` gave HYG-05 PASS
+- **F-031**: commits: `22344c3e1`; verification: `engine HYG-06; gh api .../private-vulnerability-reporting`
+  gave HYG-06 PASS; private vulnerability reporting enabled (owner asked the agent to turn it on)
 - **F-032**: commits: `805422bce`; verification: `gh api repos/<repo> --jq .default_branch; grep -c
   target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot` gave default branch dev; 0
   target-branch lines; schema valid; zizmor clean
@@ -223,6 +234,8 @@ No items.
 - **F-034**: commits: `805422bce`; verification: `gh api repos/<repo> --jq .default_branch; grep -c
   target-branch .github/dependabot.yml; check-jsonschema vendor.dependabot` gave default branch dev; 0
   target-branch lines; schema valid; zizmor clean
+- **F-035**: commits: `cb1a3ea20`; verification: `engine HYG-11; diff against gh api rulesets` gave HYG-11
+  PASS: dev and main rulesets declared as code, exported unchanged
 
 ## Skipped
 
@@ -369,3 +382,21 @@ None.
 | 2026-11-11 | s1 | F-025 in_progress to done by agent |
 | 2026-11-11 | s1 | F-039 in_progress to done by agent |
 | 2026-11-11 | s1 | theme T7 branch_open to pr_open: branch agentic-readiness/s1-agents-md, PR #251 |
+| 2026-11-11 | s1 | theme T7 pr_open to merged: branch agentic-readiness/s1-agents-md, PR #251, merged as a283164a7119 |
+| 2026-11-11 | s1 | preference security.contact set to GitHub private vulnerability reporting (enabled 2026-11-11 by the agent at the owner's request): owner: use gh and turn it on in the settings |
+| 2026-11-11 | s1 | preference ci.branch_protection set to export the live dev and main rulesets as is to .github/rulesets/: owner: export as is |
+| 2026-11-11 | s1 | preference index.registration set to project-file: owner: .mcp.json |
+| 2026-11-11 | s1 | preference index.first_run_offer set to no: owner: no |
+| 2026-11-11 | s1 | theme T8 not_started to branch_open: branch agentic-readiness/s1-hygiene |
+| 2026-11-11 | s1 | F-003 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-028 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-029 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-030 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-031 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-035 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-003 in_progress to done by agent |
+| 2026-11-11 | s1 | F-028 in_progress to done by agent |
+| 2026-11-11 | s1 | F-029 in_progress to done by agent |
+| 2026-11-11 | s1 | F-030 in_progress to done by agent |
+| 2026-11-11 | s1 | F-031 in_progress to done by agent |
+| 2026-11-11 | s1 | F-035 in_progress to done by agent |
