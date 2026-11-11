@@ -115,6 +115,8 @@ Standard change loop:
 5. Run `npm run build` to confirm the bundle compiles.
 6. Public API changes ship through the release pipeline — `dist/` is built in CI and never committed (see § 7).
 
+Before you change tooling, CI, docs or this file, read `docs/agentic-readiness/digital-assistant-sdk-agentic-readiness-STATE.md`; skipped findings in it are final.
+
 ## 10. Testing Conventions
 
 - **Discovery**: `testMatch` = `**/src/**/__tests__/**/*.[jt]s?(x)` and `**/src/**/?(*.)+(spec|test).[jt]s?(x)`. Tests live next to the code they cover, inside `__tests__/`.

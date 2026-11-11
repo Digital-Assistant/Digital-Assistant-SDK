@@ -1,0 +1,732 @@
+{
+  "schema_version": "0.3",
+  "repo": {
+    "label": "digital-assistant-sdk",
+    "default_branch": "dev"
+  },
+  "framework": {
+    "release": "0.3.4",
+    "revision": "0006e0f9012f",
+    "install": "checkout"
+  },
+  "last_framework": {
+    "release": "0.3.4",
+    "revision": "0006e0f9012f"
+  },
+  "source_reports": [
+    {
+      "path": "docs/agentic-readiness-report/digital-assistant-sdk.audit-report.20261111T072141Z.json",
+      "git_sha": "16c02fce8c70",
+      "catalogue_version": "0.7.0",
+      "release": "0.3.4",
+      "revision": "0006e0f9012f",
+      "sha256": "07439c74aaa0a444926afa544d87def9090788ec7b06fb315d2a9fa725efbd1a"
+    }
+  ],
+  "preferences": [
+    {
+      "key": "ci.pr_by_agent",
+      "value": "no",
+      "reason": "owner: 1b, agent stops at the local branch",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "ci.edits_authorised",
+      "value": "package.json scripts, .github/workflows/*, new config files",
+      "reason": "owner: 2a",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "format.mass_reformat",
+      "value": "yes",
+      "reason": "owner: 3b; a reformat is its own PR",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "layout.command_runner",
+      "value": "root",
+      "reason": "owner: 4a, npm scripts at the root",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "tests.stack_dependent",
+      "value": "no",
+      "reason": "owner: 5a, Jest on jsdom",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "tools.choice",
+      "value": "recommended",
+      "reason": "owner: install the linters and tools you require, as recommended",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "extra.reformat",
+      "value": "one Prettier reformat of the whole tree, its own PR before T4",
+      "reason": "owner: extra a",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "extra.lint-scope",
+      "value": "format, format:check and lint also cover test/ and scripts/; new debt baselined in T5",
+      "reason": "owner: extra b",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    }
+  ],
+  "themes": [
+    {
+      "id": "T1",
+      "title": "Command surface and quality tools",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    },
+    {
+      "id": "T2",
+      "title": "Execution determinism",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    },
+    {
+      "id": "T3",
+      "title": "Secrets and env",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    },
+    {
+      "id": "T4",
+      "title": "CI parity, hooks, commits",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    },
+    {
+      "id": "T5",
+      "title": "Tests and baselines",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    },
+    {
+      "id": "T6",
+      "title": "Docs and navigation",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    },
+    {
+      "id": "T7",
+      "title": "AGENTS.md and governance",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    },
+    {
+      "id": "T8",
+      "title": "Hygiene and index",
+      "status": "not_started",
+      "phase": null,
+      "branch": null,
+      "pr": null,
+      "merged_sha": null
+    }
+  ],
+  "items": [
+    {
+      "finding": "F-001",
+      "check": "CON-02",
+      "severity": "BLOCKER",
+      "theme": "T7",
+      "statement": "An agent cannot rely on the deny list to keep test directories out of an agent's reach because the prohibitions section of AGENTS.md does not name test/.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-002",
+      "check": "EXEC-04",
+      "severity": "BLOCKER",
+      "theme": "T3",
+      "statement": "An agent cannot know every variable the code needs before running it because 2 referenced key(s) are absent from any committed example file: UDA_LOG_LEVEL, UDA_LOG_LEVELNumber.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-003",
+      "check": "IDX-01",
+      "severity": "BLOCKER",
+      "theme": "T8",
+      "statement": "An agent cannot discover the codebase through an MCP index because no MCP configuration names codebase-memory-mcp for this repository.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-004",
+      "check": "SEC-01",
+      "severity": "BLOCKER",
+      "theme": "T3",
+      "statement": "An agent cannot trust that a future .env stays out of history because ignore rules are incomplete (missing: dotenv variant).",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-009",
+      "check": "AGT-03",
+      "severity": "DEGRADER",
+      "theme": "T7",
+      "statement": "An agent cannot know where permanent and scratch documentation live because AGENTS.md does not name docs/STYLE_GUIDE.md.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-010",
+      "check": "AGT-04",
+      "severity": "DEGRADER",
+      "theme": "T7",
+      "statement": "An agent cannot keep code and its documentation in step because no definition-of-done sentence ties a documentation trigger to the same change set.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-011",
+      "check": "BASE-01",
+      "severity": "DEGRADER",
+      "theme": "T5",
+      "statement": "An agent cannot diff today's findings against an accepted baseline because quality tooling is configured but no baseline or suppression artifact is committed.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-012",
+      "check": "BASE-02",
+      "severity": "DEGRADER",
+      "theme": "T5",
+      "statement": "An agent cannot state how many violations exist today because a counting surface exists but no numeric violation budget or count is committed.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-013",
+      "check": "BASE-03",
+      "severity": "DEGRADER",
+      "theme": "T5",
+      "statement": "An agent cannot stop the violation count from growing because no baseline, budget or comparison step exists, so the count is not guarded.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-014",
+      "check": "BASE-04",
+      "severity": "DEGRADER",
+      "theme": "T5",
+      "statement": "An agent cannot know when coverage drops below an agreed floor because no coverage threshold is configured in the test runner.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-019",
+      "check": "CI-05",
+      "severity": "DEGRADER",
+      "theme": "T4",
+      "statement": "An agent cannot check a workflow change before it is pushed because no linter for the github workflow files runs locally or in CI.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-020",
+      "check": "DOC-02",
+      "severity": "DEGRADER",
+      "theme": "T6",
+      "statement": "An agent cannot find the canonical authoring rules for documentation because docs/STYLE_GUIDE.md does not exist.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-021",
+      "check": "SEC-03",
+      "severity": "DEGRADER",
+      "theme": "T3",
+      "statement": "An agent cannot trust that secret shapes cannot be committed because ignore rules are incomplete (missing: dotenv variant, ssh private key, PEM, key, PKCS#12, PFX, keystore, certificate (.crt), certificate (.cer), AWS credentials).",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-022",
+      "check": "TOOL-05",
+      "severity": "DEGRADER",
+      "theme": "T4",
+      "statement": "An agent cannot rely on local hooks to run before a commit because no hook manager is configured.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-024",
+      "check": "AGT-08",
+      "severity": "COSMETIC",
+      "theme": "T7",
+      "statement": "An agent cannot assume every harness on the team sees the project rules because 20 of 28 known harnesses reach an instruction file; Aider, Amazon Q Developer, Anthropic Claude Code, Continue, Google Gemini CLI, Qwen Code, Replit Agent, Void reach nothing.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-025",
+      "check": "AGT-12",
+      "severity": "COSMETIC",
+      "theme": "T7",
+      "statement": "An agent cannot report to people or ask them for a decision in a form they expect because AGENTS.md has no section on writing for people and names no communication rules file.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-026",
+      "check": "DOC-04",
+      "severity": "COSMETIC",
+      "theme": "T6",
+      "statement": "An agent cannot find the decisions of record because no ADR directory (docs/architecture/adrs/ or docs/adr/) exists.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-027",
+      "check": "DOC-05",
+      "severity": "COSMETIC",
+      "theme": "T6",
+      "statement": "An agent cannot rely on the documentation reading clearly to a new engineer because 13.5% of sentences are over 25 words (pass: at most 10%).",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-028",
+      "check": "HYG-03",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot file a change with the information reviewers need because no .github/pull_request_template file exists.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-029",
+      "check": "HYG-04",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot report a bug or request in a structured way because no .github/ISSUE_TEMPLATE entry exists.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-030",
+      "check": "HYG-05",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot contribute without reverse-engineering the process because no CONTRIBUTING document exists.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-031",
+      "check": "HYG-06",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot report a vulnerability responsibly because no SECURITY document exists at the root, under .github/, .gitlab/ or docs/.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-032",
+      "check": "HYG-09",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot rely on the update policy reaching security updates because the `github-actions` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-033",
+      "check": "HYG-09",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-034",
+      "check": "HYG-09",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot rely on the update policy reaching security updates because the `npm` entry sets `target-branch` together with `groups`, and Dependabot drops those options for security updates, which always go to the default branch.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-035",
+      "check": "HYG-11",
+      "severity": "COSMETIC",
+      "theme": "T8",
+      "statement": "An agent cannot reproduce the protected-branch rules as code because the github provider is detected but no branch-protection configuration exists.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-037",
+      "check": "NAV-04",
+      "severity": "COSMETIC",
+      "theme": "T6",
+      "statement": "An agent cannot orient itself from a map instead of exploring blindly because no docs/architecture/, ADR directory or diagram exists.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-038",
+      "check": "TOOL-06",
+      "severity": "COSMETIC",
+      "theme": "T4",
+      "statement": "An agent cannot learn a bad commit subject before it pushes because the Conventional Commits rule is enforced only on the pull-request title in CI, and no local commit-message rule exists.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-039",
+      "check": "AGT-11",
+      "severity": "DEGRADER",
+      "theme": "T7",
+      "statement": "An agent cannot trust every specific line of AGENTS.md because three of them name a command, a file or a state that does not resolve (npm test:coverage, __mocks__/sweetAlert2.ts, a root .env).",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    },
+    {
+      "finding": "F-040",
+      "check": "NAV-05",
+      "severity": "COSMETIC",
+      "theme": "T6",
+      "statement": "An agent cannot read intent from the source of every exported symbol because 89 of 266 exported TypeScript declarations (33%) have no doc comment.",
+      "status": "queued",
+      "by": "agent",
+      "date": "2026-11-11",
+      "reason": null,
+      "commits": [],
+      "verification": null,
+      "debt": [],
+      "notes": ""
+    }
+  ],
+  "not_queued": [
+    {
+      "finding": "F-005",
+      "check": "SEC-02",
+      "severity": "BLOCKER",
+      "note": "Owner: false positive; placeholder literals in unit tests, verified line by line."
+    },
+    {
+      "finding": "F-006",
+      "check": "SEC-02",
+      "severity": "BLOCKER",
+      "note": "Owner: false positive; placeholder literals in unit tests, verified line by line."
+    },
+    {
+      "finding": "F-007",
+      "check": "SEC-02",
+      "severity": "BLOCKER",
+      "note": "Owner: false positive; placeholder literals in unit tests, verified line by line."
+    },
+    {
+      "finding": "F-008",
+      "check": "SEC-02",
+      "severity": "BLOCKER",
+      "note": "Owner: false positive; placeholder literals in unit tests, verified line by line."
+    },
+    {
+      "finding": "F-015",
+      "check": "CI-03",
+      "severity": "DEGRADER",
+      "note": "Owner: false positive, verified line by line. echo of a Markdown table row."
+    },
+    {
+      "finding": "F-016",
+      "check": "CI-03",
+      "severity": "DEGRADER",
+      "note": "Owner: false positive, verified line by line. echo of a Markdown table row."
+    },
+    {
+      "finding": "F-017",
+      "check": "CI-03",
+      "severity": "DEGRADER",
+      "note": "Owner: false positive, verified line by line. echo of release-notes text."
+    },
+    {
+      "finding": "F-018",
+      "check": "CI-03",
+      "severity": "DEGRADER",
+      "note": "Owner: false positive, verified line by line. echo of an instruction for a person."
+    },
+    {
+      "finding": "F-023",
+      "check": "TST-04",
+      "severity": "DEGRADER",
+      "note": "Owner: false positive, verified line by line. AGENTS.md:114 documents npm test -- path/to/__tests__ inline."
+    },
+    {
+      "finding": "F-036",
+      "check": "NAV-03",
+      "severity": "COSMETIC",
+      "note": "Owner: the only oversized file is package-lock.json, a generated lockfile."
+    }
+  ],
+  "log": [
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "State created from docs/agentic-readiness-report/digital-assistant-sdk.audit-report.20261111T072141Z.json: 30 queued, 0 deferred, 10 not queued."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference ci.pr_by_agent set to no: owner: 1b, agent stops at the local branch"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference ci.edits_authorised set to package.json scripts, .github/workflows/*, new config files: owner: 2a"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference format.mass_reformat set to yes: owner: 3b; a reformat is its own PR"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference layout.command_runner set to root: owner: 4a, npm scripts at the root"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference tests.stack_dependent set to no: owner: 5a, Jest on jsdom"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference tools.choice set to ask-per-theme: owner: 6, ask per theme"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference extra.reformat set to one Prettier reformat of the whole tree, its own PR before T4: owner: extra a"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference extra.lint-scope set to format, format:check and lint also cover test/ and scripts/; new debt baselined in T5: owner: extra b"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference tools.choice changed from ask-per-theme to recommended: owner: install the linters and tools you require, as recommended"
+    }
+  ]
+}
