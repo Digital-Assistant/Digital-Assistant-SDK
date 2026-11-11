@@ -111,6 +111,54 @@
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
+    },
+    {
+      "key": "hooks.manager",
+      "value": "lefthook",
+      "reason": "owner: go with lefthook for T4",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "hooks.protected_branches",
+      "value": "dev,main",
+      "reason": "owner: 1a",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "commit.tool",
+      "value": "commitlint",
+      "reason": "owner: both, title check plus commitlint",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "commit.option",
+      "value": "C",
+      "reason": "owner: both (recommended)",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "ci.workflow_linter",
+      "value": "actionlint 1.7.12 + zizmor 1.32.0, both blocking",
+      "reason": "owner: 2a",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "deps.policy",
+      "value": "Dependabot security updates only; no major bumps",
+      "reason": "owner: prevent code breaking",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
     }
   ],
   "themes": [
@@ -144,9 +192,9 @@
     {
       "id": "T4",
       "title": "CI parity, hooks, commits",
-      "status": "not_started",
-      "phase": null,
-      "branch": null,
+      "status": "branch_open",
+      "phase": "s1",
+      "branch": "agentic-readiness/s1-ci-hooks",
       "pr": null,
       "merged_sha": null
     },
@@ -354,14 +402,21 @@
       "severity": "DEGRADER",
       "theme": "T4",
       "statement": "An agent cannot check a workflow change before it is pushed because no linter for the github workflow files runs locally or in CI.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "f0bb57ff5",
+        "a5b354683",
+        "31f6f047e"
+      ],
+      "verification": {
+        "command": "npm run lint:workflows (actionlint 1.7.12 + zizmor 1.32.0); lefthook run pre-commit with a script-injection workflow",
+        "result": "clean on all workflows (3 dependabot-cooldown findings fixed); injection refused locally"
+      },
       "debt": [],
-      "notes": ""
+      "notes": "Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018)."
     },
     {
       "finding": "F-020",
@@ -404,12 +459,17 @@
       "severity": "DEGRADER",
       "theme": "T4",
       "statement": "An agent cannot rely on local hooks to run before a commit because no hook manager is configured.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "3514ee585"
+      ],
+      "verification": {
+        "command": "lefthook run pre-commit in a scratch clone: on dev; unformatted file + fake ghp_ token; clean change",
+        "result": "dev refused; format and secrets refused; clean change passes in 0.36 s"
+      },
       "debt": [],
       "notes": ""
     },
@@ -614,12 +674,18 @@
       "severity": "COSMETIC",
       "theme": "T4",
       "statement": "An agent cannot learn a bad commit subject before it pushes because the Conventional Commits rule is enforced only on the pull-request title in CI, and no local commit-message rule exists.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "f73c2e225",
+        "2b4d209d2"
+      ],
+      "verification": {
+        "command": "lefthook run commit-msg (bad/good message); npx commitlint --from <base> --to HEAD; commitlint over 60 dev commits",
+        "result": "bad refused, good passes; T4 range passes; dev: only the one non-conventional commit fails"
+      },
       "debt": [],
       "notes": ""
     },
@@ -831,6 +897,76 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "preference extra.lint-scope changed from format, format:check and lint also cover test/ and scripts/; new debt baselined in T5 to done (b9ba15d03): format whole tree, lint src+test+scripts; 9 new warnings, 686 total, for T5: owner: extra b"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference hooks.manager set to lefthook: owner: go with lefthook for T4"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference hooks.protected_branches set to dev,main: owner: 1a"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference commit.tool set to commitlint: owner: both, title check plus commitlint"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference commit.option set to C: owner: both (recommended)"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference ci.workflow_linter set to actionlint 1.7.12 + zizmor 1.32.0, both blocking: owner: 2a"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference deps.policy set to Dependabot security updates only; no major bumps: owner: prevent code breaking"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T4 not_started to branch_open: branch agentic-readiness/s1-ci-hooks"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-022 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-022 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-038 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-038 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-019 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-019 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-019 note added by agent: Engine CI-05 PASS; its evidence cites docs mentions of actionlint, the real local route is npm run lint:workflows. CI-03 still reads the 4 echo lines the owner rejected (F-015..F-018)."
     }
   ]
 }
