@@ -347,10 +347,10 @@
     {
       "id": "T7",
       "title": "AGENTS.md and governance",
-      "status": "branch_open",
+      "status": "pr_open",
       "phase": "s1",
       "branch": "agentic-readiness/s1-agents-md",
-      "pr": null,
+      "pr": 251,
       "merged_sha": null
     },
     {
@@ -1565,6 +1565,11 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "F-039 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T7 branch_open to pr_open: branch agentic-readiness/s1-agents-md, PR #251"
     }
   ]
 }

@@ -82,7 +82,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T4 | CI parity, hooks, commits | merged | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | #247 | `5fd22b39918b` |
 | T5 | Tests and baselines | merged | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | #249 | `5378f0266cfa` |
 | T6 | Docs and navigation | merged | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | `bb3cef79242f` |
-| T7 | AGENTS.md and governance | branch_open | 6 | 0 | s1 | `agentic-readiness/s1-agents-md` | - | - |
+| T7 | AGENTS.md and governance | pr_open | 6 | 0 | s1 | `agentic-readiness/s1-agents-md` | #251 | - |
 | T8 | Hygiene and index | not_started | 9 | 6 | - | - | - | - |
 
 ## Items by theme
@@ -368,3 +368,4 @@ None.
 | 2026-11-11 | s1 | F-024 in_progress to done by agent |
 | 2026-11-11 | s1 | F-025 in_progress to done by agent |
 | 2026-11-11 | s1 | F-039 in_progress to done by agent |
+| 2026-11-11 | s1 | theme T7 branch_open to pr_open: branch agentic-readiness/s1-agents-md, PR #251 |
