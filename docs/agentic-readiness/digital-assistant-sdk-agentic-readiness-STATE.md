@@ -17,9 +17,9 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Status | Items |
 |---|---|
-| queued | 12 |
+| queued | 6 |
 | in_progress | 0 |
-| done | 13 |
+| done | 19 |
 | partial | 5 |
 | failed | 0 |
 | blocked | 0 |
@@ -32,6 +32,9 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Key | Value | Reason | By | Date | Phase |
 |---|---|---|---|---|---|
+| `agents_md.comm_long_form` | no | style guide holds the docs rules | owner | 2026-11-11 | s1 |
+| `agents_md.reader` | a new engineer who does not know this SDK or its terms | owner's wording | owner | 2026-11-11 | s1 |
+| `agents_md.stubs` | CLAUDE.md pointer only | owner: CLAUDE.md | owner | 2026-11-11 | s1 |
 | `baseline.audit_dev` | record-only | owner: record only; prod gate stays blocking | owner | 2026-11-11 | s1 |
 | `baseline.form` | eslint --max-warnings budget + counts file docs/agentic-readiness/digital-assistant-sdk-quality-b... | ESLint 8 has no suppressions file | owner | 2026-11-11 | s1 |
 | `branch.base` | stack theme branches on the unmerged agentic-readiness/s1-triage | owner: continue next theme right here; will not push now | owner | 2026-11-11 | s1 |
@@ -42,8 +45,10 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `commit.option` | C | owner: both (recommended) | owner | 2026-11-11 | s1 |
 | `commit.tool` | commitlint | owner: both, title check plus commitlint | owner | 2026-11-11 | s1 |
 | `deps.policy` | Dependabot security updates only; no major bumps | owner: prevent code breaking | owner | 2026-11-11 | s1 |
+| `docs.adr_review` | ADRs 0001-0004 on dev; owner edits or deletes them at the end of the run | owner: leave them on dev | owner | 2026-11-11 | s1 |
 | `docs.adrs` | public build-time config; branch and release model; authentication; dist built in CI only | owner: all four | owner | 2026-11-11 | s1 |
 | `docs.ci_gate` | advisory | owner: advisory, not in CI Gate | owner | 2026-11-11 | s1 |
+| `docs.language` | en | default, owner confirmed | owner | 2026-11-11 | s1 |
 | `docs.lint_ratchet` | 15 | markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1 | owner | 2026-11-11 | s1 |
 | `docs.prose_check` | skip | owner: skip | owner | 2026-11-11 | s1 |
 | `env.log_level_defaults` | UDA_LOG_LEVEL=info, UDA_LOG_LEVELNumber=1 in the schema | owner: set log-level defaults; info, not 1 (Winston name) | owner | 2026-11-11 | s1 |
@@ -76,8 +81,8 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T3 | Secrets and env | merged | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | #245 | `8b9c9f9f3359` |
 | T4 | CI parity, hooks, commits | merged | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | #247 | `5fd22b39918b` |
 | T5 | Tests and baselines | merged | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | #249 | `5378f0266cfa` |
-| T6 | Docs and navigation | pr_open | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | - |
-| T7 | AGENTS.md and governance | not_started | 6 | 6 | - | - | - | - |
+| T6 | Docs and navigation | merged | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | `bb3cef79242f` |
+| T7 | AGENTS.md and governance | branch_open | 6 | 0 | s1 | `agentic-readiness/s1-agents-md` | - | - |
 | T8 | Hygiene and index | not_started | 9 | 6 | - | - | - | - |
 
 ## Items by theme
@@ -160,8 +165,9 @@ No items.
 
 - **F-020**: commits: `e0d712383`, `bd6f3cc02`; verification: `engine DOC-02; grep STYLE_GUIDE.md AGENTS.md`
   gave DOC-02 PASS: docs/STYLE_GUIDE.md present and named in AGENTS.md
-- **F-026**: commits: `5d7bd7227`; verification: `engine DOC-04; read docs/adr/README.md` gave DOC-04 PASS: 4
-  ADRs plus template indexed; ADR policy named in AGENTS.md
+- **F-026**: notes: ADRs 0001-0004 merged with #250; owner reviews them at the end (docs.adr_review).;
+  commits: `5d7bd7227`; verification: `engine DOC-04; read docs/adr/README.md` gave DOC-04 PASS: 4 ADRs plus
+  template indexed; ADR policy named in AGENTS.md
 - **F-027**: commits: `e0d712383`; verification: `engine DOC-05` gave DOC-05 PASS: 25/386 sentences over 25
   words (6.5%), none on pages T6 wrote; 0 vague words
 - **F-037**: commits: `c3ae6d906`; verification: `engine NAV-04; mermaid-cli 12.2.0 render` gave NAV-04 PASS;
@@ -172,15 +178,27 @@ No items.
 
 | Finding | Check | Severity | Status | By | Date | Statement |
 |---|---|---|---|---|---|---|
-| F-001 | CON-02 | BLOCKER | queued | agent | 2026-11-11 | An agent cannot rely on the deny list to keep test directories out of an agent's reach because the prohibitions section of AGENTS.md does not name test/. |
-| F-009 | AGT-03 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot know where permanent and scratch documentation live because AGENTS.md does not name docs/STYLE_GUIDE.md. |
-| F-010 | AGT-04 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot keep code and its documentation in step because no definition-of-done sentence ties a documentation trigger to the same change set. |
-| F-024 | AGT-08 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot assume every harness on the team sees the project rules because 20 of 28 known harnesses reach an instruction file; Aider, Amazon Q Developer, Anthropic Claude Code, Continue, Google Gemini CLI, Qwen Code, Replit Agent, Void reach nothing. |
-| F-025 | AGT-12 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot report to people or ask them for a decision in a form they expect because AGENTS.md has no section on writing for people and names no communication rules file. |
-| F-039 | AGT-11 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot trust every specific line of AGENTS.md because three of them name a command, a file or a state that does not resolve (npm test:coverage, __mocks__/sweetAlert2.ts, a root .env). |
+| F-001 | CON-02 | BLOCKER | done | agent | 2026-11-11 | An agent cannot rely on the deny list to keep test directories out of an agent's reach because the prohibitions section of AGENTS.md does not name test/. |
+| F-009 | AGT-03 | DEGRADER | done | agent | 2026-11-11 | An agent cannot know where permanent and scratch documentation live because AGENTS.md does not name docs/STYLE_GUIDE.md. |
+| F-010 | AGT-04 | DEGRADER | done | agent | 2026-11-11 | An agent cannot keep code and its documentation in step because no definition-of-done sentence ties a documentation trigger to the same change set. |
+| F-024 | AGT-08 | COSMETIC | done | agent | 2026-11-11 | An agent cannot assume every harness on the team sees the project rules because 20 of 28 known harnesses reach an instruction file; Aider, Amazon Q Developer, Anthropic Claude Code, Continue, Google Gemini CLI, Qwen Code, Replit Agent, Void reach nothing. |
+| F-025 | AGT-12 | COSMETIC | done | agent | 2026-11-11 | An agent cannot report to people or ask them for a decision in a form they expect because AGENTS.md has no section on writing for people and names no communication rules file. |
+| F-039 | AGT-11 | DEGRADER | done | agent | 2026-11-11 | An agent cannot trust every specific line of AGENTS.md because three of them name a command, a file or a state that does not resolve (npm test:coverage, __mocks__/sweetAlert2.ts, a root .env). |
 
+- **F-001**: commits: `aa96c133e`; verification: `engine CON-02, AGT-07, CON-01` gave CON-02 PASS:
+  src/**/__tests__/ and test/ named; AGT-07 and CON-01 PASS
+- **F-009**: verification: `engine AGT-03` gave AGT-03 PASS since T6 (drift): docs/, docs/STYLE_GUIDE.md and
+  artefacts/ named in AGENTS.md
+- **F-010**: commits: `2a29a145c`; verification: `engine AGT-04; grep 'same change set' AGENTS.md` gave AGT-04
+  PASS
+- **F-024**: commits: `795a41177`; verification: `engine AGT-08; cat CLAUDE.md` gave CLAUDE.md is the one-line
+  @AGENTS.md import; reach line true (21/28). Engine reads FAIL: it cannot tell an import stub from a
+  shadowing file (framework issue #26, engine limit)
+- **F-025**: commits: `edea34bf0`; verification: `engine AGT-12` gave AGT-12 PASS: section names the reader,
+  reports and decisions
 - **F-039**: notes: T5 fixed one of the three lines: npm test:coverage is now npm run test:coverage
-  (be2cb94d7).
+  (be2cb94d7).; commits: `4df20bc29`; verification: `test -f __mocks__/sweetalert2.ts; git ls-files .env; npm
+  run test:coverage exists` gave all three lines now resolve (test:coverage fixed in T5)
 
 ### T8 Hygiene and index
 
@@ -330,3 +348,23 @@ None.
 | 2026-11-11 | s1 | F-040 in_progress to partial by agent |
 | 2026-11-11 | s1 | preference docs.lint_ratchet set to 15: markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1 |
 | 2026-11-11 | s1 | theme T6 branch_open to pr_open: branch agentic-readiness/s1-docs, PR #250 |
+| 2026-11-11 | s1 | theme T6 pr_open to merged: branch agentic-readiness/s1-docs, PR #250, merged as bb3cef79242f |
+| 2026-11-11 | s1 | preference docs.adr_review set to ADRs 0001-0004 on dev; owner edits or deletes them at the end of the run: owner: leave them on dev |
+| 2026-11-11 | s1 | F-026 note added by agent: ADRs 0001-0004 merged with #250; owner reviews them at the end (docs.adr_review). |
+| 2026-11-11 | s1 | theme T7 not_started to branch_open: branch agentic-readiness/s1-agents-md |
+| 2026-11-11 | s1 | preference agents_md.stubs set to CLAUDE.md pointer only: owner: CLAUDE.md |
+| 2026-11-11 | s1 | preference agents_md.reader set to a new engineer who does not know this SDK or its terms: owner's wording |
+| 2026-11-11 | s1 | preference docs.language set to en: default, owner confirmed |
+| 2026-11-11 | s1 | preference agents_md.comm_long_form set to no: style guide holds the docs rules |
+| 2026-11-11 | s1 | F-001 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-009 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-010 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-024 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-025 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-039 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-001 in_progress to done by agent |
+| 2026-11-11 | s1 | F-009 in_progress to done by agent |
+| 2026-11-11 | s1 | F-010 in_progress to done by agent |
+| 2026-11-11 | s1 | F-024 in_progress to done by agent |
+| 2026-11-11 | s1 | F-025 in_progress to done by agent |
+| 2026-11-11 | s1 | F-039 in_progress to done by agent |
