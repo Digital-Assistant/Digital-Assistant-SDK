@@ -17,10 +17,10 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Status | Items |
 |---|---|
-| queued | 21 |
+| queued | 17 |
 | in_progress | 0 |
 | done | 9 |
-| partial | 0 |
+| partial | 4 |
 | failed | 0 |
 | blocked | 0 |
 | deferred | 0 |
@@ -32,6 +32,8 @@ A skipped finding is final until the owner unskips it, and every preference bind
 
 | Key | Value | Reason | By | Date | Phase |
 |---|---|---|---|---|---|
+| `baseline.audit_dev` | record-only | owner: record only; prod gate stays blocking | owner | 2026-11-11 | s1 |
+| `baseline.form` | eslint --max-warnings budget + counts file docs/agentic-readiness/digital-assistant-sdk-quality-b... | ESLint 8 has no suppressions file | owner | 2026-11-11 | s1 |
 | `branch.base` | stack theme branches on the unmerged agentic-readiness/s1-triage | owner: continue next theme right here; will not push now | owner | 2026-11-11 | s1 |
 | `ci.edits_authorised` | package.json scripts, .github/workflows/*, new config files | owner: 2a | owner | 2026-11-11 | s1 |
 | `ci.pr_by_agent` | yes | owner: push all branches, raise PRs, monitor CI | owner | 2026-11-11 | s1 |
@@ -49,9 +51,14 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
 | `layout.env_example` | environments/local.env.example | existing schema file, extended not replaced | owner | 2026-11-11 | s1 |
 | `repo.default_branch` | dev | owner: set default branch to dev | owner | 2026-11-11 | s1 |
+| `tests.coverage_gate` | check | owner: check and CI | owner | 2026-11-11 | s1 |
+| `tests.coverage_metrics` | lines | owner: lines only | owner | 2026-11-11 | s1 |
 | `tests.stack_dependent` | no | owner: 5a, Jest on jsdom | owner | 2026-11-11 | s1 |
 | `tools.choice` | recommended | owner: install the linters and tools you require, as recommended | owner | 2026-11-11 | s1 |
 
+- `baseline.form`: value: eslint --max-warnings budget + counts file
+  docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json; reason: ESLint 8 has no suppressions
+  file
 - `extra.reformat`: value: done on agentic-readiness/s1-reformat (a0e2c3b60, reworded from style: to chore:);
   Markdown and tool-written files excluded; reason: owner: extra a; reworded by owner approval
 
@@ -61,9 +68,9 @@ A skipped finding is final until the owner unskips it, and every preference bind
 |---|---|---|---|---|---|---|---|---|
 | T1 | Command surface and quality tools | not_started | 0 | 0 | - | - | - | - |
 | T2 | Execution determinism | not_started | 0 | 0 | - | - | - | - |
-| T3 | Secrets and env | branch_open | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | - | - |
-| T4 | CI parity, hooks, commits | branch_open | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | - | - |
-| T5 | Tests and baselines | not_started | 4 | 4 | - | - | - | - |
+| T3 | Secrets and env | pr_open | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | #245 | - |
+| T4 | CI parity, hooks, commits | pr_open | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | #247 | - |
+| T5 | Tests and baselines | branch_open | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | - | - |
 | T6 | Docs and navigation | not_started | 5 | 5 | - | - | - | - |
 | T7 | AGENTS.md and governance | not_started | 6 | 6 | - | - | - | - |
 | T8 | Hygiene and index | not_started | 9 | 6 | - | - | - | - |
@@ -122,10 +129,19 @@ No items.
 
 | Finding | Check | Severity | Status | By | Date | Statement |
 |---|---|---|---|---|---|---|
-| F-011 | BASE-01 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot diff today's findings against an accepted baseline because quality tooling is configured but no baseline or suppression artifact is committed. |
-| F-012 | BASE-02 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot state how many violations exist today because a counting surface exists but no numeric violation budget or count is committed. |
-| F-013 | BASE-03 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot stop the violation count from growing because no baseline, budget or comparison step exists, so the count is not guarded. |
-| F-014 | BASE-04 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot know when coverage drops below an agreed floor because no coverage threshold is configured in the test runner. |
+| F-011 | BASE-01 | DEGRADER | partial | agent | 2026-11-11 | An agent cannot diff today's findings against an accepted baseline because quality tooling is configured but no baseline or suppression artifact is committed. |
+| F-012 | BASE-02 | DEGRADER | partial | agent | 2026-11-11 | An agent cannot state how many violations exist today because a counting surface exists but no numeric violation budget or count is committed. |
+| F-013 | BASE-03 | DEGRADER | partial | agent | 2026-11-11 | An agent cannot stop the violation count from growing because no baseline, budget or comparison step exists, so the count is not guarded. |
+| F-014 | BASE-04 | DEGRADER | partial | agent | 2026-11-11 | An agent cannot know when coverage drops below an agreed floor because no coverage threshold is configured in the test runner. |
+
+- **F-011**: commits: `9669eeda0`, `be2cb94d7`; verification: `engine BASE-01; read the counts file` gave
+  BASE-01 PASS; counts file names each tool, count, command and guard
+- **F-012**: commits: `9669eeda0`, `be2cb94d7`; verification: `npm run lint (full tree)` gave 0 errors, 686
+  warnings = budget; BASE-02 PASS
+- **F-013**: commits: `9669eeda0`; verification: `add one any-typed export, run npm run format:check` gave 687
+  warnings: lint and format:check exit 1; real tree exits 0; BASE-03 PASS
+- **F-014**: commits: `6745788f8`, `91fb031ff`; verification: `npx jest --coverage at floor 80 and at 81` gave
+  80.09% passes at 80, fails at 81; check and CI run test:coverage; BASE-04 PASS
 
 ### T6 Docs and navigation
 
@@ -147,6 +163,9 @@ No items.
 | F-024 | AGT-08 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot assume every harness on the team sees the project rules because 20 of 28 known harnesses reach an instruction file; Aider, Amazon Q Developer, Anthropic Claude Code, Continue, Google Gemini CLI, Qwen Code, Replit Agent, Void reach nothing. |
 | F-025 | AGT-12 | COSMETIC | queued | agent | 2026-11-11 | An agent cannot report to people or ask them for a decision in a form they expect because AGENTS.md has no section on writing for people and names no communication rules file. |
 | F-039 | AGT-11 | DEGRADER | queued | agent | 2026-11-11 | An agent cannot trust every specific line of AGENTS.md because three of them name a command, a file or a state that does not resolve (npm test:coverage, __mocks__/sweetAlert2.ts, a root .env). |
+
+- **F-039**: notes: T5 fixed one of the three lines: npm test:coverage is now npm run test:coverage
+  (be2cb94d7).
 
 ### T8 Hygiene and index
 
@@ -182,7 +201,12 @@ None.
 
 ## Debt
 
-None recorded.
+| Finding | Check | What | Count | Baseline file |
+|---|---|---|---|---|
+| F-011 | BASE-01 | ESLint warnings (src, test, scripts) | 686 | `docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json` |
+| F-012 | BASE-02 | ESLint warnings (src, test, scripts) | 686 | `docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json` |
+| F-013 | BASE-03 | ESLint warnings (src, test, scripts) | 686 | `docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json` |
+| F-014 | BASE-04 | coverage floor (line %) | 80 | `jest.config.ts` |
 
 ## Not queued
 
@@ -253,3 +277,19 @@ None recorded.
 | 2026-11-11 | s1 | F-022 note added by agent: Branch rebased to reword a0e2c3b60 (owner approved): commit 3514ee585 is now 5542f1a9d. |
 | 2026-11-11 | s1 | F-038 note added by agent: After the reword: f73c2e225 is eb52c226e, 2b4d209d2 is 544b682f2. |
 | 2026-11-11 | s1 | F-019 note added by agent: After the reword: f0bb57ff5 is 473c34f4c, a5b354683 is 7067f9fc1, 31f6f047e is 881c0acf4. |
+| 2026-11-11 | s1 | preference tests.coverage_gate set to check: owner: check and CI |
+| 2026-11-11 | s1 | preference tests.coverage_metrics set to lines: owner: lines only |
+| 2026-11-11 | s1 | preference baseline.audit_dev set to record-only: owner: record only; prod gate stays blocking |
+| 2026-11-11 | s1 | preference baseline.form set to eslint --max-warnings budget + counts file docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json: ESLint 8 has no suppressions file |
+| 2026-11-11 | s1 | theme T5 not_started to branch_open: branch agentic-readiness/s1-baselines |
+| 2026-11-11 | s1 | F-011 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-012 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-013 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-014 queued to in_progress by agent |
+| 2026-11-11 | s1 | F-011 in_progress to partial by agent |
+| 2026-11-11 | s1 | F-012 in_progress to partial by agent |
+| 2026-11-11 | s1 | F-013 in_progress to partial by agent |
+| 2026-11-11 | s1 | F-014 in_progress to partial by agent |
+| 2026-11-11 | s1 | F-039 note added by agent: T5 fixed one of the three lines: npm test:coverage is now npm run test:coverage (be2cb94d7). |
+| 2026-11-11 | s1 | theme T3 branch_open to pr_open: branch agentic-readiness/s1-secrets-env, PR #245 |
+| 2026-11-11 | s1 | theme T4 branch_open to pr_open: branch agentic-readiness/s1-ci-hooks, PR #247 |

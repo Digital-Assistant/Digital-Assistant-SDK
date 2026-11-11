@@ -175,6 +175,38 @@
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
+    },
+    {
+      "key": "tests.coverage_gate",
+      "value": "check",
+      "reason": "owner: check and CI",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "tests.coverage_metrics",
+      "value": "lines",
+      "reason": "owner: lines only",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "baseline.audit_dev",
+      "value": "record-only",
+      "reason": "owner: record only; prod gate stays blocking",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "baseline.form",
+      "value": "eslint --max-warnings budget + counts file docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json",
+      "reason": "ESLint 8 has no suppressions file",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
     }
   ],
   "themes": [
@@ -199,27 +231,27 @@
     {
       "id": "T3",
       "title": "Secrets and env",
-      "status": "branch_open",
+      "status": "pr_open",
       "phase": "s1",
       "branch": "agentic-readiness/s1-secrets-env",
-      "pr": null,
+      "pr": 245,
       "merged_sha": null
     },
     {
       "id": "T4",
       "title": "CI parity, hooks, commits",
-      "status": "branch_open",
+      "status": "pr_open",
       "phase": "s1",
       "branch": "agentic-readiness/s1-ci-hooks",
-      "pr": null,
+      "pr": 247,
       "merged_sha": null
     },
     {
       "id": "T5",
       "title": "Tests and baselines",
-      "status": "not_started",
-      "phase": null,
-      "branch": null,
+      "status": "branch_open",
+      "phase": "s1",
+      "branch": "agentic-readiness/s1-baselines",
       "pr": null,
       "merged_sha": null
     },
@@ -358,13 +390,25 @@
       "severity": "DEGRADER",
       "theme": "T5",
       "statement": "An agent cannot diff today's findings against an accepted baseline because quality tooling is configured but no baseline or suppression artifact is committed.",
-      "status": "queued",
+      "status": "partial",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
-      "debt": [],
+      "commits": [
+        "9669eeda0",
+        "be2cb94d7"
+      ],
+      "verification": {
+        "command": "engine BASE-01; read the counts file",
+        "result": "BASE-01 PASS; counts file names each tool, count, command and guard"
+      },
+      "debt": [
+        {
+          "what": "ESLint warnings (src, test, scripts)",
+          "count": 686,
+          "baseline_file": "docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json"
+        }
+      ],
       "notes": ""
     },
     {
@@ -373,13 +417,25 @@
       "severity": "DEGRADER",
       "theme": "T5",
       "statement": "An agent cannot state how many violations exist today because a counting surface exists but no numeric violation budget or count is committed.",
-      "status": "queued",
+      "status": "partial",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
-      "debt": [],
+      "commits": [
+        "9669eeda0",
+        "be2cb94d7"
+      ],
+      "verification": {
+        "command": "npm run lint (full tree)",
+        "result": "0 errors, 686 warnings = budget; BASE-02 PASS"
+      },
+      "debt": [
+        {
+          "what": "ESLint warnings (src, test, scripts)",
+          "count": 686,
+          "baseline_file": "docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json"
+        }
+      ],
       "notes": ""
     },
     {
@@ -388,13 +444,24 @@
       "severity": "DEGRADER",
       "theme": "T5",
       "statement": "An agent cannot stop the violation count from growing because no baseline, budget or comparison step exists, so the count is not guarded.",
-      "status": "queued",
+      "status": "partial",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
-      "debt": [],
+      "commits": [
+        "9669eeda0"
+      ],
+      "verification": {
+        "command": "add one any-typed export, run npm run format:check",
+        "result": "687 warnings: lint and format:check exit 1; real tree exits 0; BASE-03 PASS"
+      },
+      "debt": [
+        {
+          "what": "ESLint warnings (src, test, scripts)",
+          "count": 686,
+          "baseline_file": "docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json"
+        }
+      ],
       "notes": ""
     },
     {
@@ -403,13 +470,25 @@
       "severity": "DEGRADER",
       "theme": "T5",
       "statement": "An agent cannot know when coverage drops below an agreed floor because no coverage threshold is configured in the test runner.",
-      "status": "queued",
+      "status": "partial",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
-      "debt": [],
+      "commits": [
+        "6745788f8",
+        "91fb031ff"
+      ],
+      "verification": {
+        "command": "npx jest --coverage at floor 80 and at 81",
+        "result": "80.09% passes at 80, fails at 81; check and CI run test:coverage; BASE-04 PASS"
+      },
+      "debt": [
+        {
+          "what": "coverage floor (line %)",
+          "count": 80,
+          "baseline_file": "jest.config.ts"
+        }
+      ],
       "notes": ""
     },
     {
@@ -733,7 +812,7 @@
       "commits": [],
       "verification": null,
       "debt": [],
-      "notes": ""
+      "notes": "T5 fixed one of the three lines: npm test:coverage is now npm run test:coverage (be2cb94d7)."
     },
     {
       "finding": "F-040",
@@ -1063,6 +1142,86 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "F-019 note added by agent: After the reword: f0bb57ff5 is 473c34f4c, a5b354683 is 7067f9fc1, 31f6f047e is 881c0acf4."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference tests.coverage_gate set to check: owner: check and CI"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference tests.coverage_metrics set to lines: owner: lines only"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference baseline.audit_dev set to record-only: owner: record only; prod gate stays blocking"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference baseline.form set to eslint --max-warnings budget + counts file docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json: ESLint 8 has no suppressions file"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T5 not_started to branch_open: branch agentic-readiness/s1-baselines"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-011 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-012 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-013 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-014 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-011 in_progress to partial by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-012 in_progress to partial by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-013 in_progress to partial by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-014 in_progress to partial by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-039 note added by agent: T5 fixed one of the three lines: npm test:coverage is now npm run test:coverage (be2cb94d7)."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T3 branch_open to pr_open: branch agentic-readiness/s1-secrets-env, PR #245"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T4 branch_open to pr_open: branch agentic-readiness/s1-ci-hooks, PR #247"
     }
   ]
 }

@@ -32,13 +32,13 @@ Run from repo root.
 - `npm start` — watch build (`--env build=local --mode=development`)
 - `npm test` — Jest (jsdom)
 - `npm run test:watch` — Jest watch mode
-- `npm test:coverage` — Jest with coverage (text, lcov, json, html)
-- `npm run lint` — ESLint over `src/`, `test/` and `scripts/` (`.ts`, `.js`, `.mjs`)
+- `npm run test:coverage` — Jest with coverage (text, lcov, json, html); fails below the coverage floor (80% lines)
+- `npm run lint` — ESLint over `src/`, `test/` and `scripts/` (`.ts`, `.js`, `.mjs`); fails above 686 warnings (`--max-warnings`)
 - `npm run lint:workflows` — actionlint and zizmor (offline) over `.github/`; needs both binaries (versions in `ci.yml` `env`)
 - `npm run format` — Prettier write over the whole tree, minus `.prettierignore` (Markdown and tool-written files)
-- `npm run format:check` — Prettier check (verify only, no writes)
+- `npm run format:check` — Prettier check (verify only, no writes), then `npm run lint`
 - `npm run typecheck` — `tsc --noEmit`
-- `npm run check` — `format:check` → `typecheck` → `test` (full local gate)
+- `npm run check` — `format:check` (Prettier and lint) → `typecheck` → `test:coverage` (full local gate)
 - `npm run security` — `npm audit` gate: production deps at `high` + `critical` anywhere (dev-only toolchain advisories are reported but non-blocking)
 - `npm run clean` — remove `dist/`
 - `npm run env:generate` — generate `environments/<BUILD_ENV>.env` from env vars (`scripts/generate-env.mjs`, default `local`; `--force` to overwrite)
@@ -174,11 +174,15 @@ fix what the hook reports.
 | `npm run lint:workflows` | CI / `workflow-lint` | **Blocking** |
 | `commitlint` over the pushed commits | CI / `commits` | **Blocking** |
 
-**Known lint debt:** the ESLint config downgrades `no-explicit-any`,
-`no-unused-vars`, `ban-ts-comment`, `ban-types`, `no-var-requires`, `no-var`, and
-`prefer-const` to warnings. These surface 600+ warnings across the legacy codebase;
-formatting (`prettier/prettier`) remains an error. Gradual cleanup is a tracked
-follow-up.
+**Quality baseline (no new violations):** today's debt is counted in
+`docs/agentic-readiness/digital-assistant-sdk-quality-baseline.json`. The ESLint config
+downgrades `no-explicit-any`, `no-unused-vars`, `ban-ts-comment`, `ban-types`,
+`no-var-requires`, `no-var` and `prefer-const` to warnings: 686 of them, capped by
+`--max-warnings 686` in `lint`, which `format:check` runs. The coverage floor is 80% line
+coverage (`coverageThreshold` in `jest.config.ts`), enforced by `test:coverage` in `check` and
+CI. A baseline only goes down and a coverage floor only goes up; raising either needs the
+owner. When you fix warnings or raise coverage, lower the budget or raise the floor in the
+same change.
 
 **Known audit debt:** `npm audit` reports dev-only toolchain advisories (chiefly
 `braces`/`micromatch`, which currently have no patched release). The `security` gate
