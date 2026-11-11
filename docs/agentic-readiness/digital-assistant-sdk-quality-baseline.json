@@ -1,0 +1,48 @@
+{
+  "description": "Quality baseline: today's debt counts. A count only goes down and the coverage floor only goes up; raising a count or lowering the floor needs the owner. The guard named in each entry enforces it.",
+  "measured": "2026-11-11",
+  "counts": [
+    {
+      "tool": "eslint",
+      "what": "warnings over src/, test/ and scripts/ (errors: 0)",
+      "count": 686,
+      "command": "npm run lint",
+      "guard": "--max-warnings 686 in the lint script; format:check runs lint"
+    },
+    {
+      "tool": "prettier",
+      "what": "files not formatted",
+      "count": 0,
+      "command": "prettier --check .",
+      "guard": "format:check"
+    },
+    {
+      "tool": "tsc",
+      "what": "type errors",
+      "count": 0,
+      "command": "npm run typecheck",
+      "guard": "check"
+    },
+    {
+      "tool": "jest",
+      "what": "skip, todo and xit markers",
+      "count": 0,
+      "command": "git grep -E '\\b(it|test|describe)\\.(skip|todo|failing)\\b|\\bx(it|describe|test)\\(' -- src test",
+      "guard": "review: a new marker needs a one-line reason"
+    },
+    {
+      "tool": "npm audit",
+      "what": "dev-only advisories (low 2, moderate 15); production 0",
+      "count": 17,
+      "command": "npm audit --json",
+      "guard": "record only (owner choice); npm run security blocks production high and any critical"
+    }
+  ],
+  "coverage_floor": {
+    "metric": "lines",
+    "floor": 80,
+    "measured": 80.09,
+    "over": "every source file (src/**/*.ts, no tests or .d.ts)",
+    "guard": "coverageThreshold in jest.config.ts; check and CI run test:coverage"
+  }
+}
