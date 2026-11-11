@@ -247,6 +247,46 @@
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
+    },
+    {
+      "key": "docs.adr_review",
+      "value": "ADRs 0001-0004 on dev; owner edits or deletes them at the end of the run",
+      "reason": "owner: leave them on dev",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "agents_md.stubs",
+      "value": "CLAUDE.md pointer only",
+      "reason": "owner: CLAUDE.md",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "agents_md.reader",
+      "value": "a new engineer who does not know this SDK or its terms",
+      "reason": "owner's wording",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "docs.language",
+      "value": "en",
+      "reason": "default, owner confirmed",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "agents_md.comm_long_form",
+      "value": "no",
+      "reason": "style guide holds the docs rules",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
     }
   ],
   "themes": [
@@ -298,19 +338,19 @@
     {
       "id": "T6",
       "title": "Docs and navigation",
-      "status": "pr_open",
+      "status": "merged",
       "phase": "s1",
       "branch": "agentic-readiness/s1-docs",
       "pr": 250,
-      "merged_sha": null
+      "merged_sha": "bb3cef79242f"
     },
     {
       "id": "T7",
       "title": "AGENTS.md and governance",
-      "status": "not_started",
-      "phase": null,
-      "branch": null,
-      "pr": null,
+      "status": "pr_open",
+      "phase": "s1",
+      "branch": "agentic-readiness/s1-agents-md",
+      "pr": 251,
       "merged_sha": null
     },
     {
@@ -330,12 +370,17 @@
       "severity": "BLOCKER",
       "theme": "T7",
       "statement": "An agent cannot rely on the deny list to keep test directories out of an agent's reach because the prohibitions section of AGENTS.md does not name test/.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "aa96c133e"
+      ],
+      "verification": {
+        "command": "engine CON-02, AGT-07, CON-01",
+        "result": "CON-02 PASS: src/**/__tests__/ and test/ named; AGT-07 and CON-01 PASS"
+      },
       "debt": [],
       "notes": ""
     },
@@ -400,12 +445,15 @@
       "severity": "DEGRADER",
       "theme": "T7",
       "statement": "An agent cannot know where permanent and scratch documentation live because AGENTS.md does not name docs/STYLE_GUIDE.md.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
       "commits": [],
-      "verification": null,
+      "verification": {
+        "command": "engine AGT-03",
+        "result": "AGT-03 PASS since T6 (drift): docs/, docs/STYLE_GUIDE.md and artefacts/ named in AGENTS.md"
+      },
       "debt": [],
       "notes": ""
     },
@@ -415,12 +463,17 @@
       "severity": "DEGRADER",
       "theme": "T7",
       "statement": "An agent cannot keep code and its documentation in step because no definition-of-done sentence ties a documentation trigger to the same change set.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "2a29a145c"
+      ],
+      "verification": {
+        "command": "engine AGT-04; grep 'same change set' AGENTS.md",
+        "result": "AGT-04 PASS"
+      },
       "debt": [],
       "notes": ""
     },
@@ -620,12 +673,17 @@
       "severity": "COSMETIC",
       "theme": "T7",
       "statement": "An agent cannot assume every harness on the team sees the project rules because 20 of 28 known harnesses reach an instruction file; Aider, Amazon Q Developer, Anthropic Claude Code, Continue, Google Gemini CLI, Qwen Code, Replit Agent, Void reach nothing.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "795a41177"
+      ],
+      "verification": {
+        "command": "engine AGT-08; cat CLAUDE.md",
+        "result": "CLAUDE.md is the one-line @AGENTS.md import; reach line true (21/28). Engine reads FAIL: it cannot tell an import stub from a shadowing file (framework issue #26, engine limit)"
+      },
       "debt": [],
       "notes": ""
     },
@@ -635,12 +693,17 @@
       "severity": "COSMETIC",
       "theme": "T7",
       "statement": "An agent cannot report to people or ask them for a decision in a form they expect because AGENTS.md has no section on writing for people and names no communication rules file.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "edea34bf0"
+      ],
+      "verification": {
+        "command": "engine AGT-12",
+        "result": "AGT-12 PASS: section names the reader, reports and decisions"
+      },
       "debt": [],
       "notes": ""
     },
@@ -662,7 +725,7 @@
         "result": "DOC-04 PASS: 4 ADRs plus template indexed; ADR policy named in AGENTS.md"
       },
       "debt": [],
-      "notes": ""
+      "notes": "ADRs 0001-0004 merged with #250; owner reviews them at the end (docs.adr_review)."
     },
     {
       "finding": "F-027",
@@ -866,12 +929,17 @@
       "severity": "DEGRADER",
       "theme": "T7",
       "statement": "An agent cannot trust every specific line of AGENTS.md because three of them name a command, a file or a state that does not resolve (npm test:coverage, __mocks__/sweetAlert2.ts, a root .env).",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "4df20bc29"
+      ],
+      "verification": {
+        "command": "test -f __mocks__/sweetalert2.ts; git ls-files .env; npm run test:coverage exists",
+        "result": "all three lines now resolve (test:coverage fixed in T5)"
+      },
       "debt": [],
       "notes": "T5 fixed one of the three lines: npm test:coverage is now npm run test:coverage (be2cb94d7)."
     },
@@ -1397,6 +1465,111 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "theme T6 branch_open to pr_open: branch agentic-readiness/s1-docs, PR #250"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T6 pr_open to merged: branch agentic-readiness/s1-docs, PR #250, merged as bb3cef79242f"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference docs.adr_review set to ADRs 0001-0004 on dev; owner edits or deletes them at the end of the run: owner: leave them on dev"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-026 note added by agent: ADRs 0001-0004 merged with #250; owner reviews them at the end (docs.adr_review)."
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T7 not_started to branch_open: branch agentic-readiness/s1-agents-md"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference agents_md.stubs set to CLAUDE.md pointer only: owner: CLAUDE.md"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference agents_md.reader set to a new engineer who does not know this SDK or its terms: owner's wording"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference docs.language set to en: default, owner confirmed"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference agents_md.comm_long_form set to no: style guide holds the docs rules"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-001 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-009 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-010 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-024 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-025 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-039 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-001 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-009 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-010 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-024 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-025 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-039 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T7 branch_open to pr_open: branch agentic-readiness/s1-agents-md, PR #251"
     }
   ]
 }

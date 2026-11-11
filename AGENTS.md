@@ -1,5 +1,7 @@
 # AGENTS.md
 
+This file is read by Claude Code (through `CLAUDE.md`, which imports it) and by every tool that reads `AGENTS.md`: Augment Code, Bolt (StackBlitz), Charm Crush, Cline, Cursor, Devin, Firebase Studio, GitHub Copilot and VS Code, Goose, JetBrains Junie, Jules, Kiro, OpenAI Codex CLI, opencode, Roo Code, Sourcegraph Amp, Trae, Warp, Windsurf and Zed. Keep the rules here, not in `CLAUDE.md`.
+
 ## 1. Project Overview
 
 `@udan/digital-assistant-sdk` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
@@ -17,7 +19,6 @@ This repo is indexed with codebase-memory-mcp (project: `home-kc-Projects-UDAN-D
 5. `get_architecture` — high-level orientation (packages, hotspots, clusters)
 
 Coverage notes (best-effort, from `index_status`):
-- `.env` is `parse_partial` (lines 1–4 may be missing from graph) — grep it for truth.
 - `dist/`, `environments/`, `node_modules/`, `.git` are excluded by design — not indexed.
 - Fall back to grep for string literals, error messages, config values, and non-code files.
 - Absence from index warnings is NOT a completeness guarantee; grep inside flagged ranges when uncertain.
@@ -97,11 +98,12 @@ Known hotspots (high fan-in — treat changes here as risky): `store/slices/edit
 
 ## 8. Security
 
+- Never edit, skip or delete a test in `src/**/__tests__/` or the shared setup in `test/` to make a failing test pass; change a test only together with the code change that needs it. This covers every `*.test.ts` and `*.spec.ts` file.
 - Never log, print, or commit secrets: `.env`, `local.env`, API keys, access tokens, session keys, or Keycloak credentials.
 - All `environments/*.env` files and the root `.env` are gitignored; `environments/local.env.example` is the only committed env file and must contain no real values.
 - **Rotate credentials that were previously committed** (the old `environments/local.env` is in git history). Untracking a file does not remove it from history, so exposed values must be rotated.
 - **Build-time leakage**: `process.env.*` values referenced in `src/` are inlined into the browser bundle by dotenv-webpack. Treat every value in `environments/*.env` (and every CI-provided value) as public. The env schema holds public keys only; secret keys (`keycloakClientSecret`, `profanityKey`, `googleTranslateApiKey`, `googleAnalyticsSecretKey`) are not referenced in `src/`, not mapped in workflows, and `check-build-env.mjs` fails the build if one has a value. `CustomConfig.clientSecret` is optional and deprecated: the token request body carries it only when set, with one console warning. Never put a value in a build env or an example.
-- `.env` exists in the repo root — do not add it to `package.json` `files` or the webpack bundle. Verify no secrets are bundled into `dist/`.
+- A root `.env`, if you create one, is git-ignored: never add it to `package.json` `files` or the webpack bundle. Verify no secrets are bundled into `dist/`.
 - Auth flows (Keycloak, `jwt-decode`, `AuthManager`) carry bearer tokens through `apiClient` interceptors. Interceptor logic (401 handling, logout) is security-sensitive — changes require review.
 - Sanitize user-generated content: recording payloads and step metadata are validated (profanity check via `profanityCheck`) before persistence. Preserve that boundary.
 
@@ -113,10 +115,20 @@ Standard change loop:
 2. Implement the change following section 6 conventions.
 3. Run `npm run check` (format + typecheck + tests); fix any regressions.
 4. Add/update colocated unit tests; run `npm test` (targeted: `npm test -- path/to/__tests__`).
+
+   Run a single test or a single file:
+
+   ```bash
+   npx jest -t '<test name>'                            # one test by name
+   npx jest src/config/__tests__/environment.test.ts    # one test file
+   ```
+
 5. Run `npm run build` to confirm the bundle compiles.
 6. Public API changes ship through the release pipeline — `dist/` is built in CI and never committed (see § 7).
 
-Before you change tooling, CI, docs or this file, read `docs/agentic-readiness/digital-assistant-sdk-agentic-readiness-STATE.md`; skipped findings in it are final.
+Definition of done: when a change alters a public interface, observable behaviour, the architecture or a decision, update the affected documentation (`docs/`, `USAGE.md`, this file) and the decision records in `docs/adr/` in the same change set.
+
+The agentic-readiness state is `docs/agentic-readiness/digital-assistant-sdk-agentic-readiness-STATE.md`: check it when you change tooling, CI, docs or this file. Skipped findings in it are final.
 
 Docs: follow `docs/STYLE_GUIDE.md`; decisions of record are in `docs/adr/` (rules: `docs/ADR_POLICY.md`); the architecture map is `docs/architecture/overview.md`; the index is `docs/README.md`.
 
@@ -125,7 +137,7 @@ Docs: follow `docs/STYLE_GUIDE.md`; decisions of record are in `docs/adr/` (rule
 - **Discovery**: `testMatch` = `**/src/**/__tests__/**/*.[jt]s?(x)` and `**/src/**/?(*.)+(spec|test).[jt]s?(x)`. Tests live next to the code they cover, inside `__tests__/`.
 - **Environment**: `testEnvironment: 'jsdom'`. DOM APIs (`window`, `document`, `Element`) are available but minimal — polyfill in tests when needed.
 - **Setup**: `test/setup.ts` runs before all suites. It globally mocks `winston` (prevents ESM/CJS parsing errors + keeps output clean) and `parse-domain` (ESM-only), seeds `window.UDAGlobalConfig`/`udaSpecialNodes`, and polyfills `Element.prototype.scrollTo`. Do not remove these mocks — they are load-bearing.
-- **External mocks**: `__mocks__/sweetAlert2.ts` stubs browser alert UI for tests.
+- **External mocks**: `__mocks__/sweetalert2.ts` stubs browser alert UI for tests.
 - **Mocking libraries**: use `axios-mock-adapter` for `apiClient`/axios HTTP, `redux-mock-store` for testing thunks and slice flows without a real store.
 - **Pattern**: one `describe` block per unit, focused `it` cases with arrange/act/assert; export-only functions (RecordService, StepEditingService) are tested via their public names — use the aliased exports where they differ from action names.
 - **Coverage**: default off; run `npm run test:coverage` for reports (text/lcov/json/html).
@@ -200,3 +212,13 @@ same command with the previous version).
 Release Please and the back-merge job open PRs with a GitHub App token
 (`vars.RELEASE_APP_ID`, `secrets.RELEASE_APP_PRIVATE_KEY`) so CI runs on them. Merge method into `dev` is squash (ruleset `Protect dev branch`, since 2026-11-02; PR title becomes the commit), `dev` to `main` is a merge commit; default branch is `dev` (since 2026-11-11). Dependabot is security-only for npm and GitHub Actions (lessons in `RELEASE_PROCESS.md`, "Merge method and Dependabot"). **See `RELEASE_PROCESS.md` for the full step-by-step
 release lifecycle, ruleset setup, branch hygiene, and the security/rotation notes.**
+
+## 12. How to write for people
+
+These rules apply to chat replies, plans, reports, commit messages, pull request descriptions and docs. The full docs rules are in `docs/STYLE_GUIDE.md`.
+
+- **The reader:** write for a new engineer who does not know this SDK or its terms.
+- **Bottom line first:** put the answer, the result or the decision you need in the first two lines.
+- **Plain language:** short sentences (at most 25 words), active voice, one term per meaning.
+- **Reports:** a status report says what is done, what is not done, what is blocked and what comes next. A done report and a pull request description say what changed, how it was checked and what was not done.
+- **Decisions:** give the context, two to four options with pros and cons, your recommendation and the default.
