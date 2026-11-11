@@ -77,6 +77,8 @@
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-typescript": "^7.24.0",
     "@babel/runtime-corejs3": "^7.24.0",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@popperjs/core": "^2.11.8",
     "@types/axios": "^0.9.36",
     "@types/detect-browser": "^3.0.0",
