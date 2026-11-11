@@ -207,6 +207,46 @@
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
+    },
+    {
+      "key": "docs.adrs",
+      "value": "public build-time config; branch and release model; authentication; dist built in CI only",
+      "reason": "owner: all four",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "docs.prose_check",
+      "value": "skip",
+      "reason": "owner: skip",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "docs.ci_gate",
+      "value": "advisory",
+      "reason": "owner: advisory, not in CI Gate",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "nav.doc_comments",
+      "value": "record-only",
+      "reason": "owner: record only",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
+    },
+    {
+      "key": "docs.lint_ratchet",
+      "value": "15",
+      "reason": "markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1",
+      "by": "owner",
+      "date": "2026-11-11",
+      "phase": "s1"
     }
   ],
   "themes": [
@@ -231,36 +271,36 @@
     {
       "id": "T3",
       "title": "Secrets and env",
-      "status": "pr_open",
+      "status": "merged",
       "phase": "s1",
       "branch": "agentic-readiness/s1-secrets-env",
       "pr": 245,
-      "merged_sha": null
+      "merged_sha": "8b9c9f9f3359"
     },
     {
       "id": "T4",
       "title": "CI parity, hooks, commits",
-      "status": "pr_open",
+      "status": "merged",
       "phase": "s1",
       "branch": "agentic-readiness/s1-ci-hooks",
       "pr": 247,
-      "merged_sha": null
+      "merged_sha": "5fd22b39918b"
     },
     {
       "id": "T5",
       "title": "Tests and baselines",
-      "status": "branch_open",
+      "status": "merged",
       "phase": "s1",
       "branch": "agentic-readiness/s1-baselines",
-      "pr": null,
-      "merged_sha": null
+      "pr": 249,
+      "merged_sha": "5378f0266cfa"
     },
     {
       "id": "T6",
       "title": "Docs and navigation",
-      "status": "not_started",
-      "phase": null,
-      "branch": null,
+      "status": "branch_open",
+      "phase": "s1",
+      "branch": "agentic-readiness/s1-docs",
       "pr": null,
       "merged_sha": null
     },
@@ -519,12 +559,18 @@
       "severity": "DEGRADER",
       "theme": "T6",
       "statement": "An agent cannot find the canonical authoring rules for documentation because docs/STYLE_GUIDE.md does not exist.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "e0d712383",
+        "bd6f3cc02"
+      ],
+      "verification": {
+        "command": "engine DOC-02; grep STYLE_GUIDE.md AGENTS.md",
+        "result": "DOC-02 PASS: docs/STYLE_GUIDE.md present and named in AGENTS.md"
+      },
       "debt": [],
       "notes": ""
     },
@@ -604,12 +650,17 @@
       "severity": "COSMETIC",
       "theme": "T6",
       "statement": "An agent cannot find the decisions of record because no ADR directory (docs/architecture/adrs/ or docs/adr/) exists.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "5d7bd7227"
+      ],
+      "verification": {
+        "command": "engine DOC-04; read docs/adr/README.md",
+        "result": "DOC-04 PASS: 4 ADRs plus template indexed; ADR policy named in AGENTS.md"
+      },
       "debt": [],
       "notes": ""
     },
@@ -619,12 +670,17 @@
       "severity": "COSMETIC",
       "theme": "T6",
       "statement": "An agent cannot rely on the documentation reading clearly to a new engineer because 13.5% of sentences are over 25 words (pass: at most 10%).",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "e0d712383"
+      ],
+      "verification": {
+        "command": "engine DOC-05",
+        "result": "DOC-05 PASS: 25/386 sentences over 25 words (6.5%), none on pages T6 wrote; 0 vague words"
+      },
       "debt": [],
       "notes": ""
     },
@@ -769,12 +825,17 @@
       "severity": "COSMETIC",
       "theme": "T6",
       "statement": "An agent cannot orient itself from a map instead of exploring blindly because no docs/architecture/, ADR directory or diagram exists.",
-      "status": "queued",
+      "status": "done",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
-      "commits": [],
-      "verification": null,
+      "commits": [
+        "c3ae6d906"
+      ],
+      "verification": {
+        "command": "engine NAV-04; mermaid-cli 12.2.0 render",
+        "result": "NAV-04 PASS; the overview's sequence diagram renders"
+      },
       "debt": [],
       "notes": ""
     },
@@ -820,13 +881,22 @@
       "severity": "COSMETIC",
       "theme": "T6",
       "statement": "An agent cannot read intent from the source of every exported symbol because 89 of 266 exported TypeScript declarations (33%) have no doc comment.",
-      "status": "queued",
+      "status": "partial",
       "by": "agent",
       "date": "2026-11-11",
       "reason": null,
       "commits": [],
-      "verification": null,
-      "debt": [],
+      "verification": {
+        "command": "engine NAV-05",
+        "result": "NAV-05 PARTIAL 177/266 (67%); recorded only, owner choice"
+      },
+      "debt": [
+        {
+          "what": "exported TypeScript declarations without a doc comment",
+          "count": 89,
+          "baseline_file": null
+        }
+      ],
       "notes": ""
     }
   ],
@@ -1222,6 +1292,106 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "theme T4 branch_open to pr_open: branch agentic-readiness/s1-ci-hooks, PR #247"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T3 pr_open to merged: branch agentic-readiness/s1-secrets-env, PR #245, merged as 8b9c9f9f3359"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T4 pr_open to merged: branch agentic-readiness/s1-ci-hooks, PR #247, merged as 5fd22b39918b"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T5 branch_open to pr_open: branch agentic-readiness/s1-baselines, PR #249"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T5 pr_open to merged: branch agentic-readiness/s1-baselines, PR #249, merged as 5378f0266cfa"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference docs.adrs set to public build-time config; branch and release model; authentication; dist built in CI only: owner: all four"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference docs.prose_check set to skip: owner: skip"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference docs.ci_gate set to advisory: owner: advisory, not in CI Gate"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference nav.doc_comments set to record-only: owner: record only"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T6 not_started to branch_open: branch agentic-readiness/s1-docs"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-020 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-026 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-027 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-037 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-040 queued to in_progress by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-020 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-026 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-027 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-037 in_progress to done by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "F-040 in_progress to partial by agent"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference docs.lint_ratchet set to 15: markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1"
     }
   ]
 }
