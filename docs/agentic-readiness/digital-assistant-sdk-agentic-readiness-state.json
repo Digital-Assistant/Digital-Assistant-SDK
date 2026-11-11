@@ -66,8 +66,8 @@
     },
     {
       "key": "tools.choice",
-      "value": "ask-per-theme",
-      "reason": "owner: 6, ask per theme",
+      "value": "recommended",
+      "reason": "owner: install the linters and tools you require, as recommended",
       "by": "owner",
       "date": "2026-11-11",
       "phase": "s1"
@@ -722,6 +722,11 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "preference extra.lint-scope set to format, format:check and lint also cover test/ and scripts/; new debt baselined in T5: owner: extra b"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "preference tools.choice changed from ask-per-theme to recommended: owner: install the linters and tools you require, as recommended"
     }
   ]
 }

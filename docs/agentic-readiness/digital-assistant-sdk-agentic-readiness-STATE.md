@@ -39,7 +39,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | `format.mass_reformat` | yes | owner: 3b; a reformat is its own PR | owner | 2026-11-11 | s1 |
 | `layout.command_runner` | root | owner: 4a, npm scripts at the root | owner | 2026-11-11 | s1 |
 | `tests.stack_dependent` | no | owner: 5a, Jest on jsdom | owner | 2026-11-11 | s1 |
-| `tools.choice` | ask-per-theme | owner: 6, ask per theme | owner | 2026-11-11 | s1 |
+| `tools.choice` | recommended | owner: install the linters and tools you require, as recommended | owner | 2026-11-11 | s1 |
 
 ## Themes
 
@@ -164,3 +164,4 @@ None recorded.
 | 2026-11-11 | s1 | preference tools.choice set to ask-per-theme: owner: 6, ask per theme |
 | 2026-11-11 | s1 | preference extra.reformat set to one Prettier reformat of the whole tree, its own PR before T4: owner: extra a |
 | 2026-11-11 | s1 | preference extra.lint-scope set to format, format:check and lint also cover test/ and scripts/; new debt baselined in T5: owner: extra b |
+| 2026-11-11 | s1 | preference tools.choice changed from ask-per-theme to recommended: owner: install the linters and tools you require, as recommended |
