@@ -56,7 +56,7 @@ Entry point `src/index.ts` bootstraps everything and exposes the public surface:
 |---|---|
 | `src/services/` | API layer + business logic: `apiClient` (axios + Keycloak interceptors), `hostAuthToken` (host-provided bearer: `setAuthToken`/`clearAuthToken`/`setAuthTokenRenewer`), `RecordService`, `SearchService`, `StepEditingService`, `AuthManager`, `TranslateService`, `ErrorLoggerService`, `trackingService`, `userService`, `UserVote` |
 | `src/store/` | Redux store + slices (`flow`, `recording`, `editableStepForm`, `editing`, `user`, `validation`, `notification`) + selectors. Single exported `store` instance |
-| `src/util/` | Framework-agnostic helpers. Core DOM-matching engine under `util/node/` (`checkNode`, `searchNodes`, `isClickableNode`, `getClickedInputLabels`, `events`, `getNodeInfo`, …); `util/browser/`, `util/screen/`, `util/storage.ts`, `util/translate/` (i18n), `util/playback/` (PlaybackService), `util/recording/`, `util/validation/` |
+| `src/util/` | Framework-agnostic helpers. Core DOM-matching engine under `util/node/` (`checkNode`, `searchNodes`, `isClickableNode`, `getClickedInputLabels`, `events`, `getNodeInfo`, …); `util/browser/`, `util/screen/`, `util/storage/` (`StorageUtil`), `util/translate/` (i18n), `util/playback/` (PlaybackService), `util/recording/`, `util/validation/` |
 | `src/config/` | `AppConfig`, `CustomConfig`, `environment.ts` (runtime TEST/PROD resolver for the backend, token, LLM and Keycloak URLs), `constants.ts` (incl. `Environment`, `enableNodeTypeSelection`), `endpoints.ts` |
 | `src/models/` | `AuthData`, `CSPData`, `UDASessionData` |
 | `src/types/` | Global ambient type declarations (`domjson.d.ts`) |
