@@ -15,6 +15,8 @@
         "coverage/**",
         "artefacts/**",
         "CHANGELOG.md",
+        // A one-line pointer that imports AGENTS.md; it has no prose to lint.
+        "CLAUDE.md",
         "docs/agentic-readiness-report/**",
         "docs/agentic-readiness/*-STATE.md",
     ],
