@@ -76,7 +76,7 @@ A skipped finding is final until the owner unskips it, and every preference bind
 | T3 | Secrets and env | merged | 3 | 0 | s1 | `agentic-readiness/s1-secrets-env` | #245 | `8b9c9f9f3359` |
 | T4 | CI parity, hooks, commits | merged | 3 | 0 | s1 | `agentic-readiness/s1-ci-hooks` | #247 | `5fd22b39918b` |
 | T5 | Tests and baselines | merged | 4 | 4 | s1 | `agentic-readiness/s1-baselines` | #249 | `5378f0266cfa` |
-| T6 | Docs and navigation | branch_open | 5 | 1 | s1 | `agentic-readiness/s1-docs` | - | - |
+| T6 | Docs and navigation | pr_open | 5 | 1 | s1 | `agentic-readiness/s1-docs` | #250 | - |
 | T7 | AGENTS.md and governance | not_started | 6 | 6 | - | - | - | - |
 | T8 | Hygiene and index | not_started | 9 | 6 | - | - | - | - |
 
@@ -329,3 +329,4 @@ None.
 | 2026-11-11 | s1 | F-037 in_progress to done by agent |
 | 2026-11-11 | s1 | F-040 in_progress to partial by agent |
 | 2026-11-11 | s1 | preference docs.lint_ratchet set to 15: markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1 |
+| 2026-11-11 | s1 | theme T6 branch_open to pr_open: branch agentic-readiness/s1-docs, PR #250 |

@@ -298,10 +298,10 @@
     {
       "id": "T6",
       "title": "Docs and navigation",
-      "status": "branch_open",
+      "status": "pr_open",
       "phase": "s1",
       "branch": "agentic-readiness/s1-docs",
-      "pr": null,
+      "pr": 250,
       "merged_sha": null
     },
     {
@@ -1392,6 +1392,11 @@
       "date": "2026-11-11",
       "phase": "s1",
       "event": "preference docs.lint_ratchet set to 15: markdownlint baseline after T6, pages not gated: USAGE 11, AGENTS 3, RELEASE_PROCESS 1"
+    },
+    {
+      "date": "2026-11-11",
+      "phase": "s1",
+      "event": "theme T6 branch_open to pr_open: branch agentic-readiness/s1-docs, PR #250"
     }
   ]
 }
