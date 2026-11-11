@@ -1,5 +1,7 @@
 # AGENTS.md
 
+This file is read by Claude Code (through `CLAUDE.md`, which imports it) and by every tool that reads `AGENTS.md`: Augment Code, Bolt (StackBlitz), Charm Crush, Cline, Cursor, Devin, Firebase Studio, GitHub Copilot and VS Code, Goose, JetBrains Junie, Jules, Kiro, OpenAI Codex CLI, opencode, Roo Code, Sourcegraph Amp, Trae, Warp, Windsurf and Zed. Keep the rules here, not in `CLAUDE.md`.
+
 ## 1. Project Overview
 
 `@udan/digital-assistant-sdk` is a browser-embedded Digital Assistant (UDA) SDK. It is bundled as UMD/ESM/CJS via webpack and consumed by browser extensions and standalone host apps. In production it runs entirely client-side: it records and replays user click/hover sequences (simulating DOM events, matching clickable nodes), manages a Redux store for recording/flow/validation state, calls backend APIs through a Keycloak-authenticated HTTP client, and renders step tooltips with i18n.
